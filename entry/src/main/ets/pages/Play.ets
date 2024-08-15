@@ -97,7 +97,8 @@ export default struct Play {
       position: {
         elapsedTime: this.nowPlayedTime * 1000,
         updateTime: new Date().getTime(),
-      }
+      },
+      isFavorite: this.nowPlayingStar
     };
     this.session!.setAVPlaybackState(playbackState, (err) => {
       if (err) {
@@ -463,11 +464,21 @@ export default struct Play {
                 let starStatus = await unstar(this.nowPlayingSong!.id)
                 if (starStatus === true) {
                   this.nowPlayingStar = false
+                  if (this.isPlaying === true) {
+                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+                  } else {
+                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+                  }
                 }
               } else {
                 let starStatus = await star(this.nowPlayingSong!.id)
                 if (starStatus === true) {
                   this.nowPlayingStar = true
+                  if (this.isPlaying === true) {
+                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+                  } else {
+                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+                  }
                 }
               }
             })

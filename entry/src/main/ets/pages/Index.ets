@@ -23,7 +23,9 @@ import {
   getLyrics,
   getPlaylists,
   getStarred,
-  ping
+  ping,
+  star,
+  unstar
 } from '../utils/Api'
 import { Album, Artist, Playlist, Song, StructuredLyric, Line } from '../utils/Interface';
 import Albums from './Albums';
@@ -228,7 +230,8 @@ struct Index {
       position: {
         elapsedTime: this.nowPlayedTime * 1000,
         updateTime: new Date().getTime(),
-      }
+      },
+      isFavorite: this.nowPlayingStar
     };
     this.session!.setAVPlaybackState(playbackState, (err) => {
       if (err) {
@@ -294,8 +297,30 @@ struct Index {
         this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SINGLE
       }
     })
+    this.session!.on('toggleFavorite', async (assetId: string) => {
+      if (this.nowPlayingStar === true) {
+        let starStatus = await unstar(this.nowPlayingSong!.id)
+        if (starStatus === true) {
+          this.nowPlayingStar = false
+          if (this.isPlaying === true) {
+            await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+          } else {
+            await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+          }
+        }
+      } else {
+        let starStatus = await star(this.nowPlayingSong!.id)
+        if (starStatus === true) {
+          this.nowPlayingStar = true
+          if (this.isPlaying === true) {
+            await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+          } else {
+            await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+          }
+        }
+      }
+    });
     this.session!.off('setSpeed');
-    this.session!.off('toggleFavorite');
   }
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
@@ -479,6 +504,10 @@ struct Index {
           this.playlists = (await getPlaylists()).sort((a, b) => {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
+          let starred = await getStarred()
+          if (starred !== null) {
+            this.starredSongs = starred!.song!
+          }
           console.log("获取到艺术家", this.artists.length)
           console.log("获取到专辑", this.albums.length)
           console.log("获取到歌曲", this.songs.length)
@@ -901,9 +930,17 @@ struct Index {
                         this.songs.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
                       }
                     }
+                    this.playlists = (await getPlaylists()).sort((a, b) => {
+                      return Date.parse(b.changed) - Date.parse(a.changed);
+                    })
+                    let starred = await getStarred()
+                    if (starred !== null) {
+                      this.starredSongs = starred!.song!
+                    }
                     console.log("获取到艺术家", this.artists.length)
                     console.log("获取到专辑", this.albums.length)
                     console.log("获取到歌曲", this.songs.length)
+                    console.log("获取到歌单", this.playlists.length)
                   } else {
                     this.serverStatus = false
                     promptAction.showToast({
