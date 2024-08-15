@@ -1,7 +1,8 @@
-import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
 import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
+import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics } from '../utils/Api';
+import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -54,6 +55,7 @@ export default struct PlaylistDetail {
   @Consume auth: string
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
+  @Consume session: AVSessionManager.AVSession | null
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []

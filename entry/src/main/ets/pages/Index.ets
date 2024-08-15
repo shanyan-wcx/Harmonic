@@ -1,10 +1,19 @@
 import { curves, promptAction, window } from '@kit.ArkUI';
-import { common, ConfigurationConstant, Configuration, EnvironmentCallback } from '@kit.AbilityKit';
+import {
+  common,
+  ConfigurationConstant,
+  Configuration,
+  EnvironmentCallback,
+  wantAgent,
+  WantAgent
+} from '@kit.AbilityKit';
+import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import CryptoJS from '@ohos/crypto-js';
-import { getAlbum, getArtist, getArtistInfo, getIndexes, getLyrics, getPlaylists, ping } from '../utils/Api'
+import { getAlbum, getArtist, getArtistInfo, getCover, getIndexes, getLyrics, getPlaylists, ping } from '../utils/Api'
 import { Album, Artist, Playlist, Song, StructuredLyric, Line } from '../utils/Interface';
 import Albums from './Albums';
 import Artists from './Artists';
@@ -14,6 +23,7 @@ import Songs from './Songs';
 import Setting from './Setting';
 import About from './About';
 import Stats from './Stats';
+import { image } from '@kit.ImageKit';
 
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
@@ -42,7 +52,6 @@ struct Index {
   @Provide auth: string = `?u=${this.username}&t=${CryptoJS.MD5(this.password +
   this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
   @Provide getCoverUrl: string = '/getCoverArt'
-  @Provide coverSize: number = 1024
   @Provide nowPage: number = 0
   @Provide serverStatus: boolean = true
   @Provide nowPlayingSong: Song | null = null
@@ -64,11 +73,13 @@ struct Index {
   @Provide playlist: Playlist | null = null
   @Provide discs: Song[][] = []
   @Provide avPlayer: media.AVPlayer | null = null
+  @Provide session: AVSessionManager.AVSession | null = null
+  @State coverSize: number = 64
   @State controlButtonWidth: number = 24
-  @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
-  @StorageLink('playMode') playMode: number = 0
   @State themeIcon: Resource = $r('app.media.auto')
   @State sidebarIcon: Resource = $r('app.media.sidebar')
+  @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
+  @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   environmentCallback: EnvironmentCallback = {
     async onConfigurationUpdated(newConfig: Configuration) {
       let systemTheme: number | undefined = newConfig.colorMode
@@ -147,6 +158,134 @@ struct Index {
     }
   }
 
+  getPixelMap(cover: ArrayBuffer): PixelMap {
+    const imageSource: image.ImageSource = image.createImageSource(cover);
+    let pixelMap = imageSource.createPixelMapSync()
+    return pixelMap
+  }
+
+  async startContinuousTask() {
+    let wantAgentInfo: wantAgent.WantAgentInfo = {
+      wants: [
+        {
+          bundleName: "com.shanyan.harmonic",
+          abilityName: "com.shanyan.harmonic.EntryAbility"
+        }
+      ],
+      actionType: wantAgent.OperationType.START_ABILITY,
+      requestCode: 0,
+      wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
+    };
+    wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj: WantAgent) => {
+      backgroundTaskManager.startBackgroundRunning(context,
+        backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
+        console.info(`启动长时任务。`);
+      }).catch((err: BusinessError) => {
+        console.error(`启动长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
+      });
+    });
+  }
+
+  async stopContinuousTask() {
+    backgroundTaskManager.stopBackgroundRunning(context).then(() => {
+      console.info(`停止长时任务。`);
+    }).catch((err: BusinessError) => {
+      console.error(`停止长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
+    });
+  }
+
+  async setSessionInfo() {
+    let metadata: AVSessionManager.AVMetadata = {
+      assetId: '0',
+      title: this.nowPlayingSong!.title,
+      mediaImage: this.getPixelMap(await getCover(this.nowPlayingSong!.id)),
+      duration: this.nowPlayingSong!.duration * 1000,
+      artist: this.nowPlayingSong!.artist
+    };
+    this.session!.setAVMetadata(metadata).then(() => {
+      console.info(`SetAVMetadata successfully`);
+    }).catch((err: BusinessError) => {
+      console.error(`Failed to set AVMetadata. Code: ${err.code}, message: ${err.message}`);
+    });
+  }
+
+  async setPlaybackState(state: number) {
+    let playbackState: AVSessionManager.AVPlaybackState = {
+      state: state,
+      loopMode: this.playMode,
+      position: {
+        elapsedTime: this.nowPlayedTime * 1000,
+        updateTime: new Date().getTime(),
+      }
+    };
+    this.session!.setAVPlaybackState(playbackState, (err) => {
+      if (err) {
+        console.error(`设置Session状态失败，Code: ${err.code}, message: ${err.message}`);
+      } else {
+        console.info("设置Session状态", state);
+      }
+    });
+  }
+
+  async setSessionCallback() {
+    this.session!.on('play', () => {
+      this.isPlaying = true
+      this.avPlayer!.play()
+    });
+    this.session!.on('pause', () => {
+      this.isPlaying = false
+      this.avPlayer!.pause()
+    });
+    this.session!.on('stop', async () => {
+      this.startPlaying = false
+      this.isPlaying = false
+      this.showPlay = false
+      this.avPlayer!.stop()
+    });
+    this.session!.on('playPrevious', async () => {
+      await this.avPlayer!.reset();
+      if (this.nowPlayingIndex === 0) {
+        this.nowPlayingIndex = this.nowPlayingList.length - 1
+      } else {
+        this.nowPlayingIndex -= 1
+      }
+      this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+      this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+      if (this.nowPlayingLyrics !== null) {
+        this.groupLyrics()
+      }
+      this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+    });
+    this.session!.on('playNext', async () => {
+      await this.avPlayer!.reset();
+      if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+        this.nowPlayingIndex = 0
+      } else {
+        this.nowPlayingIndex += 1
+      }
+      this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+      this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+      if (this.nowPlayingLyrics !== null) {
+        this.groupLyrics()
+      }
+      this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+    });
+    this.session!.on('seek', (time: number) => {
+      this.avPlayer!.seek(time)
+    });
+    this.session!.on('setLoopMode', async (mode: AVSessionManager.LoopMode) => {
+      if (mode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
+        this.playMode = AVSessionManager.LoopMode.LOOP_MODE_LIST
+      } else if (mode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
+        this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE
+      } else if (mode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+        this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SINGLE
+      }
+    })
+    this.session!.off('setSpeed');
+    this.session!.off('toggleFavorite');
+  }
+
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('durationUpdate', (duration: number) => {
     })
@@ -169,8 +308,13 @@ struct Index {
         }
       }
     })
-    avPlayer.on('seekDone', (seekDoneTime: number) => {
+    avPlayer.on('seekDone', async (seekDoneTime: number) => {
       console.info(`播放器跳转成功，当前时间为 ${seekDoneTime}`);
+      if (this.isPlaying === true) {
+        await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+      } else {
+        await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+      }
     })
     avPlayer.on('speedDone', (speed: number) => {
       console.info(`播放器设置速度成功，当前速度为 ${speed}`);
@@ -183,6 +327,7 @@ struct Index {
       switch (state) {
         case 'idle':
           console.info('播放器重置。');
+          this.stopContinuousTask()
           break;
         case 'initialized':
           console.info('播放器初始化。');
@@ -191,6 +336,14 @@ struct Index {
           break;
         case 'prepared':
           console.info('播放器就绪。');
+          if (this.session === null) {
+            this.session = await AVSessionManager.createAVSession(context, 'AUDIO_PLAY', 'audio');
+            await this.setSessionCallback()
+            await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_INITIAL)
+          }
+          await this.session!.activate()
+          await this.setSessionInfo()
+          await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PREPARE)
           if (this.isPlaying === true) {
             this.avPlayer!.play()
           } else {
@@ -199,13 +352,17 @@ struct Index {
           break;
         case 'playing':
           console.info('播放器开始播放。');
+          await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+          this.startContinuousTask()
           break;
         case 'paused':
           console.info('播放器暂停。');
+          await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+          this.stopContinuousTask()
           break;
         case 'completed':
           console.info('播放完毕。');
-          if (this.playMode === 1) {
+          if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
             await avPlayer.reset();
             this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
           } else {
@@ -226,6 +383,9 @@ struct Index {
         case 'stopped':
           console.info('播放器停止。');
           this.sleepTime = 0
+          this.nowPlayedTime = 0
+          await this.session!.destroy()
+          this.session = null
           await avPlayer.reset();
           break;
         case 'released':

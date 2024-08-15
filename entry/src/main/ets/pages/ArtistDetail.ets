@@ -32,11 +32,12 @@ export default struct ArtistDetail {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume coverSize: number
   @Consume artist: Artist | null
   @Consume startPlaying: boolean
   @Consume album: Album
   @State albumPerRow: number = 3
+  @State profileSize: number = 256
+  @State coverSize: number = 256
 
   aboutToAppear() {
     this.displayWidth = px2vp(this.mainWindow.getWindowProperties().windowRect.width)
@@ -49,7 +50,7 @@ export default struct ArtistDetail {
     NavDestination() {
       Scroll() {
         Column() {
-          Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.coverSize}`)
+          Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`)
             .alt($rawfile('noprofile.jpg'))
             .objectFit(ImageFit.Fill)
             .width(120)

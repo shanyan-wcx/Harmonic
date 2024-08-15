@@ -1,7 +1,8 @@
-import { Song, StructuredLyric, Line } from '../utils/Interface'
 import { window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
+import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics } from '../utils/Api';
+import { Song, StructuredLyric, Line } from '../utils/Interface'
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -52,15 +53,14 @@ export default struct Play {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume coverSize: number
   @Consume nowPlayingSong: Song | null
   @Consume nowPlayingLyrics: StructuredLyric | null
   @Consume nowPlayingLyricsByGroup: Line[][]
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
-  @Consume lyricsIndex: number
-  @Consume @Watch('scrollLyrics') nowPlayedTime: number
+  @Consume @Watch('scrollLyrics') lyricsIndex: number
+  @Consume nowPlayedTime: number
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume showPlay: boolean
@@ -72,11 +72,13 @@ export default struct Play {
   @State showList: boolean = false
   @State showMore: boolean = false
   @State sleepValue: number = 0
+  @State coverSize: number = 512
   @State playModeIcon: Resource = $r('app.media.loop')
-  @StorageLink('playMode') @Watch('changePlayMode') playMode: number = 0
+  @StorageLink('playMode') @Watch('changePlayMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
   private controller: SwiperController = new SwiperController();
+  @Consume session: AVSessionManager.AVSession | null
 
   private getStatusBarHeight() {
     window.getLastWindow(getContext(this), (error, topWindow) => {
@@ -87,13 +89,43 @@ export default struct Play {
     });
   }
 
-  changePlayMode() {
-    if (this.playMode === 0) {
-      this.playModeIcon = $r('app.media.loop')
-    } else if (this.playMode === 1) {
+  async setPlaybackState(state: number) {
+    let playbackState: AVSessionManager.AVPlaybackState = {
+      state: state,
+      loopMode: this.playMode,
+      position: {
+        elapsedTime: this.nowPlayedTime * 1000,
+        updateTime: new Date().getTime(),
+      }
+    };
+    this.session!.setAVPlaybackState(playbackState, (err) => {
+      if (err) {
+        console.error(`设置Session状态失败，Code: ${err.code}, message: ${err.message}`);
+      } else {
+        console.info("设置Session状态", state);
+      }
+    });
+  }
+
+  async changePlayMode() {
+    if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
       this.playModeIcon = $r('app.media.single')
+      this.nowPlayingList = this.nowPlayingListOriginal
+      this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+    } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
+      this.playModeIcon = $r('app.media.loop')
+      this.nowPlayingList = this.nowPlayingListOriginal
+      this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
     } else {
       this.playModeIcon = $r('app.media.shuffle')
+      let songs = this.nowPlayingList.slice()
+      this.nowPlayingList = this.shuffleList(songs)
+      this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+    }
+    if (this.isPlaying === true) {
+      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+    } else {
+      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
     }
   }
 
@@ -136,7 +168,7 @@ export default struct Play {
 
   async aboutToAppear() {
     this.getStatusBarHeight()
-    this.changePlayMode()
+    await this.changePlayMode()
   }
 
   @Builder
@@ -207,17 +239,17 @@ export default struct Play {
                 Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
                   .alt($rawfile('nocover.png'))
                   .objectFit(ImageFit.Fill)
-                  .width(60)
+                  .width(45)
                   .aspectRatio(1)
                   .borderRadius(5)
                 Column() {
                   Text(song.title)
-                    .fontSize(18)
+                    .fontSize(17)
                     .fontColor($r('app.color.font'))
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
                   Text(song.artist + " - " + song.album)
-                    .fontSize(15)
+                    .fontSize(14)
                     .fontColor($r('app.color.font_secondary'))
                     .margin({ top: 5 })
                     .maxLines(1)
@@ -232,7 +264,7 @@ export default struct Play {
               .height('100%')
             }
             .width('100%')
-            .height(80)
+            .height(60)
             .borderRadius(10)
             .padding({ left: 20, right: 20 })
             .backgroundColor(index === this.nowPlayingIndex ? $r('app.color.progress_background') :
@@ -263,6 +295,9 @@ export default struct Play {
     .margin({ bottom: 25 })
     .clip(true)
     .backgroundColor($r('app.color.bar_background'))
+    .onAppear(()=>{
+      this.listScroller.scrollToIndex(this.nowPlayingIndex, false, ScrollAlign.CENTER)
+    })
   }
 
   @Builder
@@ -295,6 +330,7 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
+        this.nowPlayingSong = null
         this.avPlayer!.stop()
         setTimeout(() => {
           this.isPlaying = false
@@ -346,11 +382,11 @@ export default struct Play {
 
             Row() {
               Text("睡眠定时")
-                .fontSize(20)
+                .fontSize(18)
                 .fontColor($r('app.color.font'))
                 .margin({ right: 10 })
               Text(formatSleepTime(this.sleepTime))
-                .fontSize(20)
+                .fontSize(18)
                 .fontColor($r('app.color.font'))
             }
             .width('auto')
@@ -409,6 +445,11 @@ export default struct Play {
             .width('100%')
             .height('100%')
             .margin({ bottom: 40 })
+            .onTouch((event?: TouchEvent) => {
+              if(event?.type ===TouchType.Move){
+                this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
+              }
+            })
 
             Column() {
               List({ scroller: this.lyricsScroller }) {
@@ -603,19 +644,12 @@ export default struct Play {
               .height(40)
               .backgroundColor('#00000000')
               .onClick(async () => {
-                if (this.playMode === 0) {
-                  this.playMode = 1
-                  this.nowPlayingList = this.nowPlayingListOriginal
-                  this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
-                } else if (this.playMode === 1) {
-                  this.playMode = 2
-                  let songs = this.nowPlayingList.slice()
-                  this.nowPlayingList = this.shuffleList(songs)
-                  this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+                if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
+                  this.playMode = AVSessionManager.LoopMode.LOOP_MODE_LIST
+                } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
+                  this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE
                 } else {
-                  this.playMode = 0
-                  this.nowPlayingList = this.nowPlayingListOriginal
-                  this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+                  this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SINGLE
                 }
               })
 
@@ -649,7 +683,6 @@ export default struct Play {
               .backgroundColor('#00000000')
               .onClick(() => {
                 this.showList = true
-                this.listScroller.scrollToIndex(this.nowPlayingIndex, false, ScrollAlign.CENTER)
               })
               .bindSheet($$this.showList, this.listBuilder, {
                 showClose: false,
@@ -703,8 +736,5 @@ export default struct Play {
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.SpaceAround)
-    .onAppear(() => {
-      this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
-    })
   }
 }

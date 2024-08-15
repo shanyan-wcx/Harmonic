@@ -11,7 +11,6 @@ export default struct Albums {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume coverSize: number
   @Consume albums: Album[]
   @Consume album: Album | null
   @Consume pageStack: NavPathStack
@@ -19,6 +18,7 @@ export default struct Albums {
   @Consume showSidebar: boolean
   @Consume serverStatus: boolean
   @Consume discs: Song[][]
+  @State coverSize: number = 320
 
   build() {
     Column() {

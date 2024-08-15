@@ -187,3 +187,20 @@ export async function getLyrics(id: string) {
     return null
   }
 }
+
+export async function getCover(id: string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/getCoverArt' + auth + `&id=${id}&size=512`, {
+        timeout: 10000
+      })
+    return response.data
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return null
+  }
+}

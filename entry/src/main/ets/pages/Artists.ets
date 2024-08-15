@@ -11,13 +11,13 @@ export default struct Artists {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume coverSize: number
   @Consume artists: Artist[]
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
   @Consume artist: Artist | null
   @Consume serverStatus: boolean
+  @State profileSize: number = 256
 
   build() {
     Column() {
@@ -26,7 +26,7 @@ export default struct Artists {
           GridItem() {
             Button({ type: ButtonType.Normal }) {
               Column() {
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.coverSize}`)
+                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
                   .alt($rawfile('nocover.png'))
                   .objectFit(ImageFit.Fill)
                   .width('100%')

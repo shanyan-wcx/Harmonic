@@ -22,7 +22,7 @@ export default class EntryAbility extends UIAbility {
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
       PersistentStorage.persistProp('theme', ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
-      PersistentStorage.persistProp('playMode', 0);
+      PersistentStorage.persistProp('playMode', 1);
       PersistentStorage.persistProp('baseURL', '');
       PersistentStorage.persistProp('username', '');
       PersistentStorage.persistProp('password', '');

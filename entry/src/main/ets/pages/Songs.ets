@@ -1,7 +1,8 @@
-import { Song, StructuredLyric, Line } from '../utils/Interface'
 import { curves } from '@kit.ArkUI'
 import { media } from '@kit.MediaKit'
+import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics } from '../utils/Api'
+import { Song, StructuredLyric, Line } from '../utils/Interface'
 
 @Component
 export default struct Songs {
@@ -13,7 +14,6 @@ export default struct Songs {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume coverSize: number
   @Consume songs: Song[]
   @Consume nowPlayingSong: Song | null
   @Consume nowPlayingLyrics: StructuredLyric | null
@@ -28,6 +28,8 @@ export default struct Songs {
   @Consume sleepTime: number
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
+  @Consume session: AVSessionManager.AVSession | null
+  @State coverSize: number = 128
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
