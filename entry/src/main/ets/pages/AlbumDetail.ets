@@ -245,7 +245,7 @@ export default struct AlbumDetail {
                 this.getNowPlayingIndex(song, this.nowPlayingList)
                 this.getStar()
                 this.isPlaying = true
-                this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${song.id}&format=raw`;
+                this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
                 this.startPlaying = true
               })
             })

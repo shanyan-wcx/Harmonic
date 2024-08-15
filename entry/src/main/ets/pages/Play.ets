@@ -304,7 +304,7 @@ export default struct Play {
               }
               this.nowPlayingIndex = index
               this.isPlaying = true
-              this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${song.id}&format=raw`;
+              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
             })
           }
         })
@@ -700,7 +700,7 @@ export default struct Play {
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }
-                this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
               })
 
               Button({ type: ButtonType.Circle }) {
@@ -740,7 +740,7 @@ export default struct Play {
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }
-                this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
               })
             }
             .width('80%')

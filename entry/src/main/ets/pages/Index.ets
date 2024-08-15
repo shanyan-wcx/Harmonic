@@ -63,7 +63,7 @@ struct Index {
   @Provide client: string = 'Harmonic'
   @Provide auth: string = `?u=${this.username}&t=${CryptoJS.MD5(this.password +
   this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
-  @Provide getCoverUrl: string = '/getCoverArt'
+  @Provide getCoverUrl: string = '/rest/getCoverArt'
   @Provide nowPage: number = 0
   @Provide serverStatus: boolean = true
   @Provide nowPlayingSong: Song | null = null
@@ -269,7 +269,7 @@ struct Index {
       if (this.nowPlayingLyrics !== null) {
         this.groupLyrics()
       }
-      this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+      this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
     });
     this.session!.on('playNext', async () => {
       await this.avPlayer!.reset();
@@ -283,7 +283,7 @@ struct Index {
       if (this.nowPlayingLyrics !== null) {
         this.groupLyrics()
       }
-      this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+      this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
     });
     this.session!.on('seek', (time: number) => {
       this.avPlayer!.seek(time)
@@ -401,7 +401,7 @@ struct Index {
           console.info('播放完毕。');
           if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
             await avPlayer.reset();
-            this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
+            this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
           } else {
             await avPlayer.reset();
             if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
@@ -414,7 +414,7 @@ struct Index {
             if (this.nowPlayingLyrics !== null) {
               this.groupLyrics()
             }
-            this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+            this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
           }
           break;
         case 'stopped':
@@ -1035,7 +1035,7 @@ struct Index {
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
-              this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
             })
 
             Stack() {
@@ -1102,7 +1102,7 @@ struct Index {
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
-              this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
             })
           }
           .width(125)

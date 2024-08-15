@@ -22,7 +22,7 @@ export default struct Setting {
             .fontColor($r('app.color.font'))
           TextInput({
             placeholder: 'https://my.navidrome.com',
-            text: this.baseURL.slice(0, -5)
+            text: $$this.baseURL
           })
             .width("100%")
             .height(40)
@@ -32,10 +32,8 @@ export default struct Setting {
             .fontColor($r('app.color.font'))
             .type(InputType.URL)
             .enterKeyType(EnterKeyType.Next)
-            .onChange((value) => {
-              this.baseURL = value + '/rest';
-            })
         }
+        .width('100%')
         .padding({ left: 20, right: 20 })
         .margin({ top: 15 })
 
@@ -57,6 +55,7 @@ export default struct Setting {
             .type(InputType.USER_NAME)
             .enterKeyType(EnterKeyType.Next)
         }
+        .width('100%')
         .padding({ left: 20, right: 20 })
         .margin({ top: 15 })
 
@@ -78,16 +77,18 @@ export default struct Setting {
             .type(InputType.Password)
             .enterKeyType(EnterKeyType.Next)
         }
+        .width('100%')
         .padding({ left: 20, right: 20 })
         .margin({ top: 15, bottom: 20 })
       }
-      .width('80%')
+      .width('100%')
       .backgroundColor($r('app.color.bar_background'))
       .borderRadius(10)
       .margin({ top: 10 })
     }
     .width('100%')
     .height('100%')
+    .padding({ left: 20, right: 20 })
     .align(Alignment.Top)
   }
 }
