@@ -2,7 +2,7 @@ import { window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, star, unstar } from '../utils/Api';
-import { Song, StructuredLyric, Line } from '../utils/Interface'
+import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -69,6 +69,11 @@ export default struct Play {
   @Consume showCover: boolean
   @Consume sleepTime: number
   @Consume avPlayer: media.AVPlayer | null
+  @Consume pageStack: NavPathStack
+  @Consume artists: Artist[]
+  @Consume albums: Album[]
+  @Consume artist: Artist | null
+  @Consume album: Album | null
   @State showSleep: boolean = false
   @State showList: boolean = false
   @State showMore: boolean = false
@@ -160,6 +165,24 @@ export default struct Play {
         this.nowPlayingLyricsByGroup[index].push(line)
       } else {
         this.nowPlayingLyricsByGroup[index].push(line)
+      }
+    }
+  }
+
+  getArtist() {
+    for (let artist of this.artists) {
+      if (artist.name === this.nowPlayingSong!.artist) {
+        this.artist = artist
+        break
+      }
+    }
+  }
+
+  getAlbum() {
+    for (let album of this.albums) {
+      if (album.name === this.nowPlayingSong!.album) {
+        this.album = album
+        break
       }
     }
   }
@@ -318,6 +341,42 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
 
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("艺术家：" + this.nowPlayingSong!.artist)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        this.showPlay = false
+        this.getArtist()
+        this.pageStack.pop()
+        this.pageStack.pushPathByName('ArtistDetail', null);
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("专辑：" + this.nowPlayingSong!.album)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        this.showPlay = false
+        this.getAlbum()
+        this.pageStack.pop()
+        this.pageStack.pushPathByName('AlbumDetail', null);
       })
 
       Button({ type: ButtonType.Normal }) {
