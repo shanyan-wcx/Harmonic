@@ -1,0 +1,19 @@
+{
+  "routerMap": [
+    {
+      "name": "AlbumDetail",
+      "pageSourceFile": "src/main/ets/pages/AlbumDetail.ets",
+      "buildFunction": "AlbumDetailBuilder"
+    },
+    {
+      "name": "ArtistDetail",
+      "pageSourceFile": "src/main/ets/pages/ArtistDetail.ets",
+      "buildFunction": "ArtistDetailBuilder"
+    },
+    {
+      "name": "PlaylistDetail",
+      "pageSourceFile": "src/main/ets/pages/PlaylistDetail.ets",
+      "buildFunction": "PlaylistDetailBuilder"
+    }
+  ]
+}

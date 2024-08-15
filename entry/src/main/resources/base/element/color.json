@@ -1,0 +1,56 @@
+{
+  "color": [
+    {
+      "name": "start_window_background",
+      "value": "#EDEEF0"
+    },
+    {
+      "name": "statusbar",
+      "value": "#000000"
+    },
+    {
+      "name": "content_background",
+      "value": "#EDEEF0"
+    },
+    {
+      "name": "bar_background",
+      "value": "#F8F9FB"
+    },
+    {
+      "name": "play_background",
+      "value": "#60FFFFFF"
+    },
+    {
+      "name": "font",
+      "value": "#0F0F0F"
+    },
+    {
+      "name": "font_secondary",
+      "value": "#818181"
+    },
+    {
+      "name": "font_lyrics",
+      "value": "#242424"
+    },
+    {
+      "name": "font_lyrics_secondary",
+      "value": "#5C5C5C"
+    },
+    {
+      "name": "progress",
+      "value": "#1E1E1F"
+    },
+    {
+      "name": "progress_background",
+      "value": "#D6D7D8"
+    },
+    {
+      "name": "divider",
+      "value": "#50000000"
+    },
+    {
+      "name": "indicator",
+      "value": "#1E1E1F"
+    }
+  ]
+}

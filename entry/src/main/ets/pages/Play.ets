@@ -1,0 +1,710 @@
+import { Song, StructuredLyric, Line } from '../utils/Interface'
+import { window } from '@kit.ArkUI';
+import { media } from '@kit.MediaKit';
+import { getLyrics } from '../utils/Api';
+
+function formatDuration(seconds: number): string {
+  const roundedSeconds = Math.floor(seconds);
+  const hours = Math.floor(roundedSeconds / 3600);
+  const minutes = Math.floor((roundedSeconds % 3600) / 60);
+  const secs = roundedSeconds % 60;
+  const paddedMinutes = minutes.toString().padStart(2, '0');
+  const paddedSeconds = secs.toString().padStart(2, '0');
+  let formattedTime = `${paddedMinutes}:${paddedSeconds}`;
+  if (hours > 0) {
+    const paddedHours = hours.toString().padStart(2, '0');
+    formattedTime = `${paddedHours}:${formattedTime}`;
+  }
+  return formattedTime;
+}
+
+function formatTime(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  const formatNumber = (num: number) => (num < 10 ? `0${num}` : `${num}`);
+  return `${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(secs)}`;
+}
+
+function formatSleepTime(seconds: number): string {
+  if (seconds < 60) {
+    const roundedSeconds = Math.floor(seconds);
+    return `${roundedSeconds} sec`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours} hr ${minutes} min`;
+  }
+}
+
+@Component
+export default struct Play {
+  @State progressWidth: number = 0
+  @State statusBarHeight: number = 0
+  @StorageLink('baseURL') baseURL: string = ''
+  @StorageLink('username') username: string = ''
+  @StorageLink('password') password: string = ''
+  @Consume salt: string
+  @Consume version: string
+  @Consume client: string
+  @Consume auth: string
+  @Consume getCoverUrl: string
+  @Consume coverSize: number
+  @Consume nowPlayingSong: Song | null
+  @Consume nowPlayingLyrics: StructuredLyric | null
+  @Consume nowPlayingLyricsByGroup: Line[][]
+  @Consume nowPlayingList: Song[]
+  @Consume nowPlayingListOriginal: Song[]
+  @Consume nowPlayingIndex: number
+  @Consume lyricsIndex: number
+  @Consume @Watch('scrollLyrics') nowPlayedTime: number
+  @Consume isPlaying: boolean
+  @Consume startPlaying: boolean
+  @Consume showPlay: boolean
+  @Consume showDevice: boolean
+  @Consume showCover: boolean
+  @Consume sleepTime: number
+  @Consume avPlayer: media.AVPlayer | null
+  @State showSleep: boolean = false
+  @State showList: boolean = false
+  @State showMore: boolean = false
+  @State sleepValue: number = 0
+  @State playModeIcon: Resource = $r('app.media.loop')
+  @StorageLink('playMode') @Watch('changePlayMode') playMode: number = 0
+  private listScroller: Scroller = new Scroller
+  private lyricsScroller: Scroller = new Scroller
+  private controller: SwiperController = new SwiperController();
+
+  private getStatusBarHeight() {
+    window.getLastWindow(getContext(this), (error, topWindow) => {
+      if (topWindow) {
+        let area = topWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+        this.statusBarHeight = px2vp(area.topRect.height)
+      }
+    });
+  }
+
+  changePlayMode() {
+    if (this.playMode === 0) {
+      this.playModeIcon = $r('app.media.loop')
+    } else if (this.playMode === 1) {
+      this.playModeIcon = $r('app.media.single')
+    } else {
+      this.playModeIcon = $r('app.media.shuffle')
+    }
+  }
+
+  shuffleList<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      let temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  }
+
+  getNowPlayingIndex(song: Song, list: Song[]) {
+    for (let index = 0; index < list.length; index++) {
+      if (list[index].id === song.id) {
+        this.nowPlayingIndex = index
+        break;
+      }
+    }
+  }
+
+  groupLyrics() {
+    this.nowPlayingLyricsByGroup = []
+    let index = -1
+    for (let line of this.nowPlayingLyrics!.line) {
+      if (this.nowPlayingLyricsByGroup.length === 0 || line.start !== this.nowPlayingLyricsByGroup[index][0].start) {
+        index++
+        this.nowPlayingLyricsByGroup.push([])
+        this.nowPlayingLyricsByGroup[index].push(line)
+      } else {
+        this.nowPlayingLyricsByGroup[index].push(line)
+      }
+    }
+  }
+
+  scrollLyrics() {
+    this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
+  }
+
+  async aboutToAppear() {
+    this.getStatusBarHeight()
+    this.changePlayMode()
+  }
+
+  @Builder
+  sleepBuilder() {
+    Column() {
+      Column() {
+        Row() {
+          Text('时长')
+            .fontSize(19)
+            .fontColor($r('app.color.font'))
+          Text(Math.floor(this.sleepValue) + " 分钟")
+            .fontSize(19)
+            .fontColor($r('app.color.font'))
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
+
+        Slider({
+          value: $$this.sleepValue,
+          min: 0,
+          max: 120,
+          step: 1,
+          style: SliderStyle.OutSet,
+          direction: Axis.Horizontal,
+          reverse: false
+        })
+          .width('100%')
+          .blockColor($r('app.color.progress'))
+          .selectedColor($r('app.color.progress'))
+          .trackThickness(5)
+      }
+      .width('90%')
+      .borderRadius(10)
+      .margin({ bottom: 20 })
+      .padding({
+        top: 20,
+        left: 20,
+        right: 20,
+        bottom: 10
+      })
+      .clip(true)
+      .backgroundColor($r('app.color.bar_background'))
+
+      Button() {
+        Text("设置")
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+      }
+      .width('80%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(() => {
+        this.sleepTime = this.sleepValue * 60
+        this.showSleep = false
+      })
+    }
+    .margin({ bottom: 25 })
+  }
+
+  @Builder
+  listBuilder() {
+    Column() {
+      List({ scroller: this.listScroller }) {
+        ForEach(this.nowPlayingList, (song: Song, index) => {
+          ListItem() {
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
+                  .alt($rawfile('nocover.png'))
+                  .objectFit(ImageFit.Fill)
+                  .width(60)
+                  .aspectRatio(1)
+                  .borderRadius(5)
+                Column() {
+                  Text(song.title)
+                    .fontSize(18)
+                    .fontColor($r('app.color.font'))
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  Text(song.artist + " - " + song.album)
+                    .fontSize(15)
+                    .fontColor($r('app.color.font_secondary'))
+                    .margin({ top: 5 })
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                }
+                .width('100%')
+                .layoutWeight(1)
+                .margin({ left: 10 })
+                .alignItems(HorizontalAlign.Start)
+              }
+              .width('100%')
+              .height('100%')
+            }
+            .width('100%')
+            .height(80)
+            .borderRadius(10)
+            .padding({ left: 20, right: 20 })
+            .backgroundColor(index === this.nowPlayingIndex ? $r('app.color.progress_background') :
+            $r('app.color.bar_background'))
+            .onClick(async () => {
+              this.showList = false
+              await this.avPlayer!.reset()
+              this.nowPlayingSong = song
+              this.nowPlayingLyrics = await getLyrics(song.id)
+              if (this.nowPlayingLyrics !== null) {
+                this.groupLyrics()
+              }
+              this.nowPlayingIndex = index
+              this.isPlaying = true
+              this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${song.id}&format=raw`;
+            })
+          }
+        })
+      }
+      .width('100%')
+      .height('100%')
+      .listDirection(Axis.Vertical)
+      .scrollBar(BarState.Off)
+      .edgeEffect(EdgeEffect.Fade)
+    }
+    .width('90%')
+    .borderRadius(10)
+    .margin({ bottom: 25 })
+    .clip(true)
+    .backgroundColor($r('app.color.bar_background'))
+  }
+
+  @Builder
+  moreBuilder() {
+    Column() {
+      Button({ type: ButtonType.Normal }) {
+        Text("清除睡眠定时")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        this.sleepTime = 0
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("关闭播放器")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        this.avPlayer!.stop()
+        setTimeout(() => {
+          this.isPlaying = false
+          this.startPlaying = false
+          this.showPlay = false
+          this.sleepTime = 0
+        }, 10)
+      })
+    }
+    .width('90%')
+    .height('auto')
+    .borderRadius(10)
+    .margin({ bottom: 25 })
+    .clip(true)
+    .backgroundColor($r('app.color.bar_background'))
+  }
+
+  build() {
+    Column() {
+      Stack() {
+        Column()
+          .backgroundImage(this.baseURL + this.getCoverUrl + this.auth +
+            `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+          .backgroundImageSize(ImageSize.FILL)
+          .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
+          .width('100%')
+          .height('100%')
+        Column()
+          .backgroundColor($r('app.color.play_background'))
+          .width('100%')
+          .height('100%')
+        Column() {
+          Row() {
+            Button({ type: ButtonType.Circle }) {
+              Image($r('app.media.down'))
+                .width(30)
+                .height(30)
+            }
+            .width(40)
+            .height(40)
+            .backgroundColor('#00000000')
+            .margin({ left: 25 })
+            .onClick(() => {
+              if (this.showPlay === false) {
+                this.showPlay = true
+              }
+              this.showPlay = false
+            })
+
+            Row() {
+              Text("睡眠定时")
+                .fontSize(20)
+                .fontColor($r('app.color.font'))
+                .margin({ right: 10 })
+              Text(formatSleepTime(this.sleepTime))
+                .fontSize(20)
+                .fontColor($r('app.color.font'))
+            }
+            .width('auto')
+            .height(40)
+            .padding({ left: 15, right: 15 })
+            .borderRadius(10)
+            .backgroundColor($r('app.color.content_background'))
+            .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
+
+            Button({ type: ButtonType.Circle }) {
+              Image($r('app.media.radiowave'))
+                .width(30)
+                .height(30)
+            }
+            .width(40)
+            .height(40)
+            .margin({ right: 25 })
+            .backgroundColor('#00000000')
+            .onClick(() => {
+
+            })
+          }
+          .width("100%")
+          .justifyContent(FlexAlign.SpaceBetween)
+
+
+          Column() {
+            Marquee({
+              start: true,
+              step: 3,
+              src: this.nowPlayingSong?.title
+            })
+              .fontSize(28)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Medium)
+            Text(this.nowPlayingSong?.artist)
+              .fontSize(18)
+              .fontColor($r('app.color.font'))
+              .margin({ top: 5 })
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+          }
+          .width("80%")
+          .alignItems(HorizontalAlign.Start)
+
+          Swiper(this.controller) {
+            Column() {
+              Image(this.baseURL + this.getCoverUrl + this.auth +
+                `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                .alt($rawfile('nocover.png'))
+                .height('100%')
+                .aspectRatio(1)
+                .borderRadius(10)
+                .objectFit(ImageFit.Fill)
+            }
+            .width('100%')
+            .height('100%')
+            .margin({ bottom: 40 })
+
+            Column() {
+              List({ scroller: this.lyricsScroller }) {
+                if (this.nowPlayingLyrics !== null && this.nowPlayingLyricsByGroup.length > 0) {
+                  ForEach(this.nowPlayingLyricsByGroup, (group: Line[], index) => {
+                    ListItem() {
+                      Column() {
+                        ForEach(group, (line: Line, index2) => {
+                          Text(line.value)
+                            .width('100%')
+                            .height('auto')
+                            .padding({ left: 20, right: 20 })
+                            .margin({ bottom: index2 === 0 ? 5 : 0 })
+                            .fontSize(this.lyricsIndex === index &&
+                              this.nowPlayingLyrics?.synced === true ?
+                              28 :
+                              23)
+                            .fontWeight(FontWeight.Bold)
+                            .fontColor(this.lyricsIndex === index &&
+                              this.nowPlayingLyrics?.synced === true ?
+                            $r('app.color.font_lyrics') :
+                            $r('app.color.font_lyrics_secondary'))
+                            .textAlign(TextAlign.Center)
+                            .animation({ duration: 400 })
+                        })
+                      }
+                    }
+                    .margin({
+                      top: index === 0 ? 125 : 15,
+                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 15
+                    })
+                  })
+                } else {
+                  ListItem() {
+                    Column() {
+                      Text("没有歌词")
+                        .fontSize(28)
+                        .fontWeight(FontWeight.Bold)
+                        .fontColor($r('app.color.font_lyrics'))
+                    }
+                    .width('100%')
+                    .height('100%')
+                    .justifyContent(FlexAlign.Center)
+                  }
+                  .width('100%')
+                  .height('100%')
+                }
+              }
+              .height('100%')
+              .aspectRatio(1)
+              .borderRadius(10)
+              .listDirection(Axis.Vertical)
+              .scrollBar(BarState.Off)
+            }
+            .width('100%')
+            .height('100%')
+            .margin({ bottom: 40 })
+          }
+          .loop(false)
+          .indicator(
+            Indicator.dot()
+              .selectedColor($r('app.color.indicator'))
+          )
+          .height(360)
+          .width('90%')
+          .margin({ top: 20 })
+          .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
+
+          Column() {
+            Column() {
+              Row() {
+                Text(formatDuration(this.nowPlayedTime))
+                  .fontSize(16)
+                  .fontColor($r('app.color.font'))
+                  .fontWeight(FontWeight.Medium)
+                Text(formatDuration(this.nowPlayingSong?.duration!))
+                  .fontSize(16)
+                  .fontColor($r('app.color.font'))
+                  .fontWeight(FontWeight.Medium)
+              }
+              .width('100%')
+              .justifyContent(FlexAlign.SpaceBetween)
+
+              Progress({
+                value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                total: 100,
+                type: ProgressType.Linear
+              })
+                .style({ strokeWidth: 5 })
+                .width('100%')
+                .margin({ top: 10, bottom: 15 })
+                .color($r('app.color.progress'))
+                .onAreaChange((oldValue: Area, newValue: Area) => {
+                  this.progressWidth = newValue.width as number;
+                })
+                .gesture(
+                  GestureGroup(
+                    GestureMode.Exclusive,
+                    TapGesture({ fingers: 1, count: 1 })
+                      .onAction((event: GestureEvent) => {
+                        let touchProgress = Math.round((event.fingerList[0].localX / this.progressWidth) * 100)
+                        let progress = 0
+                        if (touchProgress < 0) {
+                          progress = 0
+                        } else if (touchProgress >= 100) {
+                          progress = 99
+                        } else {
+                          progress = touchProgress
+                        }
+                        this.avPlayer!.seek(progress * this.nowPlayingSong!.duration * 10)
+                      })
+                  )
+                )
+            }
+            .width('100%')
+
+            Row() {
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.prev'))
+                  .width(45)
+                  .height(45)
+              }
+              .width(55)
+              .height(55)
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                await this.avPlayer!.reset();
+                if (this.nowPlayingIndex === 0) {
+                  this.nowPlayingIndex = this.nowPlayingList.length - 1
+                } else {
+                  this.nowPlayingIndex -= 1
+                }
+                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                if (this.nowPlayingLyrics !== null) {
+                  this.groupLyrics()
+                }
+                this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              })
+
+              Button({ type: ButtonType.Circle }) {
+                Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
+                  .width(47)
+                  .height(47)
+              }
+              .width(70)
+              .height(70)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.isPlaying = !this.isPlaying
+                if (this.isPlaying === false) {
+                  this.avPlayer!.pause()
+                } else {
+                  this.avPlayer!.play()
+                }
+              })
+
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.next'))
+                  .width(45)
+                  .height(45)
+              }
+              .width(55)
+              .height(55)
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                await this.avPlayer!.reset();
+                if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+                  this.nowPlayingIndex = 0
+                } else {
+                  this.nowPlayingIndex += 1
+                }
+                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                if (this.nowPlayingLyrics !== null) {
+                  this.groupLyrics()
+                }
+                this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              })
+            }
+            .width('80%')
+            .alignItems(VerticalAlign.Center)
+            .justifyContent(FlexAlign.SpaceBetween)
+
+            Row() {
+              Button({ type: ButtonType.Circle }) {
+                Image(this.playModeIcon)
+                  .width(30)
+                  .height(30)
+              }
+              .width(40)
+              .height(40)
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                if (this.playMode === 0) {
+                  this.playMode = 1
+                  this.nowPlayingList = this.nowPlayingListOriginal
+                  this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+                } else if (this.playMode === 1) {
+                  this.playMode = 2
+                  let songs = this.nowPlayingList.slice()
+                  this.nowPlayingList = this.shuffleList(songs)
+                  this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+                } else {
+                  this.playMode = 0
+                  this.nowPlayingList = this.nowPlayingListOriginal
+                  this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
+                }
+              })
+
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.sleep'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(40)
+              .height(40)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.showSleep = true
+              })
+              .bindSheet($$this.showSleep, this.sleepBuilder, {
+                showClose: false,
+                height: SheetSize.FIT_CONTENT,
+                backgroundColor: $r('app.color.content_background'),
+                title: {
+                  title: '睡眠定时'
+                }
+              })
+
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.list'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(40)
+              .height(40)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.showList = true
+                this.listScroller.scrollToIndex(this.nowPlayingIndex, false, ScrollAlign.CENTER)
+              })
+              .bindSheet($$this.showList, this.listBuilder, {
+                showClose: false,
+                height: SheetSize.MEDIUM,
+                backgroundColor: $r('app.color.content_background'),
+                title: {
+                  title: '播放队列'
+                }
+              })
+
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.more'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(40)
+              .height(40)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.showMore = true
+              })
+              .bindSheet($$this.showMore, this.moreBuilder, {
+                showClose: false,
+                height: SheetSize.FIT_CONTENT,
+                backgroundColor: $r('app.color.content_background'),
+                title: {
+                  title: '更多'
+                }
+              })
+            }
+            .width('100%')
+            .margin({ top: 10 })
+            .justifyContent(FlexAlign.SpaceBetween)
+          }
+          .width('80%')
+          .height(250)
+          .justifyContent(FlexAlign.SpaceBetween)
+          .padding({ bottom: 20 })
+          .margin({ top: 20 })
+          .offset({
+            y: -20
+          })
+        }
+        .width('100%')
+        .height('100%')
+        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.SpaceEvenly)
+        .padding({ top: this.statusBarHeight })
+      }
+    }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.SpaceAround)
+    .onAppear(() => {
+      this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
+    })
+  }
+}
