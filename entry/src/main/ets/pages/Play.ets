@@ -1,7 +1,7 @@
 import { window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics } from '../utils/Api';
+import { getLyrics, star, unstar } from '../utils/Api';
 import { Song, StructuredLyric, Line } from '../utils/Interface'
 
 function formatDuration(seconds: number): string {
@@ -59,6 +59,7 @@ export default struct Play {
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
+  @Consume nowPlayingStar: boolean
   @Consume @Watch('scrollLyrics') lyricsIndex: number
   @Consume nowPlayedTime: number
   @Consume isPlaying: boolean
@@ -295,7 +296,7 @@ export default struct Play {
     .margin({ bottom: 25 })
     .clip(true)
     .backgroundColor($r('app.color.bar_background'))
-    .onAppear(()=>{
+    .onAppear(() => {
       this.listScroller.scrollToIndex(this.nowPlayingIndex, false, ScrollAlign.CENTER)
     })
   }
@@ -303,6 +304,21 @@ export default struct Play {
   @Builder
   moreBuilder() {
     Column() {
+      Button({ type: ButtonType.Normal }) {
+        Text("添加到歌单")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+
+      })
+
       Button({ type: ButtonType.Normal }) {
         Text("清除睡眠定时")
           .maxLines(1)
@@ -412,25 +428,52 @@ export default struct Play {
           .width("100%")
           .justifyContent(FlexAlign.SpaceBetween)
 
+          Row() {
+            Column() {
+              Marquee({
+                start: true,
+                step: 3,
+                src: this.nowPlayingSong?.title
+              })
+                .fontSize(28)
+                .fontColor($r('app.color.font'))
+                .fontWeight(FontWeight.Medium)
+              Text(this.nowPlayingSong?.artist)
+                .fontSize(18)
+                .fontColor($r('app.color.font'))
+                .margin({ top: 5 })
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+            }
+            .width("100%")
+            .layoutWeight(1)
+            .margin({ right: 20 })
+            .alignItems(HorizontalAlign.Start)
 
-          Column() {
-            Marquee({
-              start: true,
-              step: 3,
-              src: this.nowPlayingSong?.title
+            Button() {
+              Image(this.nowPlayingStar === true ? $r('app.media.star') : $r('app.media.unstar'))
+                .width(30)
+                .height(30)
+            }
+            .width(40)
+            .height(40)
+            .backgroundColor('#00000000')
+            .onClick(async () => {
+              if (this.nowPlayingStar === true) {
+                let starStatus = await unstar(this.nowPlayingSong!.id)
+                if (starStatus === true) {
+                  this.nowPlayingStar = false
+                }
+              } else {
+                let starStatus = await star(this.nowPlayingSong!.id)
+                if (starStatus === true) {
+                  this.nowPlayingStar = true
+                }
+              }
             })
-              .fontSize(28)
-              .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Medium)
-            Text(this.nowPlayingSong?.artist)
-              .fontSize(18)
-              .fontColor($r('app.color.font'))
-              .margin({ top: 5 })
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
           .width("80%")
-          .alignItems(HorizontalAlign.Start)
+          .justifyContent(FlexAlign.SpaceBetween)
 
           Swiper(this.controller) {
             Column() {
@@ -446,7 +489,7 @@ export default struct Play {
             .height('100%')
             .margin({ bottom: 40 })
             .onTouch((event?: TouchEvent) => {
-              if(event?.type ===TouchType.Move){
+              if (event?.type === TouchType.Move) {
                 this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
               }
             })

@@ -44,6 +44,8 @@ export default struct PlaylistDetail {
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
+  @Consume starredSongs: Song[]
+  @Consume nowPlayingStar: boolean
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @StorageLink('baseURL') baseURL: string = ''
@@ -76,6 +78,16 @@ export default struct PlaylistDetail {
       if (list[index].id === song.id) {
         this.nowPlayingIndex = index
         break;
+      }
+    }
+  }
+
+  getStar() {
+    this.nowPlayingStar = false
+    for (let song of this.starredSongs) {
+      if (song.id === this.nowPlayingSong!.id) {
+        this.nowPlayingStar = true
+        break
       }
     }
   }
@@ -202,6 +214,7 @@ export default struct PlaylistDetail {
                 this.nowPlayingList = this.playlist!.entry!
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
+              this.getStar()
               this.isPlaying = true
               this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${song.id}&format=raw`;
               this.startPlaying = true

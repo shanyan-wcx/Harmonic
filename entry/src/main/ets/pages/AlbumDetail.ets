@@ -43,6 +43,8 @@ export default struct AlbumDetail {
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
+  @Consume nowPlayingStar: boolean
+  @Consume starredSongs: Song[]
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume discs: Song[][]
@@ -70,6 +72,16 @@ export default struct AlbumDetail {
       if (list[index].id === song.id) {
         this.nowPlayingIndex = index
         break;
+      }
+    }
+  }
+
+  getStar() {
+    this.nowPlayingStar = false
+    for (let song of this.starredSongs) {
+      if (song.id === this.nowPlayingSong!.id) {
+        this.nowPlayingStar = true
+        break
       }
     }
   }
@@ -117,14 +129,10 @@ export default struct AlbumDetail {
                 .fontSize(24)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
               Text(this.album.artist)
                 .fontSize(17)
                 .fontColor($r('app.color.font_secondary'))
                 .margin({ top: 5 })
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
             }
             .margin({ left: 15, right: 15 })
             .padding({ bottom: 20 })
@@ -235,6 +243,7 @@ export default struct AlbumDetail {
                   this.nowPlayingList = this.album.song!
                 }
                 this.getNowPlayingIndex(song, this.nowPlayingList)
+                this.getStar()
                 this.isPlaying = true
                 this.avPlayer!.url = this.baseURL + '/stream' + this.auth + `&id=${song.id}&format=raw`;
                 this.startPlaying = true

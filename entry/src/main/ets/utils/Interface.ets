@@ -49,6 +49,7 @@ export interface SubsonicResponse {
   playlist?: Playlist;
   artistInfo?: ArtistInfo;
   lyricsList?: LyricsList;
+  starred?: Starred;
 }
 
 export interface ApiResponse {
@@ -159,4 +160,10 @@ export interface StructuredLyric {
 export interface Line {
   start?: number;
   value: string
+}
+
+export interface Starred {
+  artist?: Artist[];
+  album?: Album[];
+  song?: Song[];
 }

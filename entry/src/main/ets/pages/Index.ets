@@ -10,10 +10,21 @@ import {
 import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
+import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import CryptoJS from '@ohos/crypto-js';
-import { getAlbum, getArtist, getArtistInfo, getCover, getIndexes, getLyrics, getPlaylists, ping } from '../utils/Api'
+import {
+  getAlbum,
+  getArtist,
+  getArtistInfo,
+  getCover,
+  getIndexes,
+  getLyrics,
+  getPlaylists,
+  getStarred,
+  ping
+} from '../utils/Api'
 import { Album, Artist, Playlist, Song, StructuredLyric, Line } from '../utils/Interface';
 import Albums from './Albums';
 import Artists from './Artists';
@@ -23,7 +34,6 @@ import Songs from './Songs';
 import Setting from './Setting';
 import About from './About';
 import Stats from './Stats';
-import { image } from '@kit.ImageKit';
 
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
@@ -60,6 +70,7 @@ struct Index {
   @Provide nowPlayingList: Song[] = []
   @Provide nowPlayingListOriginal: Song[] = []
   @Provide nowPlayingIndex: number = 0
+  @Provide nowPlayingStar: boolean = false
   @Provide lyricsIndex: number = 0
   @Provide startPlaying: boolean = false
   @Provide isPlaying: boolean = false
@@ -72,6 +83,7 @@ struct Index {
   @Provide artist: Artist | null = null
   @Provide playlist: Playlist | null = null
   @Provide discs: Song[][] = []
+  @Provide starredSongs: Song[] = []
   @Provide avPlayer: media.AVPlayer | null = null
   @Provide session: AVSessionManager.AVSession | null = null
   @State coverSize: number = 64
@@ -568,6 +580,10 @@ struct Index {
         this.playlists = (await getPlaylists()).sort((a, b) => {
           return Date.parse(b.changed) - Date.parse(a.changed);
         })
+        let starred = await getStarred()
+        if (starred !== null) {
+          this.starredSongs = starred!.song!
+        }
         console.log("获取到艺术家", this.artists.length)
         console.log("获取到专辑", this.albums.length)
         console.log("获取到歌曲", this.songs.length)

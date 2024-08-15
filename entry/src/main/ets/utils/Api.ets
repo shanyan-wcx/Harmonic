@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from '@ohos/axios'
 import CryptoJS from '@ohos/crypto-js'
 import { ApiResponse, Artist, LyricsList, Playlist, SubsonicResponse } from './Interface'
+import { promptAction } from '@kit.ArkUI'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 
@@ -202,5 +203,113 @@ export async function getCover(id: string) {
   } catch (error) {
     console.error(JSON.stringify(error));
     return null
+  }
+}
+
+export async function updatePlaylist(playlistId: string, name?: string, comment?: string, songIdToAdd?: string,
+  songIndexToRemove?: string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  let url = baseURL + '/updatePlaylist' + auth + `&playlistId=${playlistId}`
+  if (name !== undefined) {
+    url += `&name=${name}`
+  }
+  if (comment !== undefined) {
+    url += `&comment=${comment}`
+  }
+  if (songIdToAdd !== undefined) {
+    url += `&songIdToAdd=${songIdToAdd}`
+  }
+  if (songIndexToRemove !== undefined) {
+    url += `&songIndexToRemove=${songIndexToRemove}`
+  }
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(url, {
+        timeout: 10000
+      })
+    promptAction.showToast({
+      message: '添加成功！',
+      duration: 500
+    });
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    promptAction.showToast({
+      message: '添加失败，请检查网络！',
+      duration: 500
+    });
+  }
+}
+
+export async function getStarred() {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/getStarred' + auth, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    if (Object.keys(subsonicResponse.starred!).length !== 0 && subsonicResponse.starred!.song !== undefined) {
+      return subsonicResponse.starred
+    }
+    return null
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return null
+  }
+}
+
+export async function star(id:string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/star' + auth + `&id=${id}`, {
+        timeout: 10000
+      })
+    promptAction.showToast({
+      message: '收藏成功！',
+      duration: 500
+    });
+    return true
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    promptAction.showToast({
+      message: '收藏失败，请检查网络！',
+      duration: 500
+    });
+    return false
+  }
+}
+
+export async function unstar(id:string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/unstar' + auth + `&id=${id}`, {
+        timeout: 10000
+      })
+    promptAction.showToast({
+      message: '取消收藏成功！',
+      duration: 500
+    });
+    return true
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    promptAction.showToast({
+      message: '取消收藏失败，请检查网络！',
+      duration: 500
+    });
+    return false
   }
 }
