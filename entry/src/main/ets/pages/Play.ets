@@ -316,6 +316,7 @@ export default struct Play {
       .edgeEffect(EdgeEffect.Fade)
     }
     .width('90%')
+    .height(this.nowPlayingList.length > 7 ? 420 : this.nowPlayingList.length * 60)
     .borderRadius(10)
     .margin({ bottom: 25 })
     .clip(true)
@@ -700,7 +701,8 @@ export default struct Play {
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }
-                this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                this.avPlayer!.url =
+                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
               })
 
               Button({ type: ButtonType.Circle }) {
@@ -740,7 +742,8 @@ export default struct Play {
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }
-                this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                this.avPlayer!.url =
+                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
               })
             }
             .width('80%')
@@ -799,7 +802,7 @@ export default struct Play {
               })
               .bindSheet($$this.showList, this.listBuilder, {
                 showClose: false,
-                height: SheetSize.MEDIUM,
+                height: SheetSize.FIT_CONTENT,
                 backgroundColor: $r('app.color.content_background'),
                 title: {
                   title: '播放队列'
