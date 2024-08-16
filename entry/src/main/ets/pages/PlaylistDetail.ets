@@ -48,6 +48,8 @@ export default struct PlaylistDetail {
   @Consume nowPlayingStar: boolean
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
+  @Consume showMenu: boolean
+  @Consume longPressSong: Song | null
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
@@ -206,12 +208,11 @@ export default struct PlaylistDetail {
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
-              this.nowPlayingListOriginal = this.playlist!.entry!
-              if (this.playMode === 2) {
-                let songs = this.playlist!.entry!.slice()
-                this.nowPlayingList = this.shuffleList(songs)
+              this.nowPlayingListOriginal = this.playlist!.entry!.slice()
+              if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+                this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
               } else {
-                this.nowPlayingList = this.playlist!.entry!
+                this.nowPlayingList = this.nowPlayingListOriginal.slice()
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
               this.getStar()
@@ -219,6 +220,13 @@ export default struct PlaylistDetail {
               this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
               this.startPlaying = true
             })
+            .gesture(
+              LongPressGesture()
+                .onAction((event: GestureEvent) => {
+                  this.longPressSong = song
+                  this.showMenu = true
+                })
+            )
           })
         }
       }

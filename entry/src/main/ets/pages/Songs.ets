@@ -27,6 +27,8 @@ export default struct Songs {
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
   @Consume serverStatus: boolean
+  @Consume showMenu: boolean
+  @Consume longPressSong: Song | null
   @Consume sleepTime: number
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
@@ -130,12 +132,11 @@ export default struct Songs {
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
-              this.nowPlayingListOriginal = this.songs
-              if (this.playMode === 2) {
-                let songs = this.songs.slice()
-                this.nowPlayingList = this.shuffleList(songs)
+              this.nowPlayingListOriginal = this.songs.slice()
+              if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+                this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
               } else {
-                this.nowPlayingList = this.songs
+                this.nowPlayingList = this.nowPlayingListOriginal.slice()
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
               this.getStar()
@@ -143,6 +144,13 @@ export default struct Songs {
               this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
               this.startPlaying = true
             })
+            .gesture(
+              LongPressGesture()
+                .onAction((event: GestureEvent) => {
+                  this.longPressSong = song
+                  this.showMenu = true
+                })
+            )
           }
         })
       }

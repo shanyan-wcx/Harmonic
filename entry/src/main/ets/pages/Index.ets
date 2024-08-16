@@ -80,12 +80,15 @@ struct Index {
   @Provide showPlay: boolean = false
   @Provide showDevice: boolean = false
   @Provide showCover: boolean = true
+  @Provide showMenu: boolean = false
+  @Provide longPressSong: Song | null = null
   @Provide sleepTime: number = 0
   @Provide album: Album | null = null
   @Provide artist: Artist | null = null
   @Provide playlist: Playlist | null = null
   @Provide discs: Song[][] = []
   @Provide starredSongs: Song[] = []
+  @Provide playModeIcon: Resource = $r('app.media.loop')
   @Provide avPlayer: media.AVPlayer | null = null
   @Provide session: AVSessionManager.AVSession | null = null
   @State coverSize: number = 64
@@ -401,7 +404,8 @@ struct Index {
           console.info('播放完毕。');
           if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
             await avPlayer.reset();
-            this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
+            this.avPlayer!.url =
+              this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
           } else {
             await avPlayer.reset();
             if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
@@ -557,6 +561,82 @@ struct Index {
   }
 
   @Builder
+  bindMenuBuilder() {
+    Column() {
+      Button({ type: ButtonType.Normal }) {
+        Text("下一首播放")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMenu = false
+        if (this.nowPlayingList.length !== 0) {
+          this.nowPlayingListOriginal.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
+          this.nowPlayingList.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
+        }
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("加入播放队列")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMenu = false
+        if (this.nowPlayingList.length !== 0) {
+          this.nowPlayingListOriginal.push(this.longPressSong!)
+          this.nowPlayingList.push(this.longPressSong!)
+        }
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("添加到歌单")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMenu = false
+
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("添加到收藏")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMenu = false
+      })
+    }
+    .width('90%')
+    .height('auto')
+    .borderRadius(10)
+    .margin({ top: 20, bottom: 25 })
+    .clip(true)
+    .backgroundColor($r('app.color.bar_background'))
+  }
+
+  @Builder
   bindContentCoverBuilder() {
     Column() {
       Play()
@@ -586,6 +666,13 @@ struct Index {
     applicationContext.on('environment', this.environmentCallback);
     this.getStatusBarHeight()
     this.registerInterception()
+    if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
+      this.playModeIcon = $r('app.media.single')
+    } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
+      this.playModeIcon = $r('app.media.loop')
+    } else {
+      this.playModeIcon = $r('app.media.shuffle')
+    }
     if (this.baseURL === '') {
       this.serverStatus = false
     } else {
@@ -964,6 +1051,11 @@ struct Index {
         .hideBackButton(true)
         .padding({ top: this.statusBarHeight })
         .menus(this.menuBuilder())
+        .bindSheet($$this.showMenu, this.bindMenuBuilder, {
+          showClose: false,
+          height: SheetSize.FIT_CONTENT,
+          backgroundColor: $r('app.color.content_background'),
+        })
         .onClick(() => {
           animateTo({
             duration: 300,
@@ -1035,7 +1127,8 @@ struct Index {
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
-              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              this.avPlayer!.url =
+                this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
             })
 
             Stack() {
@@ -1102,7 +1195,8 @@ struct Index {
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
-              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              this.avPlayer!.url =
+                this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
             })
           }
           .width(125)

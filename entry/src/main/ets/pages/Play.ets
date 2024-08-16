@@ -74,12 +74,12 @@ export default struct Play {
   @Consume albums: Album[]
   @Consume artist: Artist | null
   @Consume album: Album | null
+  @Consume playModeIcon: Resource
   @State showSleep: boolean = false
   @State showList: boolean = false
   @State showMore: boolean = false
   @State sleepValue: number = 0
   @State coverSize: number = 512
-  @State playModeIcon: Resource = $r('app.media.loop')
   @StorageLink('playMode') @Watch('changePlayMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
@@ -117,16 +117,15 @@ export default struct Play {
   async changePlayMode() {
     if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
       this.playModeIcon = $r('app.media.single')
-      this.nowPlayingList = this.nowPlayingListOriginal
+      this.nowPlayingList = this.nowPlayingListOriginal.slice()
       this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
     } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
       this.playModeIcon = $r('app.media.loop')
-      this.nowPlayingList = this.nowPlayingListOriginal
+      this.nowPlayingList = this.nowPlayingListOriginal.slice()
       this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
     } else {
       this.playModeIcon = $r('app.media.shuffle')
-      let songs = this.nowPlayingList.slice()
-      this.nowPlayingList = this.shuffleList(songs)
+      this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
       this.getNowPlayingIndex(this.nowPlayingSong!, this.nowPlayingList)
     }
     if (this.isPlaying === true) {
@@ -193,7 +192,6 @@ export default struct Play {
 
   async aboutToAppear() {
     this.getStatusBarHeight()
-    await this.changePlayMode()
   }
 
   @Builder
@@ -333,7 +331,7 @@ export default struct Play {
         Text("添加到歌单")
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .fontSize(20)
+          .fontSize(18)
           .fontColor($r('app.color.font'))
       }
       .width('100%')
@@ -345,10 +343,10 @@ export default struct Play {
       })
 
       Button({ type: ButtonType.Normal }) {
-        Text("艺术家：" + this.nowPlayingSong!.artist)
+        Text("艺术家：" + this.nowPlayingSong?.artist)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .fontSize(20)
+          .fontSize(18)
           .fontColor($r('app.color.font'))
       }
       .width('100%')
@@ -363,10 +361,10 @@ export default struct Play {
       })
 
       Button({ type: ButtonType.Normal }) {
-        Text("专辑：" + this.nowPlayingSong!.album)
+        Text("专辑：" + this.nowPlayingSong?.album)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .fontSize(20)
+          .fontSize(18)
           .fontColor($r('app.color.font'))
       }
       .width('100%')
@@ -384,7 +382,7 @@ export default struct Play {
         Text("清除睡眠定时")
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .fontSize(20)
+          .fontSize(18)
           .fontColor($r('app.color.font'))
       }
       .width('100%')
@@ -399,7 +397,7 @@ export default struct Play {
         Text("关闭播放器")
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .fontSize(20)
+          .fontSize(18)
           .fontColor($r('app.color.font'))
       }
       .width('100%')
@@ -408,6 +406,7 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.nowPlayingSong = null
+        this.nowPlayingList = []
         this.avPlayer!.stop()
         setTimeout(() => {
           this.isPlaying = false

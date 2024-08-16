@@ -48,6 +48,8 @@ export default struct AlbumDetail {
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume discs: Song[][]
+  @Consume showMenu: boolean
+  @Consume longPressSong: Song | null
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
@@ -235,12 +237,11 @@ export default struct AlbumDetail {
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }
-                this.nowPlayingListOriginal = this.album.song!
-                if (this.playMode === 2) {
-                  let songs = this.album.song!.slice()
-                  this.nowPlayingList = this.shuffleList(songs)
+                this.nowPlayingListOriginal = this.album.song!.slice()
+                if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+                  this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
                 } else {
-                  this.nowPlayingList = this.album.song!
+                  this.nowPlayingList = this.nowPlayingListOriginal.slice()
                 }
                 this.getNowPlayingIndex(song, this.nowPlayingList)
                 this.getStar()
@@ -248,6 +249,13 @@ export default struct AlbumDetail {
                 this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
                 this.startPlaying = true
               })
+              .gesture(
+                LongPressGesture()
+                  .onAction((event: GestureEvent) => {
+                    this.longPressSong = song
+                    this.showMenu = true
+                  })
+              )
             })
             Divider()
               .width('90%')
