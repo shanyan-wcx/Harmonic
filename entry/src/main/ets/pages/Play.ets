@@ -236,13 +236,14 @@ export default struct Play {
       .clip(true)
       .backgroundColor($r('app.color.bar_background'))
 
-      Button() {
+      Button({ type: ButtonType.Normal }) {
         Text("设置")
           .fontSize(20)
           .fontColor($r('app.color.font'))
       }
       .width('80%')
       .height(60)
+      .borderRadius(15)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(() => {
         this.sleepTime = this.sleepValue * 60
@@ -337,6 +338,7 @@ export default struct Play {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -352,6 +354,7 @@ export default struct Play {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -370,6 +373,7 @@ export default struct Play {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -388,6 +392,7 @@ export default struct Play {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -403,6 +408,7 @@ export default struct Play {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false

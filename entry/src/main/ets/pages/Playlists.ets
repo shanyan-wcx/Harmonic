@@ -76,6 +76,29 @@ export default struct Playlists {
       .layoutWeight(1)
       .justifyContent(FlexAlign.Center)
       .visibility(this.playlists.length > 0 ? Visibility.None : Visibility.Visible)
+
+      Divider()
+        .width('90%')
+        .height(1)
+        .color($r('app.color.divider'))
+
+      Row() {
+        Button({type:ButtonType.Normal}) {
+          Text("新建")
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+        }
+        .width('90%')
+        .height(50)
+        .borderRadius(15)
+        .backgroundColor($r('app.color.content_background'))
+        .onClick(() => {
+        })
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .justifyContent(FlexAlign.Center)
     }
     .width('100%')
     .height('100%')

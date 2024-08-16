@@ -573,6 +573,7 @@ struct Index {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMenu = false
@@ -600,6 +601,7 @@ struct Index {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMenu = false
@@ -627,6 +629,7 @@ struct Index {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMenu = false
@@ -642,6 +645,7 @@ struct Index {
       }
       .width('100%')
       .height(60)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMenu = false

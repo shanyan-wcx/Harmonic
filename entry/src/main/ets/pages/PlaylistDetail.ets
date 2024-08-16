@@ -116,12 +116,27 @@ export default struct PlaylistDetail {
       Scroll() {
         Column() {
           Column() {
-            Text(this.playlist!.name)
-              .fontSize(28)
-              .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
+            Row(){
+              Text(this.playlist!.name)
+                .fontSize(28)
+                .fontColor($r('app.color.font'))
+                .fontWeight(FontWeight.Bold)
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+              Button({type : ButtonType.Circle}){
+                Image($r('app.media.edit'))
+                  .width(20)
+                  .height(20)
+              }
+              .width(35)
+              .height(35)
+              .margin({ left: 5 })
+              .backgroundColor('#00000000')
+              .onClick(()=>{
+
+              })
+            }
+            .justifyContent(FlexAlign.Start)
             Text(this.playlist!.comment)
               .fontSize(18)
               .fontColor($r('app.color.font_secondary'))
