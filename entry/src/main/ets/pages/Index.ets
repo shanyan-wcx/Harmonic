@@ -82,6 +82,7 @@ struct Index {
   @Provide showCover: boolean = true
   @Provide showMenu: boolean = false
   @Provide longPressSong: Song | null = null
+  @Provide longPressStar: boolean = false
   @Provide sleepTime: number = 0
   @Provide album: Album | null = null
   @Provide artist: Artist | null = null
@@ -578,6 +579,15 @@ struct Index {
         if (this.nowPlayingList.length !== 0) {
           this.nowPlayingListOriginal.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
           this.nowPlayingList.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
+          promptAction.showToast({
+            message: '添加成功！',
+            duration: 500
+          });
+        } else {
+          promptAction.showToast({
+            message: '播放队列不存在！',
+            duration: 500
+          });
         }
       })
 
@@ -596,6 +606,15 @@ struct Index {
         if (this.nowPlayingList.length !== 0) {
           this.nowPlayingListOriginal.push(this.longPressSong!)
           this.nowPlayingList.push(this.longPressSong!)
+          promptAction.showToast({
+            message: '添加成功！',
+            duration: 500
+          });
+        } else {
+          promptAction.showToast({
+            message: '播放队列不存在！',
+            duration: 500
+          });
         }
       })
 
@@ -615,7 +634,7 @@ struct Index {
       })
 
       Button({ type: ButtonType.Normal }) {
-        Text("添加到收藏")
+        Text(this.longPressStar === true ? "取消收藏" : "添加到收藏")
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .fontSize(18)
@@ -626,6 +645,39 @@ struct Index {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMenu = false
+        if (this.longPressStar === true) {
+          let starStatus = await unstar(this.longPressSong!.id)
+          if (starStatus === true) {
+            promptAction.showToast({
+              message: '取消收藏成功！',
+              duration: 500
+            });
+            if (this.startPlaying === true && this.longPressSong!.id === this.nowPlayingSong!.id) {
+              this.nowPlayingStar = false
+              if (this.isPlaying === true) {
+                await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+              } else {
+                await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+              }
+            }
+          }
+        } else {
+          let starStatus = await star(this.longPressSong!.id)
+          if (starStatus === true) {
+            promptAction.showToast({
+              message: '收藏成功！',
+              duration: 500
+            });
+            if (this.startPlaying === true && this.longPressSong!.id === this.nowPlayingSong!.id) {
+              this.nowPlayingStar = true
+              if (this.isPlaying === true) {
+                await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+              } else {
+                await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+              }
+            }
+          }
+        }
       })
     }
     .width('90%')

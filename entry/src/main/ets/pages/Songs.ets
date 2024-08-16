@@ -1,7 +1,7 @@
 import { curves } from '@kit.ArkUI'
 import { media } from '@kit.MediaKit'
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics } from '../utils/Api'
+import { getLyrics, getStarred } from '../utils/Api'
 import { Song, StructuredLyric, Line } from '../utils/Interface'
 
 @Component
@@ -29,6 +29,7 @@ export default struct Songs {
   @Consume serverStatus: boolean
   @Consume showMenu: boolean
   @Consume longPressSong: Song | null
+  @Consume longPressStar: boolean
   @Consume sleepTime: number
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
@@ -58,14 +59,20 @@ export default struct Songs {
     }
   }
 
-  getStar() {
-    this.nowPlayingStar = false
-    for (let song of this.starredSongs) {
-      if (song.id === this.nowPlayingSong!.id) {
-        this.nowPlayingStar = true
-        break
+  async getStar(song: Song) {
+    let starredSongs: Song[] = []
+    let starred = await getStarred()
+    if (starred !== null) {
+      starredSongs = starred!.song!
+    }
+    if (starredSongs.length > 0) {
+      for (let starredSong of starredSongs) {
+        if (song.id === starredSong.id) {
+          return true
+        }
       }
     }
+    return false
   }
 
   shuffleList<T>(array: T[]): T[] {
@@ -139,15 +146,16 @@ export default struct Songs {
                 this.nowPlayingList = this.nowPlayingListOriginal.slice()
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
-              this.getStar()
+              this.nowPlayingStar = await this.getStar(song)
               this.isPlaying = true
               this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
               this.startPlaying = true
             })
             .gesture(
               LongPressGesture()
-                .onAction((event: GestureEvent) => {
+                .onAction(async (event: GestureEvent) => {
                   this.longPressSong = song
+                  this.longPressStar = await this.getStar(song)
                   this.showMenu = true
                 })
             )

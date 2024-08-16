@@ -1,7 +1,7 @@
 import { window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics, star, unstar } from '../utils/Api';
+import { getLyrics, getStarred, star, unstar } from '../utils/Api';
 import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
 
 function formatDuration(seconds: number): string {
@@ -60,6 +60,7 @@ export default struct Play {
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
   @Consume nowPlayingStar: boolean
+  @Consume starredSongs: Song[]
   @Consume @Watch('scrollLyrics') lyricsIndex: number
   @Consume nowPlayedTime: number
   @Consume isPlaying: boolean
@@ -523,6 +524,10 @@ export default struct Play {
                 let starStatus = await unstar(this.nowPlayingSong!.id)
                 if (starStatus === true) {
                   this.nowPlayingStar = false
+                  let starred = await getStarred()
+                  if (starred !== null) {
+                    this.starredSongs = starred!.song!
+                  }
                   if (this.isPlaying === true) {
                     await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
                   } else {
@@ -533,6 +538,10 @@ export default struct Play {
                 let starStatus = await star(this.nowPlayingSong!.id)
                 if (starStatus === true) {
                   this.nowPlayingStar = true
+                  let starred = await getStarred()
+                  if (starred !== null) {
+                    this.starredSongs = starred!.song!
+                  }
                   if (this.isPlaying === true) {
                     await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
                   } else {
