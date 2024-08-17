@@ -126,7 +126,7 @@ export default struct Songs {
               }
               .width('100%')
               .height('100%')
-              .padding({ right: 20 })
+              .padding({ right: 15 })
             }
             .width('100%')
             .height(80)
@@ -206,13 +206,13 @@ export default struct Songs {
         .color($r('app.color.font_secondary'))
         .selectedColor($r('app.color.font'))
         .selectedBackgroundColor($r('app.color.index'))
-        .itemSize(24)
+        .itemSize(20)
         .itemBorderRadius(20)
         .font({
-          size: 14
+          size: 12
         })
         .selectedFont({
-          size: 16
+          size: 13
         })
         .margin({ right: 5 })
         .visibility(this.songs.length > 0 ? Visibility.Visible : Visibility.None)
