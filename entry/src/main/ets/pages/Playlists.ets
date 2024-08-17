@@ -43,6 +43,7 @@ export default struct Playlists {
             }
             .width('100%')
             .height(50)
+            .borderRadius(15)
             .backgroundColor('#00000000')
             .padding({ left: 20, right: 20 })
             .onClick(() => {

@@ -1,8 +1,14 @@
 import { curves } from '@kit.ArkUI'
 import { media } from '@kit.MediaKit'
+import { i18n } from '@kit.LocalizationKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred } from '../utils/Api'
 import { Song, StructuredLyric, Line } from '../utils/Interface'
+
+let indexUtil = i18n.getInstance();
+let indexList = indexUtil.getIndexList();
+indexList[0] = '#'
+indexList.splice(indexList.length - 1, 1)
 
 @Component
 export default struct Songs {
@@ -31,10 +37,12 @@ export default struct Songs {
   @Consume longPressSong: Song | null
   @Consume longPressStar: boolean
   @Consume sleepTime: number
+  @Consume selectedIndex: number
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
   @State coverSize: number = 128
+  private listScroller: Scroller = new Scroller
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -86,8 +94,8 @@ export default struct Songs {
   }
 
   build() {
-    Column() {
-      List() {
+    Stack({ alignContent: Alignment.End }) {
+      List({ scroller: this.listScroller }) {
         ForEach(this.songs, (song: Song, index) => {
           ListItem() {
             Button({ type: ButtonType.Normal }) {
@@ -118,6 +126,7 @@ export default struct Songs {
               }
               .width('100%')
               .height('100%')
+              .padding({ right: 20 })
             }
             .width('100%')
             .height(80)
@@ -168,6 +177,19 @@ export default struct Songs {
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade)
       .visibility(this.songs.length > 0 ? Visibility.Visible : Visibility.None)
+      .onScrollIndex((firstIndex: number) => {
+        let initial = indexUtil.getIndex(this.songs[firstIndex].title);
+        if (initial === '...') {
+          this.selectedIndex = 0
+        } else {
+          for (let index = 0; index < indexList.length; index++) {
+            if (indexList[index] === initial) {
+              this.selectedIndex = index
+              break
+            }
+          }
+        }
+      })
 
       Column() {
         Text("没有歌曲")
@@ -178,6 +200,45 @@ export default struct Songs {
       .height('100%')
       .justifyContent(FlexAlign.Center)
       .visibility(this.songs.length === 0 && this.serverStatus === true ? Visibility.Visible : Visibility.None)
+
+      AlphabetIndexer({ arrayValue: indexList, selected: 0 })
+        .selected(this.selectedIndex)
+        .color($r('app.color.font_secondary'))
+        .selectedColor($r('app.color.font'))
+        .selectedBackgroundColor($r('app.color.index'))
+        .itemSize(24)
+        .itemBorderRadius(20)
+        .font({
+          size: 14
+        })
+        .selectedFont({
+          size: 16
+        })
+        .margin({ right: 5 })
+        .visibility(this.songs.length > 0 ? Visibility.Visible : Visibility.None)
+        .onSelect((index: number) => {
+          if (index === 0) {
+            this.listScroller.scrollToIndex(0, false, ScrollAlign.START)
+          } else {
+            let find = false
+            while (index) {
+              for (let index2 = 0; index2 < this.songs.length; index2++) {
+                if (indexUtil.getIndex(this.songs[index2].title) === indexList[index]) {
+                  this.listScroller.scrollToIndex(index2, false, ScrollAlign.START)
+                  find = true
+                  break;
+                }
+              }
+              if (find === true) {
+                break
+              }
+              index--
+            }
+            if (find === false) {
+              this.listScroller.scrollToIndex(0, false, ScrollAlign.START)
+            }
+          }
+        })
     }
     .width('100%')
     .height('100%')

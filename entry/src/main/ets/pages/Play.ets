@@ -339,6 +339,7 @@ export default struct Play {
       .width('100%')
       .height(60)
       .borderRadius(10)
+      .padding({ left: 20, right: 20 })
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -355,6 +356,7 @@ export default struct Play {
       .width('100%')
       .height(60)
       .borderRadius(10)
+      .padding({ left: 20, right: 20 })
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -374,6 +376,7 @@ export default struct Play {
       .width('100%')
       .height(60)
       .borderRadius(10)
+      .padding({ left: 20, right: 20 })
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -393,6 +396,7 @@ export default struct Play {
       .width('100%')
       .height(60)
       .borderRadius(10)
+      .padding({ left: 20, right: 20 })
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
@@ -409,6 +413,7 @@ export default struct Play {
       .width('100%')
       .height(60)
       .borderRadius(10)
+      .padding({ left: 20, right: 20 })
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false

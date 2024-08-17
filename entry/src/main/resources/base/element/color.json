@@ -51,6 +51,10 @@
     {
       "name": "indicator",
       "value": "#1E1E1F"
+    },
+    {
+      "name": "index",
+      "value": "#35000000"
     }
   ]
 }

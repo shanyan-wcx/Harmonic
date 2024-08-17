@@ -1,4 +1,5 @@
 import { curves, promptAction, window } from '@kit.ArkUI';
+import { i18n, intl } from '@kit.LocalizationKit';
 import {
   common,
   ConfigurationConstant,
@@ -39,6 +40,15 @@ import Stats from './Stats';
 
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
+let transliterator = i18n.Transliterator.getInstance('Any-Latn');
+let options: intl.CollatorOptions = {
+  localeMatcher: "lookup",
+  usage: "sort",
+  sensitivity: "variant",
+  numeric: true
+};
+let locale = new intl.Locale();
+let collator = new intl.Collator(locale.toString(), options);
 
 @Entry
 @Component
@@ -84,6 +94,7 @@ struct Index {
   @Provide longPressSong: Song | null = null
   @Provide longPressStar: boolean = false
   @Provide sleepTime: number = 0
+  @Provide selectedIndex: number = 0
   @Provide album: Album | null = null
   @Provide artist: Artist | null = null
   @Provide playlist: Playlist | null = null
@@ -494,16 +505,22 @@ struct Index {
           this.songs = []
           this.playlists = []
           this.artists = await getIndexes()
-          this.artists.sort((a, b) => a.name.localeCompare(b.name, 'zh'))
+          this.artists.sort((a, b) => {
+            return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+          })
           for (const artist of this.artists) {
             artist.biography = await getArtistInfo(artist.id)
             artist.album = await getArtist(artist.id);
             this.albums = this.albums.concat(artist.album!);
-            this.albums.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
+            this.albums.sort((a, b) => {
+              return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+            })
             for (const album of artist.album!) {
               album.song = await getAlbum(album.id);
               this.songs = this.songs.concat(album.song!);
-              this.songs.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
+              this.songs.sort((a, b) => {
+                return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+              })
             }
           }
           this.playlists = (await getPlaylists()).sort((a, b) => {
@@ -513,6 +530,7 @@ struct Index {
           if (starred !== null) {
             this.starredSongs = starred!.song!
           }
+          this.selectedIndex = 0
           console.log("获取到艺术家", this.artists.length)
           console.log("获取到专辑", this.albums.length)
           console.log("获取到歌曲", this.songs.length)
@@ -737,16 +755,22 @@ struct Index {
       console.log("Server status", status)
       if (status === 'ok') {
         this.artists = await getIndexes()
-        this.artists.sort((a, b) => a.name.localeCompare(b.name, 'zh'))
+        this.artists.sort((a, b) => {
+          return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+        })
         for (const artist of this.artists) {
           artist.biography = await getArtistInfo(artist.id)
           artist.album = await getArtist(artist.id);
           this.albums = this.albums.concat(artist.album!);
-          this.albums.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
+          this.albums.sort((a, b) => {
+            return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+          })
           for (const album of artist.album!) {
             album.song = await getAlbum(album.id);
             this.songs = this.songs.concat(album.song!);
-            this.songs.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
+            this.songs.sort((a, b) => {
+              return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+            })
           }
         }
         this.playlists = (await getPlaylists()).sort((a, b) => {
@@ -756,6 +780,7 @@ struct Index {
         if (starred !== null) {
           this.starredSongs = starred!.song!
         }
+        this.selectedIndex = 0
         console.log("获取到艺术家", this.artists.length)
         console.log("获取到专辑", this.albums.length)
         console.log("获取到歌曲", this.songs.length)
@@ -814,6 +839,7 @@ struct Index {
           }
           .width('100%')
           .height(60)
+          .borderRadius(20)
           .backgroundColor($r('app.color.bar_background'))
           .onClick(() => {
             animateTo({
@@ -836,6 +862,7 @@ struct Index {
           }
           .width('100%')
           .height(60)
+          .borderRadius(20)
           .backgroundColor($r('app.color.bar_background'))
           .onClick(() => {
             animateTo({
@@ -858,6 +885,7 @@ struct Index {
           }
           .width('100%')
           .height(60)
+          .borderRadius(20)
           .backgroundColor($r('app.color.bar_background'))
           .onClick(() => {
             animateTo({
@@ -898,6 +926,7 @@ struct Index {
           }
           .width('100%')
           .height(60)
+          .borderRadius(20)
           .backgroundColor($r('app.color.bar_background'))
           .onClick(() => {
             animateTo({
@@ -920,6 +949,7 @@ struct Index {
           }
           .width('100%')
           .height(60)
+          .borderRadius(20)
           .backgroundColor($r('app.color.bar_background'))
           .onClick(() => {
             animateTo({
@@ -942,6 +972,7 @@ struct Index {
           }
           .width('100%')
           .height(60)
+          .borderRadius(20)
           .backgroundColor($r('app.color.bar_background'))
           .onClick(() => {
             animateTo({
@@ -1062,15 +1093,21 @@ struct Index {
                     this.songs = []
                     this.playlists = []
                     this.artists = await getIndexes()
-                    this.artists.sort((a, b) => a.name.localeCompare(b.name, 'zh'))
+                    this.artists.sort((a, b) => {
+                      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+                    })
                     for (const artist of this.artists) {
                       artist.album = await getArtist(artist.id);
                       this.albums = this.albums.concat(artist.album!);
-                      this.albums.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
+                      this.albums.sort((a, b) => {
+                        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+                      })
                       for (const album of artist.album!) {
                         album.song = await getAlbum(album.id);
                         this.songs = this.songs.concat(album.song!);
-                        this.songs.sort((a, b) => a.title.localeCompare(b.title, 'zh'))
+                        this.songs.sort((a, b) => {
+                          return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+                        })
                       }
                     }
                     this.playlists = (await getPlaylists()).sort((a, b) => {
@@ -1080,6 +1117,7 @@ struct Index {
                     if (starred !== null) {
                       this.starredSongs = starred!.song!
                     }
+                    this.selectedIndex = 0
                     console.log("获取到艺术家", this.artists.length)
                     console.log("获取到专辑", this.albums.length)
                     console.log("获取到歌曲", this.songs.length)

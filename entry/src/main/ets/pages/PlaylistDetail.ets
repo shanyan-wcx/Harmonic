@@ -222,6 +222,7 @@ export default struct PlaylistDetail {
             }
             .width('100%')
             .height(80)
+            .borderRadius(10)
             .backgroundColor('#00000000')
             .onClick(async () => {
               await this.avPlayer!.reset()
