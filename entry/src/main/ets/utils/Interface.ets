@@ -50,6 +50,7 @@ export interface SubsonicResponse {
   artistInfo?: ArtistInfo;
   lyricsList?: LyricsList;
   starred?: Starred;
+  shares?: Shares;
 }
 
 export interface ApiResponse {
@@ -167,4 +168,20 @@ export interface Starred {
   artist?: Artist[];
   album?: Album[];
   song?: Song[];
+}
+
+export interface Share {
+  entry: Song[];
+  id: string;
+  url: string;
+  description: string;
+  username: string;
+  created: string;
+  expires: string;
+  lastVisited: string;
+  visitCount: number;
+}
+
+export interface Shares {
+  share: Share[];
 }

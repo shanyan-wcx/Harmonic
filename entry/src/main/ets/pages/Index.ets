@@ -206,6 +206,24 @@ struct Index {
     return pixelMap
   }
 
+  claerSongs(array: Song[]): Song[] {
+    const uniqueItems = new Map<string, Song>();
+    array.forEach(item => uniqueItems.set(item.id, item));
+    return Array.from(uniqueItems.values());
+  }
+
+  clearAlbums(array: Album[]): Album[] {
+    const uniqueItems = new Map<string, Album>();
+    array.forEach(item => uniqueItems.set(item.id, item));
+    return Array.from(uniqueItems.values());
+  }
+
+  clearArtists(array: Artist[]): Artist[] {
+    const uniqueItems = new Map<string, Artist>();
+    array.forEach(item => uniqueItems.set(item.id, item));
+    return Array.from(uniqueItems.values());
+  }
+
   async startContinuousTask() {
     let wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [
@@ -240,7 +258,7 @@ struct Index {
     let metadata: AVSessionManager.AVMetadata = {
       assetId: '0',
       title: this.nowPlayingSong!.title,
-      mediaImage: this.getPixelMap(await getCover(this.nowPlayingSong!.id)),
+      mediaImage: this.getPixelMap(await getCover(this.nowPlayingSong!.id, 512)),
       duration: this.nowPlayingSong!.duration * 1000,
       artist: this.nowPlayingSong!.artist
     };
@@ -519,13 +537,16 @@ struct Index {
           this.songs = []
           this.playlists = []
           this.artists = await getIndexes()
+          this.artists = this.clearArtists(this.artists)
           for (const artist of this.artists) {
             artist.biography = await getArtistInfo(artist.id)
             artist.album = await getArtist(artist.id);
             this.albums = this.albums.concat(artist.album!);
+            this.albums = this.clearAlbums(this.albums)
             for (const album of artist.album!) {
               album.song = await getAlbum(album.id);
               this.songs = this.songs.concat(album.song!);
+              this.songs = this.claerSongs(this.songs)
             }
           }
           this.playlists = (await getPlaylists()).sort((a, b) => {
@@ -806,15 +827,21 @@ struct Index {
       console.log("Server status", status)
       if (status === 'ok') {
         this.artists = await getIndexes()
+        this.artists = this.clearArtists(this.artists)
         for (const artist of this.artists) {
           artist.biography = await getArtistInfo(artist.id)
           artist.album = await getArtist(artist.id);
           this.albums = this.albums.concat(artist.album!);
+          this.albums = this.clearAlbums(this.albums)
           for (const album of artist.album!) {
             album.song = await getAlbum(album.id);
             this.songs = this.songs.concat(album.song!);
+            this.songs = this.claerSongs(this.songs)
           }
         }
+        this.playlists = (await getPlaylists()).sort((a, b) => {
+          return Date.parse(b.changed) - Date.parse(a.changed);
+        })
         this.selectedPlaylists = []
         for (let playlist of this.playlists) {
           this.selectedPlaylists.push(false)
@@ -832,9 +859,6 @@ struct Index {
         })
         this.artists.sort((a, b) => {
           return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-        })
-        this.playlists = (await getPlaylists()).sort((a, b) => {
-          return Date.parse(b.changed) - Date.parse(a.changed);
         })
         console.log("获取到艺术家", this.artists.length)
         console.log("获取到专辑", this.albums.length)
@@ -1146,12 +1170,15 @@ struct Index {
                     this.songs = []
                     this.playlists = []
                     this.artists = await getIndexes()
+                    this.artists = this.clearArtists(this.artists)
                     for (const artist of this.artists) {
                       artist.album = await getArtist(artist.id);
                       this.albums = this.albums.concat(artist.album!);
+                      this.albums = this.clearAlbums(this.albums)
                       for (const album of artist.album!) {
                         album.song = await getAlbum(album.id);
                         this.songs = this.songs.concat(album.song!);
+                        this.songs = this.claerSongs(this.songs)
                       }
                     }
                     this.playlists = (await getPlaylists()).sort((a, b) => {

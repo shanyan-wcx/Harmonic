@@ -207,14 +207,14 @@ export async function getLyrics(id: string) {
   }
 }
 
-export async function getCover(id: string) {
+export async function getCover(id: string, size: number) {
   let baseURL = AppStorage.get('baseURL')!
   let username = AppStorage.get('username')!
   let password = AppStorage.get('password')!
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getCoverArt' + auth + `&id=${id}&size=512`, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getCoverArt' + auth + `&id=${id}&size=${size}`, {
         timeout: 10000
       })
     return response.data
@@ -367,5 +367,30 @@ export async function unstar(id: string) {
       duration: 500
     });
     return false
+  }
+}
+
+export async function createShare(id: string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  let currentDate = new Date();
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  let time = currentDate.getTime();
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/createShare' + auth +
+        `&id=${id}&expires=${time}`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    if (subsonicResponse.shares !== undefined) {
+      return subsonicResponse.shares.share[0].url
+    }
+    return null
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return null
   }
 }

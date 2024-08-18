@@ -1,9 +1,13 @@
-import { window } from '@kit.ArkUI';
+import { promptAction, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics, getStarred, star, unstar } from '../utils/Api';
+import { createShare, getCover, getLyrics, getStarred, star, unstar } from '../utils/Api';
 import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
+import { systemShare } from '@kit.ShareKit';
+import { uniformTypeDescriptor as utd } from '@kit.ArkData';
+import { common } from '@kit.AbilityKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -59,7 +63,6 @@ export default struct Play {
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume showPlay: boolean
-  @Consume showDevice: boolean
   @Consume showCover: boolean
   @Consume sleepTime: number
   @Consume avPlayer: media.AVPlayer | null
@@ -503,8 +506,31 @@ export default struct Play {
             .height(40)
             .margin({ right: 25 })
             .backgroundColor('#00000000')
-            .onClick(() => {
-
+            .onClick(async () => {
+              let url = await createShare(this.nowPlayingSong!.id)
+              if (url !== null) {
+                let shareData: systemShare.SharedData = new systemShare.SharedData({
+                  utd: utd.UniformDataType.HYPERLINK,
+                  content: url,
+                  description: this.nowPlayingSong!.title,
+                  thumbnail: new Uint8Array(await getCover(this.nowPlayingSong!.id, 128))
+                });
+                let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
+                let context = getContext(this) as common.UIAbilityContext;
+                controller.show(context, {
+                  selectionMode: systemShare.SelectionMode.SINGLE,
+                  previewMode: systemShare.SharePreviewMode.DEFAULT,
+                }).then(() => {
+                  console.info('分享成功。');
+                }).catch((error: BusinessError) => {
+                  console.error(`分享失败，code: ${error.code}, message: ${error.message}`);
+                });
+              } else {
+                promptAction.showToast({
+                  message: '创建分享链接失败，请检查网络！',
+                  duration: 500
+                });
+              }
             })
           }
           .width("100%")
