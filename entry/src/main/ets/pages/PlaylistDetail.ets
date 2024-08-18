@@ -3,6 +3,7 @@ import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred } from '../utils/Api';
 import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
+import editPlaylistBuilder from './editPlaylist';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -62,6 +63,12 @@ export default struct PlaylistDetail {
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
   @StorageLink('playMode') playMode: number = 0
+  editPlaylist: CustomDialogController = new CustomDialogController({
+    builder: editPlaylistBuilder(),
+    width: 340,
+    height: 310,
+    backgroundColor: $r('app.color.content_background')
+  })
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -142,7 +149,7 @@ export default struct PlaylistDetail {
               .margin({ left: 5 })
               .backgroundColor('#00000000')
               .onClick(() => {
-
+                this.editPlaylist.open()
               })
             }
             .width('100%')

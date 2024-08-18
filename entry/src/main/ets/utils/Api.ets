@@ -243,13 +243,55 @@ export async function updatePlaylist(playlistId: string, name?: string, comment?
   if (songIndexToRemove !== undefined) {
     url += `&songIndexToRemove=${songIndexToRemove}`
   }
-  console.log(url)
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(url, {
         timeout: 10000
       })
-    console.log(JSON.stringify(response.data))
+    return true
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return false
+  }
+}
+
+export async function createPlaylist(name: string, comment: string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/createPlaylist' + auth + `&name=${name}`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    let playlist = subsonicResponse.playlist
+    if (playlist !== undefined) {
+      let success = await updatePlaylist(playlist.id, undefined, comment)
+      if (success === false) {
+        return false
+      }
+    } else {
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return false
+  }
+}
+
+export async function deletePlaylist(id: string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/deletePlaylist' + auth + `&id=${id}`, {
+        timeout: 10000
+      })
     return true
   } catch (error) {
     console.error(JSON.stringify(error));

@@ -31,6 +31,10 @@ export default struct Setting {
             .margin({ left: 15 })
             .caretColor($r('app.color.font_secondary'))
             .fontColor($r('app.color.font'))
+            .fontSize(20)
+            .placeholderFont({
+              size : 20
+            })
             .type(InputType.URL)
             .enterKeyType(EnterKeyType.Next)
         }
@@ -54,6 +58,10 @@ export default struct Setting {
             .margin({ left: 15 })
             .caretColor($r('app.color.font_secondary'))
             .fontColor($r('app.color.font'))
+            .fontSize(20)
+            .placeholderFont({
+              size : 20
+            })
             .type(InputType.USER_NAME)
             .enterKeyType(EnterKeyType.Next)
         }
@@ -77,6 +85,10 @@ export default struct Setting {
             .margin({ left: 15 })
             .caretColor($r('app.color.font_secondary'))
             .fontColor($r('app.color.font'))
+            .fontSize(20)
+            .placeholderFont({
+              size : 20
+            })
             .type(InputType.Password)
             .enterKeyType(EnterKeyType.Next)
         }

@@ -1,4 +1,5 @@
 import { Playlist } from '../utils/Interface'
+import createPlaylistBuilder from './createPlaylist'
 
 @Component
 export default struct Playlists {
@@ -7,6 +8,12 @@ export default struct Playlists {
   @Consume showSidebar: boolean
   @Consume playlists: Playlist[]
   @Consume playlist: Playlist | null
+  createPlaylist: CustomDialogController = new CustomDialogController({
+    builder: createPlaylistBuilder(),
+    width: 340,
+    height: 310,
+    backgroundColor: $r('app.color.content_background')
+  })
 
   build() {
     Column() {
@@ -94,6 +101,13 @@ export default struct Playlists {
         .borderRadius(15)
         .backgroundColor($r('app.color.content_background'))
         .onClick(() => {
+          animateTo({
+            duration: 300,
+            curve: Curve.EaseOut,
+          }, () => {
+            this.showSidebar = false
+          })
+          this.createPlaylist.open()
         })
       }
       .width('100%')
