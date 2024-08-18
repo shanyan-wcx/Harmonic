@@ -113,7 +113,7 @@ export interface Song {
   mediaType: string;
   musicBrainzId: string;
   genres: Genre[];
-  replayGain: ReplayGain;
+  replayGain?: ReplayGain;
   channelCount: number;
   samplingRate: number;
 }
@@ -123,6 +123,7 @@ export interface Genre {
 }
 
 export interface ReplayGain {
+  trackGain?: number;
   trackPeak: number;
   albumPeak: number;
 }

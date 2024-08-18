@@ -115,6 +115,7 @@ struct Index {
   @State sidebarIcon: Resource = $r('app.media.sidebar')
   @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
+  @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 340,
@@ -351,8 +352,6 @@ struct Index {
   }
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
-    avPlayer.on('durationUpdate', (duration: number) => {
-    })
     avPlayer.on('timeUpdate', async (time: number) => {
       this.nowPlayedTime = time / 1000
       if (this.sleepTime > 0 && this.isPlaying === true) {
@@ -380,8 +379,8 @@ struct Index {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
       }
     })
-    avPlayer.on('speedDone', (speed: number) => {
-      console.info(`播放器设置速度成功，当前速度为 ${speed}`);
+    avPlayer.on('volumeChange', (vol: number) => {
+      console.info('设置播放音量' + vol)
     })
     avPlayer.on('error', (err: BusinessError) => {
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
@@ -408,6 +407,9 @@ struct Index {
           await this.session!.activate()
           await this.setSessionInfo()
           await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PREPARE)
+          if (this.audioNormalization === true && this.nowPlayingSong!.replayGain?.trackGain !== undefined) {
+            this.avPlayer!.setVolume((100 + this.nowPlayingSong!.replayGain!.trackGain) / 100)
+          }
           if (this.isPlaying === true) {
             this.avPlayer!.play()
           } else {

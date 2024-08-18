@@ -178,7 +178,7 @@ export default struct AlbumDetail {
             }
 
             Column() {
-              Text(this.album.year.toString())
+              Text(this.album.year !== undefined ? this.album.year!.toString() : "未知")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
