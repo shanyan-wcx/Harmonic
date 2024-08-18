@@ -2,6 +2,10 @@
 
 Navidrome的鸿蒙Next客户端。
 
+## 应用截图
+
+### 浅色
+
 <div style="display: flex; justify-content: space-between;">
   <img src="./assets/light1.png" alt="Image 1" style="width: 19%;">
   <img src="./assets/light2.png" alt="Image 2" style="width: 19%;">
@@ -10,7 +14,9 @@ Navidrome的鸿蒙Next客户端。
   <img src="./assets/light5.png" alt="Image 5" style="width: 19%;">
 </div>
 
-<div style="display: flex; justify-content: space-between; margin-top: 20px;">
+### 深色
+
+<div style="display: flex; justify-content: space-between;">
   <img src="./assets/dark1.png" alt="Image 1" style="width: 19%;">
   <img src="./assets/dark2.png" alt="Image 2" style="width: 19%;">
   <img src="./assets/dark3.png" alt="Image 3" style="width: 19%;">
