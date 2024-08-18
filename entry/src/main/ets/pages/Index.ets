@@ -97,6 +97,7 @@ struct Index {
   @Provide showMenu: boolean = false
   @Provide longPressSong: Song | null = null
   @Provide longPressStar: boolean = false
+  @Provide longPressIndex: number = -1
   @Provide sleepTime: number = 0
   @Provide selectedIndex: number = 0
   @Provide album: Album | null = null
@@ -684,13 +685,7 @@ struct Index {
       .visibility(this.addOrDelete === false ? Visibility.Visible : Visibility.None)
       .onClick(async () => {
         this.showMenu = false
-        let index = 0;
-        for (index; index < this.playlist!.songCount; index++) {
-          if (this.longPressSong!.id === this.playlist!.entry![index].id) {
-            break
-          }
-        }
-        let success = await updatePlaylist(this.playlist!.id, undefined, undefined, undefined, index)
+        let success = await updatePlaylist(this.playlist!.id, undefined, undefined, undefined, this.longPressIndex)
         if (success === true) {
           promptAction.showToast({
             message: '删除成功！',

@@ -55,6 +55,10 @@
     {
       "name": "index",
       "value": "#D6D7D8"
+    },
+    {
+      "name": "radio",
+      "value": "#BDBEBF"
     }
   ]
 }

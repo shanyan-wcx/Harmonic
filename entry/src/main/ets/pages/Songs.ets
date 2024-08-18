@@ -179,7 +179,7 @@ export default struct Songs {
       .visibility(this.songs.length > 0 ? Visibility.Visible : Visibility.None)
       .onScrollIndex((firstIndex: number) => {
         let initial = indexUtil.getIndex(this.songs[firstIndex].title);
-        if (initial === '...') {
+        if (initial === '…') {
           this.selectedIndex = 0
         } else {
           for (let index = 0; index < indexList.length; index++) {

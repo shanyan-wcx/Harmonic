@@ -52,6 +52,7 @@ export default struct PlaylistDetail {
   @Consume showMenu: boolean
   @Consume longPressSong: Song | null
   @Consume longPressStar: boolean
+  @Consume longPressIndex: number
   @Consume salt: string
   @Consume version: string
   @Consume client: string
@@ -268,6 +269,7 @@ export default struct PlaylistDetail {
                 .onAction(async (event: GestureEvent) => {
                   this.longPressSong = song
                   this.longPressStar = await this.getStar(song)
+                  this.longPressIndex = index
                   this.showMenu = true
                 })
             )

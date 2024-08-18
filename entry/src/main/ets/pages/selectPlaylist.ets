@@ -43,15 +43,16 @@ export default struct selectPlaylistBuilder {
               Text(playlist.name)
                 .width('100%')
                 .layoutWeight(1)
-                .fontSize(18)
+                .fontSize(20)
                 .margin({ right: 15 })
                 .fontColor($r('app.color.font'))
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
               Radio({ value: playlist.id, group: playlist.id })
+                .width(22)
                 .checked(this.selectedPlaylists[index])
                 .radioStyle({
-                  checkedBackgroundColor: $r('app.color.index')
+                  checkedBackgroundColor: $r('app.color.radio')
                 })
                 .onClick(() => {
                   this.selectedPlaylists[index] = !this.selectedPlaylists[index]
@@ -60,7 +61,7 @@ export default struct selectPlaylistBuilder {
             .width('100%')
             .height(50)
             .borderRadius(10)
-            .padding({ left: 20, right: 20 })
+            .padding({ left: 20, right: 15 })
             .justifyContent(FlexAlign.SpaceBetween)
           }
         })
