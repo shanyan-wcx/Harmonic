@@ -104,6 +104,14 @@ export default struct Setting {
         .margin({ top: 10 })
 
         Column() {
+          Text("播放设置")
+            .width('100%')
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+            .fontWeight(FontWeight.Bold)
+            .padding({ left: 20, right: 20 })
+            .margin({ top: 15 })
+            .textAlign(TextAlign.Center)
           Row() {
             Text("统一音量")
               .fontColor($r('app.color.font'))
