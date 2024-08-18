@@ -51,16 +51,17 @@ export default struct PlaylistDetail {
   @Consume showMenu: boolean
   @Consume longPressSong: Song | null
   @Consume longPressStar: boolean
-  @StorageLink('baseURL') baseURL: string = ''
-  @StorageLink('username') username: string = ''
-  @StorageLink('password') password: string = ''
   @Consume salt: string
   @Consume version: string
   @Consume client: string
   @Consume auth: string
+  @Consume addOrDelete: boolean
   @Consume avPlayer: media.AVPlayer | null
-  @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
+  @StorageLink('baseURL') baseURL: string = ''
+  @StorageLink('username') username: string = ''
+  @StorageLink('password') password: string = ''
+  @StorageLink('playMode') playMode: number = 0
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -111,19 +112,27 @@ export default struct PlaylistDetail {
     return array;
   }
 
+  aboutToAppear() {
+    this.addOrDelete = false
+  }
+
+  aboutToDisappear() {
+    this.addOrDelete = true
+  }
+
   build() {
     NavDestination() {
       Scroll() {
         Column() {
           Column() {
-            Row(){
+            Flex({ direction: FlexDirection.Row }) {
               Text(this.playlist!.name)
                 .fontSize(28)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
-              Button({type : ButtonType.Circle}){
+              Button({ type: ButtonType.Circle }) {
                 Image($r('app.media.edit'))
                   .width(20)
                   .height(20)
@@ -132,17 +141,21 @@ export default struct PlaylistDetail {
               .height(35)
               .margin({ left: 5 })
               .backgroundColor('#00000000')
-              .onClick(()=>{
+              .onClick(() => {
 
               })
             }
-            .justifyContent(FlexAlign.Start)
+            .width('100%')
+            .padding({ left: 40, right: 35 })
+
             Text(this.playlist!.comment)
               .fontSize(18)
               .fontColor($r('app.color.font_secondary'))
               .margin({ top: 5 })
               .maxLines(2)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .padding({ left: 40, right: 40 })
+              .visibility(this.playlist!.comment !== undefined ? Visibility.Visible : Visibility.None)
             Row() {
               Text(formatDate(this.playlist!.created))
                 .fontSize(15)
@@ -152,8 +165,9 @@ export default struct PlaylistDetail {
                 .fontColor($r('app.color.font_secondary'))
             }
             .margin({ top: 5 })
+            .padding({ left: 40, right: 40 })
           }
-          .padding({ left: 40, right: 40, top: 15 })
+          .padding({ top: 15 })
           .width('100%')
           .height('auto')
           .alignItems(HorizontalAlign.Start)
@@ -222,7 +236,6 @@ export default struct PlaylistDetail {
             }
             .width('100%')
             .height(80)
-            .borderRadius(10)
             .backgroundColor('#00000000')
             .onClick(async () => {
               await this.avPlayer!.reset()

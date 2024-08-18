@@ -3,6 +3,7 @@ import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred, star, unstar } from '../utils/Api';
 import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
+import selectPlaylistBuilder from './selectPlaylist';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -17,14 +18,6 @@ function formatDuration(seconds: number): string {
     formattedTime = `${paddedHours}:${formattedTime}`;
   }
   return formattedTime;
-}
-
-function formatTime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-  const formatNumber = (num: number) => (num < 10 ? `0${num}` : `${num}`);
-  return `${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(secs)}`;
 }
 
 function formatSleepTime(seconds: number): string {
@@ -76,6 +69,8 @@ export default struct Play {
   @Consume artist: Artist | null
   @Consume album: Album | null
   @Consume playModeIcon: Resource
+  @Consume session: AVSessionManager.AVSession | null
+  @Consume selectedPlaylists: boolean[]
   @State showSleep: boolean = false
   @State showList: boolean = false
   @State showMore: boolean = false
@@ -85,7 +80,21 @@ export default struct Play {
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
   private controller: SwiperController = new SwiperController();
-  @Consume session: AVSessionManager.AVSession | null
+  selectPlaylist: CustomDialogController = new CustomDialogController({
+    builder: selectPlaylistBuilder(),
+    width: 340,
+    height: 372,
+    backgroundColor: $r('app.color.content_background'),
+    onWillDismiss: (dismissDialogAction: DismissDialogAction) => {
+      dismissDialogAction.dismiss()
+      setTimeout(() => {
+        let index = this.selectedPlaylists.length
+        while (index--) {
+          this.selectedPlaylists[index] = false
+        }
+      }, 100)
+    }
+  })
 
   private getStatusBarHeight() {
     window.getLastWindow(getContext(this), (error, topWindow) => {
@@ -343,7 +352,7 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
-
+        this.selectPlaylist.open()
       })
 
       Button({ type: ButtonType.Normal }) {

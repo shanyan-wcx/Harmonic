@@ -22,11 +22,13 @@ import {
   getCover,
   getIndexes,
   getLyrics,
+  getPlaylist,
   getPlaylists,
   getStarred,
   ping,
   star,
-  unstar
+  unstar,
+  updatePlaylist
 } from '../utils/Api'
 import { Album, Artist, Playlist, Song, StructuredLyric, Line } from '../utils/Interface';
 import Albums from './Albums';
@@ -37,6 +39,7 @@ import Songs from './Songs';
 import Setting from './Setting';
 import About from './About';
 import Stats from './Stats';
+import selectPlaylistBuilder from './selectPlaylist';
 
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
@@ -64,6 +67,7 @@ struct Index {
   @Provide albums: Album[] = []
   @Provide songs: Song[] = []
   @Provide playlists: Playlist[] = []
+  @Provide selectedPlaylists: boolean[] = []
   @Provide showProgress: boolean = false
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
@@ -100,6 +104,7 @@ struct Index {
   @Provide playlist: Playlist | null = null
   @Provide discs: Song[][] = []
   @Provide starredSongs: Song[] = []
+  @Provide addOrDelete: boolean = true
   @Provide playModeIcon: Resource = $r('app.media.loop')
   @Provide avPlayer: media.AVPlayer | null = null
   @Provide session: AVSessionManager.AVSession | null = null
@@ -109,6 +114,12 @@ struct Index {
   @State sidebarIcon: Resource = $r('app.media.sidebar')
   @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
+  selectPlaylist: CustomDialogController = new CustomDialogController({
+    builder: selectPlaylistBuilder(),
+    width: 340,
+    height: 372,
+    backgroundColor: $r('app.color.content_background')
+  })
   environmentCallback: EnvironmentCallback = {
     async onConfigurationUpdated(newConfig: Configuration) {
       let systemTheme: number | undefined = newConfig.colorMode
@@ -505,32 +516,36 @@ struct Index {
           this.songs = []
           this.playlists = []
           this.artists = await getIndexes()
-          this.artists.sort((a, b) => {
-            return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-          })
           for (const artist of this.artists) {
             artist.biography = await getArtistInfo(artist.id)
             artist.album = await getArtist(artist.id);
             this.albums = this.albums.concat(artist.album!);
-            this.albums.sort((a, b) => {
-              return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-            })
             for (const album of artist.album!) {
               album.song = await getAlbum(album.id);
               this.songs = this.songs.concat(album.song!);
-              this.songs.sort((a, b) => {
-                return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-              })
             }
           }
           this.playlists = (await getPlaylists()).sort((a, b) => {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
+          this.selectedPlaylists = []
+          for (let playlist of this.playlists) {
+            this.selectedPlaylists.push(false)
+          }
           let starred = await getStarred()
           if (starred !== null) {
             this.starredSongs = starred!.song!
           }
           this.selectedIndex = 0
+          this.songs.sort((a, b) => {
+            return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+          })
+          this.albums.sort((a, b) => {
+            return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+          })
+          this.artists.sort((a, b) => {
+            return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+          })
           console.log("获取到艺术家", this.artists.length)
           console.log("获取到专辑", this.albums.length)
           console.log("获取到歌曲", this.songs.length)
@@ -649,9 +664,48 @@ struct Index {
       .height(60)
       .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
+      .visibility(this.addOrDelete === true ? Visibility.Visible : Visibility.None)
       .onClick(async () => {
         this.showMenu = false
+        this.selectPlaylist.open()
+      })
 
+      Button({ type: ButtonType.Normal }) {
+        Text("从歌单中删除")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .borderRadius(10)
+      .backgroundColor($r('app.color.bar_background'))
+      .visibility(this.addOrDelete === false ? Visibility.Visible : Visibility.None)
+      .onClick(async () => {
+        this.showMenu = false
+        let index = 0;
+        for (index; index < this.playlist!.songCount; index++) {
+          if (this.longPressSong!.id === this.playlist!.entry![index].id) {
+            break
+          }
+        }
+        let success = await updatePlaylist(this.playlist!.id, undefined, undefined, undefined, index)
+        if (success === true) {
+          promptAction.showToast({
+            message: '删除成功！',
+            duration: 500
+          });
+          this.playlist = await getPlaylist(this.playlist!.id)
+          this.playlists = (await getPlaylists()).sort((a, b) => {
+            return Date.parse(b.changed) - Date.parse(a.changed);
+          })
+        } else {
+          promptAction.showToast({
+            message: '删除失败，请检查网络！',
+            duration: 500
+          });
+        }
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -755,32 +809,36 @@ struct Index {
       console.log("Server status", status)
       if (status === 'ok') {
         this.artists = await getIndexes()
-        this.artists.sort((a, b) => {
-          return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-        })
         for (const artist of this.artists) {
           artist.biography = await getArtistInfo(artist.id)
           artist.album = await getArtist(artist.id);
           this.albums = this.albums.concat(artist.album!);
-          this.albums.sort((a, b) => {
-            return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-          })
           for (const album of artist.album!) {
             album.song = await getAlbum(album.id);
             this.songs = this.songs.concat(album.song!);
-            this.songs.sort((a, b) => {
-              return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-            })
           }
         }
-        this.playlists = (await getPlaylists()).sort((a, b) => {
-          return Date.parse(b.changed) - Date.parse(a.changed);
-        })
+        this.selectedPlaylists = []
+        for (let playlist of this.playlists) {
+          this.selectedPlaylists.push(false)
+        }
         let starred = await getStarred()
         if (starred !== null) {
           this.starredSongs = starred!.song!
         }
         this.selectedIndex = 0
+        this.songs.sort((a, b) => {
+          return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+        })
+        this.albums.sort((a, b) => {
+          return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+        })
+        this.artists.sort((a, b) => {
+          return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+        })
+        this.playlists = (await getPlaylists()).sort((a, b) => {
+          return Date.parse(b.changed) - Date.parse(a.changed);
+        })
         console.log("获取到艺术家", this.artists.length)
         console.log("获取到专辑", this.albums.length)
         console.log("获取到歌曲", this.songs.length)
@@ -810,7 +868,6 @@ struct Index {
           }, () => {
             this.controlButtonWidth = 24
           })
-          return;
         } else {
           animateTo({
             duration: 300,
@@ -819,7 +876,6 @@ struct Index {
             this.controlButtonWidth = 0
           })
           this.showControlButton = false
-          return;
         }
       }
     })
@@ -1093,31 +1149,35 @@ struct Index {
                     this.songs = []
                     this.playlists = []
                     this.artists = await getIndexes()
-                    this.artists.sort((a, b) => {
-                      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-                    })
                     for (const artist of this.artists) {
                       artist.album = await getArtist(artist.id);
                       this.albums = this.albums.concat(artist.album!);
-                      this.albums.sort((a, b) => {
-                        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-                      })
                       for (const album of artist.album!) {
                         album.song = await getAlbum(album.id);
                         this.songs = this.songs.concat(album.song!);
-                        this.songs.sort((a, b) => {
-                          return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-                        })
                       }
                     }
                     this.playlists = (await getPlaylists()).sort((a, b) => {
                       return Date.parse(b.changed) - Date.parse(a.changed);
                     })
+                    this.selectedPlaylists = []
+                    for (let playlist of this.playlists) {
+                      this.selectedPlaylists.push(false)
+                    }
                     let starred = await getStarred()
                     if (starred !== null) {
                       this.starredSongs = starred!.song!
                     }
                     this.selectedIndex = 0
+                    this.songs.sort((a, b) => {
+                      return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+                    })
+                    this.albums.sort((a, b) => {
+                      return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+                    })
+                    this.artists.sort((a, b) => {
+                      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+                    })
                     console.log("获取到艺术家", this.artists.length)
                     console.log("获取到专辑", this.albums.length)
                     console.log("获取到歌曲", this.songs.length)

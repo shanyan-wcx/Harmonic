@@ -15,10 +15,11 @@ export async function ping() {
   let password = AppStorage.get('password')!
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
-    const response: AxiosResponse = await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/ping' + auth, {
-      readTimeout: 100,
-      timeout: 100
-    })
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/ping' + auth, {
+        readTimeout: 100,
+        timeout: 100
+      })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.status
   } catch (error) {
@@ -55,9 +56,10 @@ export async function getGenres() {
   let password = AppStorage.get('password')!
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
-    const response: AxiosResponse = await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getGenres' + auth, {
-      timeout: 10000
-    })
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getGenres' + auth, {
+        timeout: 10000
+      })
     console.log(JSON.stringify(response.data))
   } catch (error) {
     console.error(JSON.stringify(error));
@@ -152,18 +154,34 @@ export async function getPlaylists() {
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.playlists!.playlist && subsonicResponse.playlists!.playlist.length > 0) {
       await Promise.all(subsonicResponse.playlists!.playlist.map(async (playlist) => {
-        const response: AxiosResponse =
-          await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylist' + auth + `&id=${playlist.id}`, {
-            timeout: 10000
-          });
-        const subsonicResponse: SubsonicResponse = response.data["subsonic-response"];
-        playlists.push(subsonicResponse.playlist!);
+        let tmpPlaylist = await getPlaylist(playlist.id)
+        if (tmpPlaylist !== null) {
+          playlists.push(tmpPlaylist)
+        }
       }));
     }
     return playlists
   } catch (error) {
     console.error(JSON.stringify(error));
     return []
+  }
+}
+
+export async function getPlaylist(id: string) {
+  let baseURL = AppStorage.get('baseURL')!
+  let username = AppStorage.get('username')!
+  let password = AppStorage.get('password')!
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylist' + auth + `&id=${id}`, {
+        timeout: 10000
+      });
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"];
+    return subsonicResponse.playlist!
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return null
   }
 }
 
@@ -207,7 +225,7 @@ export async function getCover(id: string) {
 }
 
 export async function updatePlaylist(playlistId: string, name?: string, comment?: string, songIdToAdd?: string,
-  songIndexToRemove?: string) {
+  songIndexToRemove?: number) {
   let baseURL = AppStorage.get('baseURL')!
   let username = AppStorage.get('username')!
   let password = AppStorage.get('password')!
@@ -225,21 +243,17 @@ export async function updatePlaylist(playlistId: string, name?: string, comment?
   if (songIndexToRemove !== undefined) {
     url += `&songIndexToRemove=${songIndexToRemove}`
   }
+  console.log(url)
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(url, {
         timeout: 10000
       })
-    promptAction.showToast({
-      message: '添加成功！',
-      duration: 500
-    });
+    console.log(JSON.stringify(response.data))
+    return true
   } catch (error) {
     console.error(JSON.stringify(error));
-    promptAction.showToast({
-      message: '添加失败，请检查网络！',
-      duration: 500
-    });
+    return false
   }
 }
 
@@ -264,7 +278,7 @@ export async function getStarred() {
   }
 }
 
-export async function star(id:string) {
+export async function star(id: string) {
   let baseURL = AppStorage.get('baseURL')!
   let username = AppStorage.get('username')!
   let password = AppStorage.get('password')!
@@ -289,7 +303,7 @@ export async function star(id:string) {
   }
 }
 
-export async function unstar(id:string) {
+export async function unstar(id: string) {
   let baseURL = AppStorage.get('baseURL')!
   let username = AppStorage.get('username')!
   let password = AppStorage.get('password')!
