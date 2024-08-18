@@ -4,6 +4,7 @@ import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { createShare, getCover, getLyrics, getStarred, star, unstar } from '../utils/Api';
 import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
+import infoBuilder from './dialogs/Info';
 import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
@@ -89,15 +90,12 @@ export default struct Play {
     width: 340,
     height: 372,
     backgroundColor: $r('app.color.content_background'),
-    onWillDismiss: (dismissDialogAction: DismissDialogAction) => {
-      dismissDialogAction.dismiss()
-      setTimeout(() => {
-        let index = this.selectedPlaylists.length
-        while (index--) {
-          this.selectedPlaylists[index] = false
-        }
-      }, 100)
-    }
+  })
+  info: CustomDialogController = new CustomDialogController({
+    builder: infoBuilder(),
+    width: 340,
+    height: 345,
+    backgroundColor: $r('app.color.content_background'),
   })
 
   private getStatusBarHeight() {
@@ -342,6 +340,23 @@ export default struct Play {
   @Builder
   moreBuilder() {
     Column() {
+      Button({ type: ButtonType.Normal }) {
+        Text("歌曲信息")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .borderRadius(10)
+      .padding({ left: 20, right: 20 })
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        this.info.open()
+      })
+
       Button({ type: ButtonType.Normal }) {
         Text("添加到歌单")
           .maxLines(1)

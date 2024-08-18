@@ -40,6 +40,7 @@ import Setting from './Setting';
 import About from './About';
 import Stats from './Stats';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
+import infoBuilder from './dialogs/Info';
 
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
@@ -121,6 +122,12 @@ struct Index {
     width: 340,
     height: 372,
     backgroundColor: $r('app.color.content_background')
+  })
+  info: CustomDialogController = new CustomDialogController({
+    builder: infoBuilder(),
+    width: 340,
+    height: 345,
+    backgroundColor: $r('app.color.content_background'),
   })
   environmentCallback: EnvironmentCallback = {
     async onConfigurationUpdated(newConfig: Configuration) {
@@ -621,6 +628,23 @@ struct Index {
   @Builder
   bindMenuBuilder() {
     Column() {
+      Button({ type: ButtonType.Normal }) {
+        Text("歌曲信息")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .borderRadius(10)
+      .padding({ left: 20, right: 20 })
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMenu = false
+        this.info.open()
+      })
+
       Button({ type: ButtonType.Normal }) {
         Text("下一首播放")
           .maxLines(1)
