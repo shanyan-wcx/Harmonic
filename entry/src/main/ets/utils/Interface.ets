@@ -64,8 +64,8 @@ export interface Album {
   name: string;
   album: string;
   artist: string;
-  year: number;
-  genre: string;
+  year?: number;
+  genre?: string;
   coverArt: string;
   duration: number;
   created: string;
@@ -91,7 +91,7 @@ export interface Song {
   title: string;
   album: string;
   artist: string;
-  track: number;
+  track?: number;
   year: number;
   genre: string;
   coverArt: string;

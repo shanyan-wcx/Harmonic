@@ -178,7 +178,7 @@ export default struct AlbumDetail {
             }
 
             Column() {
-              Text(this.album.year !== undefined ? this.album.year!.toString() : "未知")
+              Text(this.album.year !== undefined ? this.album.year!.toString() : '-')
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
@@ -208,7 +208,7 @@ export default struct AlbumDetail {
             ForEach(disc, (song: Song, index2) => {
               Button({ type: ButtonType.Normal }) {
                 Row() {
-                  Text(song.track.toString())
+                  Text(song.track !== undefined ? song.track.toString() : '-')
                     .fontSize(18)
                     .fontColor($r('app.color.font_secondary'))
                     .width(80)
