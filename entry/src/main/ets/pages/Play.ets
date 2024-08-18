@@ -3,7 +3,7 @@ import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred, star, unstar } from '../utils/Api';
 import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
-import selectPlaylistBuilder from './selectPlaylist';
+import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -71,6 +71,7 @@ export default struct Play {
   @Consume playModeIcon: Resource
   @Consume session: AVSessionManager.AVSession | null
   @Consume selectedPlaylists: boolean[]
+  @Provide selectDeviceHeight: number = 300
   @State showSleep: boolean = false
   @State showList: boolean = false
   @State showMore: boolean = false

@@ -1,21 +1,19 @@
-import { deletePlaylist, getPlaylist, getPlaylists, updatePlaylist } from '../utils/Api'
-import { Playlist } from '../utils/Interface'
+import { createPlaylist, deletePlaylist, getPlaylist, getPlaylists, updatePlaylist } from '../../utils/Api'
+import { Playlist } from '../../utils/Interface'
 import { promptAction } from '@kit.ArkUI'
 
 @CustomDialog
-export default struct editPlaylistBuilder {
-  @Consume playlist: Playlist | null
+export default struct createPlaylistBuilder {
   @Consume playlists: Playlist[]
-  @Consume pageStack: NavPathStack
-  @State name: string = this.playlist!.name
-  @State comment: string = this.playlist!.comment
-  editPlaylist: CustomDialogController = new CustomDialogController({
-    builder: editPlaylistBuilder({})
+  @State name: string = ''
+  @State comment: string = ''
+  createPlaylist: CustomDialogController = new CustomDialogController({
+    builder: createPlaylistBuilder({})
   })
 
   build() {
     Column() {
-      Text("编辑歌单")
+      Text("新建歌单")
         .width('100%')
         .height(60)
         .textAlign(TextAlign.Center)
@@ -73,67 +71,40 @@ export default struct editPlaylistBuilder {
       .margin({ bottom: 20 })
       .alignItems(VerticalAlign.Top)
 
-      Row() {
-        Button({ type: ButtonType.Normal }) {
-          Text("确认")
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-        }
-        .width('47%')
-        .height(50)
-        .borderRadius(15)
-        .backgroundColor($r('app.color.content_background'))
-        .onClick(async () => {
-          this.editPlaylist.close()
-          let success = await updatePlaylist(this.playlist!.id, this.name, this.comment)
-          if (success === true) {
-            promptAction.showToast({
-              message: '修改成功！',
-              duration: 500
-            });
-            this.playlist = await getPlaylist(this.playlist!.id)
-            this.playlists = (await getPlaylists()).sort((a, b) => {
-              return Date.parse(b.changed) - Date.parse(a.changed);
-            })
-          } else {
-            promptAction.showToast({
-              message: '修改失败，请检查网络！',
-              duration: 500
-            });
-          }
-        })
-
-        Button({ type: ButtonType.Normal }) {
-          Text("删除")
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-        }
-        .width('47%')
-        .height(50)
-        .borderRadius(15)
-        .backgroundColor(Color.Red)
-        .onClick(async () => {
-          this.editPlaylist.close()
-          let success = await deletePlaylist(this.playlist!.id)
-          if (success === true) {
-            promptAction.showToast({
-              message: '删除成功！',
-              duration: 500
-            });
-            this.playlists = (await getPlaylists()).sort((a, b) => {
-              return Date.parse(b.changed) - Date.parse(a.changed);
-            })
-            this.pageStack.pop()
-          } else {
-            promptAction.showToast({
-              message: '删除失败，请检查网络！',
-              duration: 500
-            });
-          }
-        })
+      Button({ type: ButtonType.Normal }) {
+        Text("确认")
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
       }
       .width('100%')
-      .justifyContent(FlexAlign.SpaceBetween)
+      .height(50)
+      .borderRadius(15)
+      .backgroundColor($r('app.color.content_background'))
+      .onClick(async () => {
+        if(this.name!==''){
+          this.createPlaylist.close()
+          let success = await createPlaylist(this.name, this.comment)
+          if (success === true) {
+            promptAction.showToast({
+              message: '新建成功！',
+              duration: 500
+            });
+            this.playlists = (await getPlaylists()).sort((a, b) => {
+              return Date.parse(b.changed) - Date.parse(a.changed);
+            })
+          } else {
+            promptAction.showToast({
+              message: '新建失败，请检查网络！',
+              duration: 500
+            });
+          }
+        }else{
+          promptAction.showToast({
+            message: '歌单名称不能为空！',
+            duration: 500
+          });
+        }
+      })
     }
     .width('100%')
     .height('100%')

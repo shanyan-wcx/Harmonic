@@ -86,6 +86,15 @@
             "entry"
           ]
         }
+      },
+      {
+        "name": "ohos.permission.USE_BLUETOOTH",
+        "reason": "$string:module_desc",
+        "usedScene": {
+          "abilities": [
+            "entry"
+          ]
+        }
       }
     ]
   }

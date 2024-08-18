@@ -3,7 +3,7 @@ import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred } from '../utils/Api';
 import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
-import editPlaylistBuilder from './editPlaylist';
+import editPlaylistBuilder from './dialogs/EditPlaylist';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);

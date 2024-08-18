@@ -39,7 +39,7 @@ import Songs from './Songs';
 import Setting from './Setting';
 import About from './About';
 import Stats from './Stats';
-import selectPlaylistBuilder from './selectPlaylist';
+import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();

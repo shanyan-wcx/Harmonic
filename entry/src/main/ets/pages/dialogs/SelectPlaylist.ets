@@ -1,5 +1,5 @@
-import { getPlaylist, getPlaylists, updatePlaylist } from '../utils/Api'
-import { Playlist, Song } from '../utils/Interface'
+import { getPlaylist, getPlaylists, updatePlaylist } from '../../utils/Api'
+import { Playlist, Song } from '../../utils/Interface'
 import { promptAction } from '@kit.ArkUI'
 
 @CustomDialog

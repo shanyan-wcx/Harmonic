@@ -1,5 +1,5 @@
 import { Playlist } from '../utils/Interface'
-import createPlaylistBuilder from './createPlaylist'
+import createPlaylistBuilder from './dialogs/CreatePlaylist'
 
 @Component
 export default struct Playlists {
