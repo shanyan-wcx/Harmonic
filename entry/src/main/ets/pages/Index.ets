@@ -110,6 +110,9 @@ struct Index {
   @Provide playModeIcon: Resource = $r('app.media.loop')
   @Provide avPlayer: media.AVPlayer | null = null
   @Provide session: AVSessionManager.AVSession | null = null
+  @Provide displayWidth: number = 0
+  @Provide displayHeight: number = 0
+  @State sidebarType: number = SideBarContainerType.Overlay
   @State coverSize: number = 64
   @State controlButtonWidth: number = 24
   @State themeIcon: Resource = $r('app.media.auto')
@@ -832,6 +835,22 @@ struct Index {
   async aboutToAppear() {
     context.getApplicationContext().setColorMode(this.theme)
     this.mainWindow = await window.getLastWindow(getContext(this))
+    this.displayWidth = px2vp(this.mainWindow.getWindowProperties().windowRect.width)
+    this.displayHeight = px2vp(this.mainWindow.getWindowProperties().windowRect.height)
+    if (this.displayWidth / this.displayHeight > 2 / 3) {
+      this.sidebarType = SideBarContainerType.Embed
+    } else {
+      this.sidebarType = SideBarContainerType.Overlay
+    }
+    this.mainWindow.on('windowSizeChange', (size) => {
+      this.displayWidth = px2vp(size.width)
+      this.displayHeight = px2vp(size.height)
+      if (this.displayWidth / this.displayHeight > 2 / 3) {
+        this.sidebarType = SideBarContainerType.Embed
+      } else {
+        this.sidebarType = SideBarContainerType.Overlay
+      }
+    })
     this.changeStatusBar()
     applicationContext.on('environment', this.environmentCallback);
     this.getStatusBarHeight()
@@ -905,29 +924,31 @@ struct Index {
     this.pageStack.setInterception({
       willShow: (from: NavDestinationContext | "navBar", to: NavDestinationContext | "navBar",
         operation: NavigationOperation, animated: boolean) => {
-        if (typeof to === "string") {
-          this.showControlButton = true
-          animateTo({
-            duration: 300,
-            curve: Curve.EaseOut,
-          }, () => {
-            this.controlButtonWidth = 24
-          })
-        } else {
-          animateTo({
-            duration: 300,
-            curve: Curve.EaseOut,
-          }, () => {
-            this.controlButtonWidth = 0
-          })
-          this.showControlButton = false
+        if (this.sidebarType === SideBarContainerType.Overlay) {
+          if (typeof to === "string") {
+            this.showControlButton = true
+            animateTo({
+              duration: 300,
+              curve: Curve.EaseOut,
+            }, () => {
+              this.controlButtonWidth = 24
+            })
+          } else {
+            animateTo({
+              duration: 300,
+              curve: Curve.EaseOut,
+            }, () => {
+              this.controlButtonWidth = 0
+            })
+            this.showControlButton = false
+          }
         }
       }
     })
   }
 
   build() {
-    SideBarContainer(SideBarContainerType.Overlay) {
+    SideBarContainer(this.sidebarType) {
       Column() {
         Column() {
           Button({ type: ButtonType.Normal }) {
@@ -949,6 +970,7 @@ struct Index {
             }, () => {
               this.showSidebar = false
             })
+            this.pageStack.clear()
             this.nowPage = 0
             this.title = '歌曲'
           })
@@ -972,6 +994,7 @@ struct Index {
             }, () => {
               this.showSidebar = false
             })
+            this.pageStack.clear()
             this.nowPage = 1
             this.title = '专辑'
           })
@@ -995,6 +1018,7 @@ struct Index {
             }, () => {
               this.showSidebar = false
             })
+            this.pageStack.clear()
             this.nowPage = 2
             this.title = '艺术家'
           })
@@ -1036,6 +1060,7 @@ struct Index {
             }, () => {
               this.showSidebar = false
             })
+            this.pageStack.clear()
             this.nowPage = 3
             this.title = '统计'
           })
@@ -1059,6 +1084,7 @@ struct Index {
             }, () => {
               this.showSidebar = false
             })
+            this.pageStack.clear()
             this.nowPage = 4
             this.title = '设置'
           })
@@ -1082,6 +1108,7 @@ struct Index {
             }, () => {
               this.showSidebar = false
             })
+            this.pageStack.clear()
             this.nowPage = 5
             this.title = '关于'
           })
@@ -1095,7 +1122,10 @@ struct Index {
       .width('100%')
       .height('100%')
       .backgroundColor($r('app.color.content_background'))
-      .padding({ top: this.statusBarHeight + 57, bottom: 27 })
+      .padding({
+        top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 12 : this.statusBarHeight + 57,
+        bottom: 27
+      })
       .shadow({
         radius: this.shadowRadius,
         color: '#95000000',
@@ -1437,8 +1467,8 @@ struct Index {
     .width("100%")
     .height('100%')
     .backgroundColor($r('app.color.content_background'))
-    .showSideBar(this.showSidebar)
-    .showControlButton(this.showControlButton)
+    .showSideBar(this.sidebarType === SideBarContainerType.Embed ? true : this.showSidebar)
+    .showControlButton(this.sidebarType === SideBarContainerType.Embed ? false : this.showControlButton)
     .controlButton({
       top: 16 + this.statusBarHeight,
       left: 24,
@@ -1452,7 +1482,7 @@ struct Index {
     })
     .sideBarPosition(SideBarPosition.Start)
     .onChange((show: boolean) => {
-      if (show === true) {
+      if (show === true && this.sidebarType === SideBarContainerType.Overlay) {
         this.shadowRadius = 100
         this.showSidebar = true
       } else {

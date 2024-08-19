@@ -527,7 +527,7 @@ export default struct Play {
                 let shareData: systemShare.SharedData = new systemShare.SharedData({
                   utd: utd.UniformDataType.HYPERLINK,
                   content: url,
-                  description: this.nowPlayingSong!.title,
+                  description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
                   thumbnail: new Uint8Array(await getCover(this.nowPlayingSong!.id, 128))
                 });
                 let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
@@ -853,6 +853,7 @@ export default struct Play {
               .bindSheet($$this.showSleep, this.sleepBuilder, {
                 showClose: false,
                 height: SheetSize.FIT_CONTENT,
+                preferType: SheetType.BOTTOM,
                 backgroundColor: $r('app.color.content_background'),
                 title: {
                   title: '睡眠定时'
@@ -873,6 +874,7 @@ export default struct Play {
               .bindSheet($$this.showList, this.listBuilder, {
                 showClose: false,
                 height: SheetSize.FIT_CONTENT,
+                preferType: SheetType.BOTTOM,
                 backgroundColor: $r('app.color.content_background'),
                 title: {
                   title: '播放队列'
@@ -893,6 +895,7 @@ export default struct Play {
               .bindSheet($$this.showMore, this.moreBuilder, {
                 showClose: false,
                 height: SheetSize.FIT_CONTENT,
+                preferType: SheetType.BOTTOM,
                 backgroundColor: $r('app.color.content_background'),
                 title: {
                   title: '更多'
