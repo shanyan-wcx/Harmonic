@@ -112,11 +112,12 @@ struct Index {
   @Provide session: AVSessionManager.AVSession | null = null
   @Provide displayWidth: number = 0
   @Provide displayHeight: number = 0
-  @State sidebarType: number = SideBarContainerType.Overlay
+  @Provide sidebarType: number = SideBarContainerType.Overlay
   @State coverSize: number = 64
   @State controlButtonWidth: number = 24
   @State themeIcon: Resource = $r('app.media.auto')
   @State sidebarIcon: Resource = $r('app.media.sidebar')
+  @State sideBarWidth: number = 240
   @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
@@ -837,7 +838,17 @@ struct Index {
     this.mainWindow = await window.getLastWindow(getContext(this))
     this.displayWidth = px2vp(this.mainWindow.getWindowProperties().windowRect.width)
     this.displayHeight = px2vp(this.mainWindow.getWindowProperties().windowRect.height)
-    if (this.displayWidth / this.displayHeight > 2 / 3) {
+    if (this.displayHeight < 700) {
+      this.showCover = false
+    } else {
+      this.showCover = true
+    }
+    if (this.displayWidth > 1000) {
+      this.sideBarWidth = 320
+    } else {
+      this.sideBarWidth = 240
+    }
+    if (this.displayWidth / this.displayHeight > 2 / 3 && this.displayHeight > 700) {
       this.sidebarType = SideBarContainerType.Embed
     } else {
       this.sidebarType = SideBarContainerType.Overlay
@@ -845,7 +856,17 @@ struct Index {
     this.mainWindow.on('windowSizeChange', (size) => {
       this.displayWidth = px2vp(size.width)
       this.displayHeight = px2vp(size.height)
-      if (this.displayWidth / this.displayHeight > 2 / 3) {
+      if (this.displayHeight < 700) {
+        this.showCover = false
+      } else {
+        this.showCover = true
+      }
+      if (this.displayWidth > 1000) {
+        this.sideBarWidth = 320
+      } else {
+        this.sideBarWidth = 240
+      }
+      if (this.displayWidth / this.displayHeight > 2 / 3 && this.displayHeight > 700) {
         this.sidebarType = SideBarContainerType.Embed
       } else {
         this.sidebarType = SideBarContainerType.Overlay
@@ -1467,6 +1488,7 @@ struct Index {
     .width("100%")
     .height('100%')
     .backgroundColor($r('app.color.content_background'))
+    .sideBarWidth(this.sideBarWidth)
     .showSideBar(this.sidebarType === SideBarContainerType.Embed ? true : this.showSidebar)
     .showControlButton(this.sidebarType === SideBarContainerType.Embed ? false : this.showControlButton)
     .controlButton({

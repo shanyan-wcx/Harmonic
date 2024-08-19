@@ -75,6 +75,7 @@ export default struct Play {
   @Consume playModeIcon: Resource
   @Consume session: AVSessionManager.AVSession | null
   @Consume selectedPlaylists: boolean[]
+  @Consume sidebarType: number
   @Provide selectDeviceHeight: number = 300
   @State showSleep: boolean = false
   @State showList: boolean = false
@@ -478,163 +479,468 @@ export default struct Play {
           .backgroundColor($r('app.color.play_background'))
           .width('100%')
           .height('100%')
-        Column() {
-          Row() {
-            Button({ type: ButtonType.Circle }) {
-              Image($r('app.media.down'))
-                .width(30)
-                .height(30)
-            }
-            .width(40)
-            .height(40)
-            .backgroundColor('#00000000')
-            .margin({ left: 25 })
-            .onClick(() => {
-              if (this.showPlay === false) {
-                this.showPlay = true
-              }
-              this.showPlay = false
-            })
-
+        Row() {
+          Column() {
             Row() {
-              Text("睡眠定时")
-                .fontSize(18)
-                .fontColor($r('app.color.font'))
-                .margin({ right: 10 })
-              Text(formatSleepTime(this.sleepTime))
-                .fontSize(18)
-                .fontColor($r('app.color.font'))
-            }
-            .width('auto')
-            .height(40)
-            .padding({ left: 15, right: 15 })
-            .borderRadius(10)
-            .backgroundColor($r('app.color.content_background'))
-            .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
-
-            Button({ type: ButtonType.Circle }) {
-              Image($r('app.media.radiowave'))
-                .width(30)
-                .height(30)
-            }
-            .width(40)
-            .height(40)
-            .margin({ right: 25 })
-            .backgroundColor('#00000000')
-            .onClick(async () => {
-              let url = await createShare(this.nowPlayingSong!.id)
-              if (url !== null) {
-                let shareData: systemShare.SharedData = new systemShare.SharedData({
-                  utd: utd.UniformDataType.HYPERLINK,
-                  content: url,
-                  description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
-                  thumbnail: new Uint8Array(await getCover(this.nowPlayingSong!.id, 128))
-                });
-                let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-                let context = getContext(this) as common.UIAbilityContext;
-                controller.show(context, {
-                  selectionMode: systemShare.SelectionMode.SINGLE,
-                  previewMode: systemShare.SharePreviewMode.DEFAULT,
-                }).then(() => {
-                  console.info('分享成功。');
-                }).catch((error: BusinessError) => {
-                  console.error(`分享失败，code: ${error.code}, message: ${error.message}`);
-                });
-              } else {
-                promptAction.showToast({
-                  message: '创建分享链接失败，请检查网络！',
-                  duration: 500
-                });
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.down'))
+                  .width(30)
+                  .height(30)
               }
-            })
-          }
-          .width("100%")
-          .justifyContent(FlexAlign.SpaceBetween)
-
-          Row() {
-            Column() {
-              Marquee({
-                start: true,
-                step: 3,
-                src: this.nowPlayingSong?.title
+              .width(40)
+              .height(40)
+              .backgroundColor('#00000000')
+              .margin({ left: 25 })
+              .onClick(() => {
+                if (this.showPlay === false) {
+                  this.showPlay = true
+                }
+                this.showPlay = false
               })
-                .fontSize(28)
-                .fontColor($r('app.color.font'))
-                .fontWeight(FontWeight.Medium)
-              Text(this.nowPlayingSong?.artist)
-                .fontSize(18)
-                .fontColor($r('app.color.font'))
-                .margin({ top: 5 })
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+              Row() {
+                Text("睡眠定时")
+                  .fontSize(18)
+                  .fontColor($r('app.color.font'))
+                  .margin({ right: 10 })
+                Text(formatSleepTime(this.sleepTime))
+                  .fontSize(18)
+                  .fontColor($r('app.color.font'))
+              }
+              .width('auto')
+              .height(40)
+              .padding({ left: 15, right: 15 })
+              .borderRadius(10)
+              .backgroundColor($r('app.color.content_background'))
+              .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
+
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.radiowave'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(40)
+              .height(40)
+              .margin({ right: 25 })
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                let url = await createShare(this.nowPlayingSong!.id)
+                if (url !== null) {
+                  let shareData: systemShare.SharedData = new systemShare.SharedData({
+                    utd: utd.UniformDataType.HYPERLINK,
+                    content: url,
+                    description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
+                    thumbnail: new Uint8Array(await getCover(this.nowPlayingSong!.id, 128))
+                  });
+                  let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
+                  let context = getContext(this) as common.UIAbilityContext;
+                  controller.show(context, {
+                    selectionMode: systemShare.SelectionMode.SINGLE,
+                    previewMode: systemShare.SharePreviewMode.DEFAULT,
+                  }).then(() => {
+                    console.info('分享成功。');
+                  }).catch((error: BusinessError) => {
+                    console.error(`分享失败，code: ${error.code}, message: ${error.message}`);
+                  });
+                } else {
+                  promptAction.showToast({
+                    message: '创建分享链接失败，请检查网络！',
+                    duration: 500
+                  });
+                }
+              })
             }
             .width("100%")
-            .layoutWeight(1)
-            .margin({ right: 20 })
-            .alignItems(HorizontalAlign.Start)
+            .justifyContent(FlexAlign.SpaceBetween)
+            .padding({ top: 20 })
 
-            Button() {
-              Image(this.nowPlayingStar === true ? $r('app.media.star') : $r('app.media.unstar'))
-                .width(30)
-                .height(30)
-            }
-            .width(40)
-            .height(40)
-            .backgroundColor('#00000000')
-            .onClick(async () => {
-              if (this.nowPlayingStar === true) {
-                let starStatus = await unstar(this.nowPlayingSong!.id)
-                if (starStatus === true) {
-                  this.nowPlayingStar = false
-                  let starred = await getStarred()
-                  if (starred !== null) {
-                    this.starredSongs = starred!.song!
-                  }
-                  if (this.isPlaying === true) {
-                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
-                  } else {
-                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
-                  }
-                }
-              } else {
-                let starStatus = await star(this.nowPlayingSong!.id)
-                if (starStatus === true) {
-                  this.nowPlayingStar = true
-                  let starred = await getStarred()
-                  if (starred !== null) {
-                    this.starredSongs = starred!.song!
-                  }
-                  if (this.isPlaying === true) {
-                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
-                  } else {
-                    await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
-                  }
-                }
+            Row() {
+              Column() {
+                Marquee({
+                  start: true,
+                  step: 3,
+                  src: this.nowPlayingSong?.title
+                })
+                  .fontSize(28)
+                  .fontColor($r('app.color.font'))
+                  .fontWeight(FontWeight.Medium)
+                Text(this.nowPlayingSong?.artist)
+                  .fontSize(18)
+                  .fontColor($r('app.color.font'))
+                  .margin({ top: 5 })
+                  .maxLines(1)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
               }
+              .width("100%")
+              .layoutWeight(1)
+              .margin({ right: 20 })
+              .alignItems(HorizontalAlign.Start)
+
+              Button() {
+                Image(this.nowPlayingStar === true ? $r('app.media.star') : $r('app.media.unstar'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(40)
+              .height(40)
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                if (this.nowPlayingStar === true) {
+                  let starStatus = await unstar(this.nowPlayingSong!.id)
+                  if (starStatus === true) {
+                    this.nowPlayingStar = false
+                    let starred = await getStarred()
+                    if (starred !== null) {
+                      this.starredSongs = starred!.song!
+                    }
+                    if (this.isPlaying === true) {
+                      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+                    } else {
+                      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+                    }
+                  }
+                } else {
+                  let starStatus = await star(this.nowPlayingSong!.id)
+                  if (starStatus === true) {
+                    this.nowPlayingStar = true
+                    let starred = await getStarred()
+                    if (starred !== null) {
+                      this.starredSongs = starred!.song!
+                    }
+                    if (this.isPlaying === true) {
+                      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+                    } else {
+                      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+                    }
+                  }
+                }
+              })
+            }
+            .width("80%")
+            .justifyContent(FlexAlign.SpaceBetween)
+            .padding({ top: 20, bottom: 20 })
+
+            if (this.sidebarType === SideBarContainerType.Overlay) {
+              Swiper(this.controller) {
+                Column() {
+                  Image(this.baseURL + this.getCoverUrl + this.auth +
+                    `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                    .alt($rawfile('nocover.png'))
+                    .height('100%')
+                    .aspectRatio(1)
+                    .borderRadius(10)
+                    .objectFit(ImageFit.Fill)
+                }
+                .width('100%')
+                .height('100%')
+                .margin({ bottom: 40 })
+                .onTouch((event?: TouchEvent) => {
+                  if (event?.type === TouchType.Move) {
+                    this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
+                  }
+                })
+
+                Column() {
+                  List({ scroller: this.lyricsScroller }) {
+                    if (this.nowPlayingLyrics !== null && this.nowPlayingLyricsByGroup.length > 0) {
+                      ForEach(this.nowPlayingLyricsByGroup, (group: Line[], index) => {
+                        ListItem() {
+                          Column() {
+                            ForEach(group, (line: Line, index2) => {
+                              Text(line.value)
+                                .width('100%')
+                                .height('auto')
+                                .padding({ left: 20, right: 20 })
+                                .margin({ bottom: index2 === 0 ? 5 : 0 })
+                                .fontSize(this.lyricsIndex === index &&
+                                  this.nowPlayingLyrics?.synced === true ?
+                                  28 :
+                                  23)
+                                .fontWeight(FontWeight.Bold)
+                                .fontColor(this.lyricsIndex === index &&
+                                  this.nowPlayingLyrics?.synced === true ?
+                                $r('app.color.font_lyrics') :
+                                $r('app.color.font_lyrics_secondary'))
+                                .textAlign(TextAlign.Center)
+                                .animation({ duration: 400 })
+                            })
+                          }
+                        }
+                        .margin({
+                          top: index === 0 ? 125 : 15,
+                          bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 15
+                        })
+                      })
+                    } else {
+                      ListItem() {
+                        Column() {
+                          Text("没有歌词")
+                            .fontSize(28)
+                            .fontWeight(FontWeight.Bold)
+                            .fontColor($r('app.color.font_lyrics'))
+                        }
+                        .width('100%')
+                        .height('100%')
+                        .justifyContent(FlexAlign.Center)
+                      }
+                      .width('100%')
+                      .height('100%')
+                    }
+                  }
+                  .height('100%')
+                  .aspectRatio(1)
+                  .borderRadius(10)
+                  .listDirection(Axis.Vertical)
+                  .scrollBar(BarState.Off)
+                }
+                .width('100%')
+                .height('100%')
+                .margin({ bottom: 40 })
+              }
+              .loop(false)
+              .indicator(
+                Indicator.dot()
+                  .selectedColor($r('app.color.indicator'))
+              )
+              .height('45%')
+              .width('90%')
+              .margin({ top: 20 })
+              .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
+            } else {
+              Column() {
+                Image(this.baseURL + this.getCoverUrl + this.auth +
+                  `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                  .alt($rawfile('nocover.png'))
+                  .height('100%')
+                  .aspectRatio(1)
+                  .borderRadius(10)
+                  .objectFit(ImageFit.Fill)
+              }
+              .height('45%')
+              .width('90%')
+              .margin({ top: 20 })
+              .padding({ bottom: 40 })
+              .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
+            }
+
+            Column() {
+              Column() {
+                Row() {
+                  Text(formatDuration(this.nowPlayedTime))
+                    .fontSize(16)
+                    .fontColor($r('app.color.font'))
+                    .fontWeight(FontWeight.Medium)
+                  Text(formatDuration(this.nowPlayingSong?.duration!))
+                    .fontSize(16)
+                    .fontColor($r('app.color.font'))
+                    .fontWeight(FontWeight.Medium)
+                }
+                .width('100%')
+                .justifyContent(FlexAlign.SpaceBetween)
+
+                Progress({
+                  value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                  total: 100,
+                  type: ProgressType.Linear
+                })
+                  .style({ strokeWidth: 5 })
+                  .width('100%')
+                  .margin({ top: 10, bottom: 15 })
+                  .color($r('app.color.progress'))
+                  .onAreaChange((oldValue: Area, newValue: Area) => {
+                    this.progressWidth = newValue.width as number;
+                  })
+                  .gesture(
+                    GestureGroup(
+                      GestureMode.Exclusive,
+                      TapGesture({ fingers: 1, count: 1 })
+                        .onAction((event: GestureEvent) => {
+                          let touchProgress = Math.round((event.fingerList[0].localX / this.progressWidth) * 100)
+                          let progress = 0
+                          if (touchProgress < 0) {
+                            progress = 0
+                          } else if (touchProgress >= 100) {
+                            progress = 99
+                          } else {
+                            progress = touchProgress
+                          }
+                          this.avPlayer!.seek(progress * this.nowPlayingSong!.duration * 10)
+                        })
+                    )
+                  )
+              }
+              .width('100%')
+
+              Row() {
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.prev'))
+                    .width(45)
+                    .height(45)
+                }
+                .width(55)
+                .height(55)
+                .backgroundColor('#00000000')
+                .onClick(async () => {
+                  await this.avPlayer!.reset();
+                  if (this.nowPlayingIndex === 0) {
+                    this.nowPlayingIndex = this.nowPlayingList.length - 1
+                  } else {
+                    this.nowPlayingIndex -= 1
+                  }
+                  this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                  this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                  if (this.nowPlayingLyrics !== null) {
+                    this.groupLyrics()
+                  }
+                  this.avPlayer!.url =
+                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                })
+
+                Button({ type: ButtonType.Circle }) {
+                  Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
+                    .width(47)
+                    .height(47)
+                }
+                .width(70)
+                .height(70)
+                .backgroundColor('#00000000')
+                .onClick(() => {
+                  this.isPlaying = !this.isPlaying
+                  if (this.isPlaying === false) {
+                    this.avPlayer!.pause()
+                  } else {
+                    this.avPlayer!.play()
+                  }
+                })
+
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.next'))
+                    .width(45)
+                    .height(45)
+                }
+                .width(55)
+                .height(55)
+                .backgroundColor('#00000000')
+                .onClick(async () => {
+                  await this.avPlayer!.reset();
+                  if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+                    this.nowPlayingIndex = 0
+                  } else {
+                    this.nowPlayingIndex += 1
+                  }
+                  this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                  this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                  if (this.nowPlayingLyrics !== null) {
+                    this.groupLyrics()
+                  }
+                  this.avPlayer!.url =
+                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                })
+              }
+              .width('80%')
+              .alignItems(VerticalAlign.Center)
+              .justifyContent(FlexAlign.SpaceBetween)
+
+              Row() {
+                Button({ type: ButtonType.Circle }) {
+                  Image(this.playModeIcon)
+                    .width(30)
+                    .height(30)
+                }
+                .width(40)
+                .height(40)
+                .backgroundColor('#00000000')
+                .onClick(async () => {
+                  if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
+                    this.playMode = AVSessionManager.LoopMode.LOOP_MODE_LIST
+                  } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
+                    this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE
+                  } else {
+                    this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SINGLE
+                  }
+                })
+
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.sleep'))
+                    .width(30)
+                    .height(30)
+                }
+                .width(40)
+                .height(40)
+                .backgroundColor('#00000000')
+                .onClick(() => {
+                  this.showSleep = true
+                })
+                .bindSheet($$this.showSleep, this.sleepBuilder, {
+                  showClose: false,
+                  height: SheetSize.FIT_CONTENT,
+                  preferType: SheetType.BOTTOM,
+                  backgroundColor: $r('app.color.content_background'),
+                  title: {
+                    title: '睡眠定时'
+                  }
+                })
+
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.list'))
+                    .width(30)
+                    .height(30)
+                }
+                .width(40)
+                .height(40)
+                .backgroundColor('#00000000')
+                .onClick(() => {
+                  this.showList = true
+                })
+                .bindSheet($$this.showList, this.listBuilder, {
+                  showClose: false,
+                  height: SheetSize.FIT_CONTENT,
+                  preferType: SheetType.BOTTOM,
+                  backgroundColor: $r('app.color.content_background'),
+                  title: {
+                    title: '播放队列'
+                  }
+                })
+
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.more'))
+                    .width(30)
+                    .height(30)
+                }
+                .width(40)
+                .height(40)
+                .backgroundColor('#00000000')
+                .onClick(() => {
+                  this.showMore = true
+                })
+                .bindSheet($$this.showMore, this.moreBuilder, {
+                  showClose: false,
+                  height: SheetSize.FIT_CONTENT,
+                  preferType: SheetType.BOTTOM,
+                  backgroundColor: $r('app.color.content_background'),
+                  title: {
+                    title: '更多'
+                  }
+                })
+              }
+              .width('100%')
+              .justifyContent(FlexAlign.SpaceBetween)
+            }
+            .width('80%')
+            .height('100%')
+            .layoutWeight(1)
+            .justifyContent(FlexAlign.SpaceBetween)
+            .padding({ top: 20, bottom: 20 })
+            .offset({
+              y: -20
             })
           }
-          .width("80%")
-          .justifyContent(FlexAlign.SpaceBetween)
+          .width('100%')
+          .height('100%')
+          .layoutWeight(1)
+          .alignItems(HorizontalAlign.Center)
 
-          Swiper(this.controller) {
-            Column() {
-              Image(this.baseURL + this.getCoverUrl + this.auth +
-                `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                .alt($rawfile('nocover.png'))
-                .height('100%')
-                .aspectRatio(1)
-                .borderRadius(10)
-                .objectFit(ImageFit.Fill)
-            }
-            .width('100%')
-            .height('100%')
-            .margin({ bottom: 40 })
-            .onTouch((event?: TouchEvent) => {
-              if (event?.type === TouchType.Move) {
-                this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
-              }
-            })
-
+          if (this.sidebarType === SideBarContainerType.Embed) {
             Column() {
               List({ scroller: this.lyricsScroller }) {
                 if (this.nowPlayingLyrics !== null && this.nowPlayingLyricsByGroup.length > 0) {
@@ -662,8 +968,8 @@ export default struct Play {
                       }
                     }
                     .margin({
-                      top: index === 0 ? 125 : 15,
-                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 15
+                      top: index === 0 ? '50%' : 15,
+                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? '50%' : 15
                     })
                   })
                 } else {
@@ -682,243 +988,19 @@ export default struct Play {
                   .height('100%')
                 }
               }
+              .width('100%')
               .height('100%')
-              .aspectRatio(1)
               .borderRadius(10)
               .listDirection(Axis.Vertical)
               .scrollBar(BarState.Off)
             }
-            .width('100%')
-            .height('100%')
-            .margin({ bottom: 40 })
+            .width('50%')
+            .height('65%')
+            .margin({ bottom: 20 })
           }
-          .loop(false)
-          .indicator(
-            Indicator.dot()
-              .selectedColor($r('app.color.indicator'))
-          )
-          .height(360)
-          .width('90%')
-          .margin({ top: 20 })
-          .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
-
-          Column() {
-            Column() {
-              Row() {
-                Text(formatDuration(this.nowPlayedTime))
-                  .fontSize(16)
-                  .fontColor($r('app.color.font'))
-                  .fontWeight(FontWeight.Medium)
-                Text(formatDuration(this.nowPlayingSong?.duration!))
-                  .fontSize(16)
-                  .fontColor($r('app.color.font'))
-                  .fontWeight(FontWeight.Medium)
-              }
-              .width('100%')
-              .justifyContent(FlexAlign.SpaceBetween)
-
-              Progress({
-                value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
-                total: 100,
-                type: ProgressType.Linear
-              })
-                .style({ strokeWidth: 5 })
-                .width('100%')
-                .margin({ top: 10, bottom: 15 })
-                .color($r('app.color.progress'))
-                .onAreaChange((oldValue: Area, newValue: Area) => {
-                  this.progressWidth = newValue.width as number;
-                })
-                .gesture(
-                  GestureGroup(
-                    GestureMode.Exclusive,
-                    TapGesture({ fingers: 1, count: 1 })
-                      .onAction((event: GestureEvent) => {
-                        let touchProgress = Math.round((event.fingerList[0].localX / this.progressWidth) * 100)
-                        let progress = 0
-                        if (touchProgress < 0) {
-                          progress = 0
-                        } else if (touchProgress >= 100) {
-                          progress = 99
-                        } else {
-                          progress = touchProgress
-                        }
-                        this.avPlayer!.seek(progress * this.nowPlayingSong!.duration * 10)
-                      })
-                  )
-                )
-            }
-            .width('100%')
-
-            Row() {
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.prev'))
-                  .width(45)
-                  .height(45)
-              }
-              .width(55)
-              .height(55)
-              .backgroundColor('#00000000')
-              .onClick(async () => {
-                await this.avPlayer!.reset();
-                if (this.nowPlayingIndex === 0) {
-                  this.nowPlayingIndex = this.nowPlayingList.length - 1
-                } else {
-                  this.nowPlayingIndex -= 1
-                }
-                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
-                if (this.nowPlayingLyrics !== null) {
-                  this.groupLyrics()
-                }
-                this.avPlayer!.url =
-                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
-              })
-
-              Button({ type: ButtonType.Circle }) {
-                Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
-                  .width(47)
-                  .height(47)
-              }
-              .width(70)
-              .height(70)
-              .backgroundColor('#00000000')
-              .onClick(() => {
-                this.isPlaying = !this.isPlaying
-                if (this.isPlaying === false) {
-                  this.avPlayer!.pause()
-                } else {
-                  this.avPlayer!.play()
-                }
-              })
-
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.next'))
-                  .width(45)
-                  .height(45)
-              }
-              .width(55)
-              .height(55)
-              .backgroundColor('#00000000')
-              .onClick(async () => {
-                await this.avPlayer!.reset();
-                if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
-                  this.nowPlayingIndex = 0
-                } else {
-                  this.nowPlayingIndex += 1
-                }
-                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
-                if (this.nowPlayingLyrics !== null) {
-                  this.groupLyrics()
-                }
-                this.avPlayer!.url =
-                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
-              })
-            }
-            .width('80%')
-            .alignItems(VerticalAlign.Center)
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Button({ type: ButtonType.Circle }) {
-                Image(this.playModeIcon)
-                  .width(30)
-                  .height(30)
-              }
-              .width(40)
-              .height(40)
-              .backgroundColor('#00000000')
-              .onClick(async () => {
-                if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
-                  this.playMode = AVSessionManager.LoopMode.LOOP_MODE_LIST
-                } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
-                  this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE
-                } else {
-                  this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SINGLE
-                }
-              })
-
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.sleep'))
-                  .width(30)
-                  .height(30)
-              }
-              .width(40)
-              .height(40)
-              .backgroundColor('#00000000')
-              .onClick(() => {
-                this.showSleep = true
-              })
-              .bindSheet($$this.showSleep, this.sleepBuilder, {
-                showClose: false,
-                height: SheetSize.FIT_CONTENT,
-                preferType: SheetType.BOTTOM,
-                backgroundColor: $r('app.color.content_background'),
-                title: {
-                  title: '睡眠定时'
-                }
-              })
-
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.list'))
-                  .width(30)
-                  .height(30)
-              }
-              .width(40)
-              .height(40)
-              .backgroundColor('#00000000')
-              .onClick(() => {
-                this.showList = true
-              })
-              .bindSheet($$this.showList, this.listBuilder, {
-                showClose: false,
-                height: SheetSize.FIT_CONTENT,
-                preferType: SheetType.BOTTOM,
-                backgroundColor: $r('app.color.content_background'),
-                title: {
-                  title: '播放队列'
-                }
-              })
-
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.more'))
-                  .width(30)
-                  .height(30)
-              }
-              .width(40)
-              .height(40)
-              .backgroundColor('#00000000')
-              .onClick(() => {
-                this.showMore = true
-              })
-              .bindSheet($$this.showMore, this.moreBuilder, {
-                showClose: false,
-                height: SheetSize.FIT_CONTENT,
-                preferType: SheetType.BOTTOM,
-                backgroundColor: $r('app.color.content_background'),
-                title: {
-                  title: '更多'
-                }
-              })
-            }
-            .width('100%')
-            .margin({ top: 10 })
-            .justifyContent(FlexAlign.SpaceBetween)
-          }
-          .width('80%')
-          .height(250)
-          .justifyContent(FlexAlign.SpaceBetween)
-          .padding({ bottom: 20 })
-          .margin({ top: 20 })
-          .offset({
-            y: -20
-          })
         }
         .width('100%')
         .height('100%')
-        .alignItems(HorizontalAlign.Center)
-        .justifyContent(FlexAlign.SpaceEvenly)
         .padding({ top: this.statusBarHeight })
       }
     }
