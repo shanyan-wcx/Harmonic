@@ -46,6 +46,8 @@ export default struct Play {
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
+  @Consume displayWidth: number
+  @Consume displayHeight: number
   @Consume salt: string
   @Consume version: string
   @Consume client: string
@@ -770,6 +772,7 @@ export default struct Play {
                   )
               }
               .width('100%')
+              .visibility(this.displayHeight > 300 ? Visibility.Visible : Visibility.None)
 
               Row() {
                 Button({ type: ButtonType.Circle }) {
@@ -925,12 +928,13 @@ export default struct Play {
               }
               .width('100%')
               .justifyContent(FlexAlign.SpaceBetween)
+              .visibility(this.displayHeight > 300 ? Visibility.Visible : Visibility.None)
             }
             .width('80%')
             .height('100%')
             .layoutWeight(1)
             .justifyContent(FlexAlign.SpaceBetween)
-            .padding({ top: 20, bottom: 20 })
+            .padding({ top: this.showCover === true ? 20 : 40, bottom: 20 })
             .offset({
               y: -20
             })
