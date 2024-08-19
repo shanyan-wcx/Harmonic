@@ -1,6 +1,6 @@
 # Harmonic
 
-Navidrome的鸿蒙Next客户端。
+Navidrome的鸿蒙Next客户端，适配手机、平板。
 
 ## 应用截图
 
