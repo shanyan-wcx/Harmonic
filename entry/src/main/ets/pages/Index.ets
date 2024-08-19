@@ -1480,6 +1480,7 @@ struct Index {
         switching: this.sidebarIcon
       }
     })
+    .autoHide(this.sidebarType === SideBarContainerType.Embed ? false : true)
     .sideBarPosition(SideBarPosition.Start)
     .onChange((show: boolean) => {
       if (show === true && this.sidebarType === SideBarContainerType.Overlay) {
