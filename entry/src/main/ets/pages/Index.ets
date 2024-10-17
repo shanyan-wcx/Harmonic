@@ -444,6 +444,7 @@ struct Index {
         case 'idle':
           console.info('播放器重置。');
           this.stopContinuousTask()
+          this.nowPlayedTime = 0
           break;
         case 'initialized':
           console.info('播放器初始化。');
