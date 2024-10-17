@@ -211,6 +211,29 @@ struct Index {
     }
   }
 
+  convertToLrc(lyrics: StructuredLyric | null): string {
+    if (!lyrics || !lyrics.line || lyrics.line.length === 0) {
+      return "";
+    }
+    const lrcLines: string[] = [];
+    const addedTimestamps = new Set<string>();
+    lyrics.line.forEach(line => {
+      if (line.start !== undefined) {
+        const minutes = Math.floor(line.start / 60000).toString().padStart(2, '0');
+        const seconds = ((line.start % 60000) / 1000).toFixed(2);
+        let timeTag = `[${minutes}:${seconds.padStart(5, '0')}]`;
+        if (timeTag === '[00:00.00]') {
+          timeTag = '[00:00.01]';
+        }
+        if (!addedTimestamps.has(timeTag)) {
+          lrcLines.push(`${timeTag}${line.value}`);
+          addedTimestamps.add(timeTag);
+        }
+      }
+    });
+    return lrcLines.join("\n") + "\n";
+  }
+
   getPixelMap(cover: ArrayBuffer): PixelMap {
     const imageSource: image.ImageSource = image.createImageSource(cover);
     let pixelMap = imageSource.createPixelMapSync()
@@ -271,7 +294,8 @@ struct Index {
       title: this.nowPlayingSong!.title,
       mediaImage: this.getPixelMap(await getCover(this.nowPlayingSong!.id, 512)),
       duration: this.nowPlayingSong!.duration * 1000,
-      artist: this.nowPlayingSong!.artist
+      artist: this.nowPlayingSong!.artist,
+      lyric: this.convertToLrc(this.nowPlayingLyrics),
     };
     this.session!.setAVMetadata(metadata).then(() => {
       console.info(`SetAVMetadata successfully`);
