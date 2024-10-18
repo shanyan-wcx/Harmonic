@@ -427,6 +427,17 @@ struct Index {
     })
     avPlayer.on('error', (err: BusinessError) => {
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
+      if (err.code === 5400106) {
+        promptAction.showToast({
+          message: '播放失败，格式不支持或文件不存在！',
+          duration: 500
+        });
+      } else if (err.code === 5400104) {
+        promptAction.showToast({
+          message: '播放失败，请检查网络连接！',
+          duration: 500
+        });
+      }
       avPlayer.reset();
     })
     avPlayer.on('stateChange', async (state: string, reason: media.StateChangeReason) => {
