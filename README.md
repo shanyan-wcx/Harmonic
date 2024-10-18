@@ -23,3 +23,7 @@ Navidrome的鸿蒙Next客户端，适配手机、平板、车机。
   <img src="./assets/dark4.png" alt="Image 4" style="width: 19%;">
   <img src="./assets/dark5.png" alt="Image 5" style="width: 19%;">
 </div>
+
+## 安装方式
+
+推荐使用[auto-installer](https://github.com/likuai2010/auto-installer)进行安装。
