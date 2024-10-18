@@ -114,7 +114,7 @@ struct Index {
   @Provide displayHeight: number = 0
   @Provide sidebarType: number = SideBarContainerType.Overlay
   @State coverSize: number = 64
-  @State controlButtonWidth: number = 24
+  @State controlButtonWidth: number = 48
   @State themeIcon: Resource = $r('app.media.auto')
   @State sidebarIcon: Resource = $r('app.media.sidebar')
   @State sideBarWidth: number = 240
@@ -141,16 +141,10 @@ struct Index {
         mainWindow.setWindowSystemBarProperties({
           statusBarContentColor: '#FFFFFF',
         })
-        this.showControlButton = false
-        this.sidebarIcon = $rawfile('sidebar_dark.png')
-        this.showControlButton = true
       } else {
         mainWindow.setWindowSystemBarProperties({
           statusBarContentColor: '#000000',
         })
-        this.showControlButton = false
-        this.sidebarIcon = $rawfile('sidebar.png')
-        this.showControlButton = true
       }
     },
     onMemoryLevel(level) {
@@ -173,13 +167,11 @@ struct Index {
         statusBarContentColor: '#000000',
       })
       this.themeIcon = $r('app.media.light')
-      this.sidebarIcon = $rawfile('sidebar.png')
     } else if (this.theme === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
       mainWindow.setWindowSystemBarProperties({
         statusBarContentColor: '#FFFFFF',
       })
       this.themeIcon = $r('app.media.dark')
-      this.sidebarIcon = $rawfile('sidebar_dark.png')
     } else {
       this.themeIcon = $r('app.media.auto')
       let systemTheme: number | undefined = context.config.colorMode
@@ -187,12 +179,10 @@ struct Index {
         mainWindow.setWindowSystemBarProperties({
           statusBarContentColor: '#FFFFFF',
         })
-        this.sidebarIcon = $rawfile('sidebar_dark.png')
       } else {
         mainWindow.setWindowSystemBarProperties({
           statusBarContentColor: '#000000',
         })
-        this.sidebarIcon = $rawfile('sidebar.png')
       }
     }
   }
@@ -977,7 +967,7 @@ struct Index {
               duration: 300,
               curve: Curve.EaseOut,
             }, () => {
-              this.controlButtonWidth = 24
+              this.controlButtonWidth = 48
             })
           } else {
             animateTo({
@@ -994,347 +984,515 @@ struct Index {
   }
 
   build() {
-    SideBarContainer(this.sidebarType) {
-      Column() {
+    Stack() {
+      SideBarContainer(this.sidebarType) {
         Column() {
-          Button({ type: ButtonType.Normal }) {
-            Row() {
-              Image("")
-              Text("歌曲")
-                .fontSize(20)
-                .fontColor($r('app.color.font'))
-            }
-          }
-          .width('100%')
-          .height(60)
-          .borderRadius(20)
-          .backgroundColor($r('app.color.bar_background'))
-          .onClick(() => {
-            animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-            this.pageStack.clear()
-            this.nowPage = 0
-            this.title = '歌曲'
-          })
-
-          Button({ type: ButtonType.Normal }) {
-            Row() {
-              Image("")
-              Text("专辑")
-                .fontSize(20)
-                .fontColor($r('app.color.font'))
-            }
-          }
-          .width('100%')
-          .height(60)
-          .borderRadius(20)
-          .backgroundColor($r('app.color.bar_background'))
-          .onClick(() => {
-            animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-            this.pageStack.clear()
-            this.nowPage = 1
-            this.title = '专辑'
-          })
-
-          Button({ type: ButtonType.Normal }) {
-            Row() {
-              Image("")
-              Text("艺术家")
-                .fontSize(20)
-                .fontColor($r('app.color.font'))
-            }
-          }
-          .width('100%')
-          .height(60)
-          .borderRadius(20)
-          .backgroundColor($r('app.color.bar_background'))
-          .onClick(() => {
-            animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-            this.pageStack.clear()
-            this.nowPage = 2
-            this.title = '艺术家'
-          })
-        }
-        .width('90%')
-        .height('auto')
-        .borderRadius(20)
-        .clip(true)
-        .backgroundColor($r('app.color.bar_background'))
-
-        Column() {
-          Playlists()
-        }
-        .width('90%')
-        .height('100%')
-        .layoutWeight(1)
-        .margin({ top: 20, bottom: 20 })
-        .borderRadius(20)
-        .clip(true)
-        .backgroundColor($r('app.color.bar_background'))
-
-        Column() {
-          Button({ type: ButtonType.Normal }) {
-            Row() {
-              Image("")
-              Text("统计")
-                .fontSize(20)
-                .fontColor($r('app.color.font'))
-            }
-          }
-          .width('100%')
-          .height(60)
-          .borderRadius(20)
-          .backgroundColor($r('app.color.bar_background'))
-          .onClick(() => {
-            animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-            this.pageStack.clear()
-            this.nowPage = 3
-            this.title = '统计'
-          })
-
-          Button({ type: ButtonType.Normal }) {
-            Row() {
-              Image("")
-              Text("设置")
-                .fontSize(20)
-                .fontColor($r('app.color.font'))
-            }
-          }
-          .width('100%')
-          .height(60)
-          .borderRadius(20)
-          .backgroundColor($r('app.color.bar_background'))
-          .onClick(() => {
-            animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-            this.pageStack.clear()
-            this.nowPage = 4
-            this.title = '设置'
-          })
-
-          Button({ type: ButtonType.Normal }) {
-            Row() {
-              Image("")
-              Text("关于")
-                .fontSize(20)
-                .fontColor($r('app.color.font'))
-            }
-          }
-          .width('100%')
-          .height(60)
-          .borderRadius(20)
-          .backgroundColor($r('app.color.bar_background'))
-          .onClick(() => {
-            animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-            this.pageStack.clear()
-            this.nowPage = 5
-            this.title = '关于'
-          })
-        }
-        .width('90%')
-        .height('auto')
-        .borderRadius(20)
-        .clip(true)
-        .backgroundColor($r('app.color.bar_background'))
-      }
-      .width('100%')
-      .height('100%')
-      .backgroundColor($r('app.color.content_background'))
-      .padding({
-        top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 12 : this.statusBarHeight + 57,
-        bottom: 27
-      })
-      .shadow({
-        radius: this.shadowRadius,
-        color: '#95000000',
-        offsetX: 0,
-        offsetY: 0
-      })
-
-      Stack() {
-        Navigation(this.pageStack) {
-          Stack() {
-            Column() {
-              Column() {
-                Songs()
-              }
-              .height('100%')
-              .width('100%')
-              .visibility(this.nowPage === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
-
-              Column() {
-                Albums()
-              }
-              .height('100%')
-              .width('100%')
-              .visibility(this.nowPage === 1 && this.showProgress === false ? Visibility.Visible : Visibility.None)
-
-              Column() {
-                Artists()
-              }
-              .height('100%')
-              .width('100%')
-              .visibility(this.nowPage === 2 && this.showProgress === false ? Visibility.Visible : Visibility.None)
-            }
-            .height('100%')
-            .width('100%')
-            .visibility(this.serverStatus === true ? Visibility.Visible : Visibility.None)
-
-            Column() {
-              Stats()
-            }
-            .height('100%')
-            .width('100%')
-            .visibility(this.nowPage === 3 ? Visibility.Visible : Visibility.None)
-
-            Column() {
-              Setting()
-            }
-            .height('100%')
-            .width('100%')
-            .visibility(this.nowPage === 4 ? Visibility.Visible : Visibility.None)
-
-            Column() {
-              About()
-            }
-            .height('100%')
-            .width('100%')
-            .visibility(this.nowPage === 5 ? Visibility.Visible : Visibility.None)
-
-            Column() {
-              LoadingProgress()
-                .width("100%")
-                .height(80)
-                .color($r('app.color.font'))
-            }
-            .height('100%')
-            .width('100%')
-            .justifyContent(FlexAlign.Center)
-            .visibility(this.showProgress === true && this.nowPage <= 2 ? Visibility.Visible : Visibility.None)
-
-            Column() {
-              Text("连接服务器失败")
-                .fontSize(24)
-                .fontColor($r('app.color.font'))
-              Button() {
-                Text("重试")
+          Column() {
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image("")
+                Text("歌曲")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
-              .width(100)
-              .height(50)
-              .margin({ top: 20 })
-              .backgroundColor($r('app.color.bar_background'))
-              .onClick(async () => {
-                if (this.baseURL === '') {
-                  promptAction.showToast({
-                    message: '请先设置服务器！',
-                    duration: 500
-                  });
-                } else {
-                  this.serverStatus = true
-                  this.showProgress = true
-                  let status: string | null = await ping()
-                  console.log("Server status", status)
-                  if (status === 'ok') {
-                    this.artists = []
-                    this.albums = []
-                    this.songs = []
-                    this.playlists = []
-                    this.artists = await getIndexes()
-                    this.artists = this.clearArtists(this.artists)
-                    for (const artist of this.artists) {
-                      artist.album = await getArtist(artist.id);
-                      this.albums = this.albums.concat(artist.album!);
-                      this.albums = this.clearAlbums(this.albums)
-                      for (const album of artist.album!) {
-                        album.song = await getAlbum(album.id);
-                        this.songs = this.songs.concat(album.song!);
-                        this.songs = this.claerSongs(this.songs)
-                      }
-                    }
-                    this.playlists = (await getPlaylists()).sort((a, b) => {
-                      return Date.parse(b.changed) - Date.parse(a.changed);
-                    })
-                    this.selectedPlaylists = []
-                    for (let playlist of this.playlists) {
-                      this.selectedPlaylists.push(false)
-                    }
-                    let starred = await getStarred()
-                    if (starred !== null) {
-                      this.starredSongs = starred!.song!
-                    }
-                    this.selectedIndex = 0
-                    this.songs.sort((a, b) => {
-                      return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-                    })
-                    this.albums.sort((a, b) => {
-                      return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-                    })
-                    this.artists.sort((a, b) => {
-                      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-                    })
-                    console.log("获取到艺术家", this.artists.length)
-                    console.log("获取到专辑", this.albums.length)
-                    console.log("获取到歌曲", this.songs.length)
-                    console.log("获取到歌单", this.playlists.length)
-                  } else {
-                    this.serverStatus = false
+            }
+            .width('100%')
+            .height(60)
+            .borderRadius(20)
+            .backgroundColor($r('app.color.bar_background'))
+            .onClick(() => {
+              animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 0
+              this.title = '歌曲'
+            })
+
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image("")
+                Text("专辑")
+                  .fontSize(20)
+                  .fontColor($r('app.color.font'))
+              }
+            }
+            .width('100%')
+            .height(60)
+            .borderRadius(20)
+            .backgroundColor($r('app.color.bar_background'))
+            .onClick(() => {
+              animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 1
+              this.title = '专辑'
+            })
+
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image("")
+                Text("艺术家")
+                  .fontSize(20)
+                  .fontColor($r('app.color.font'))
+              }
+            }
+            .width('100%')
+            .height(60)
+            .borderRadius(20)
+            .backgroundColor($r('app.color.bar_background'))
+            .onClick(() => {
+              animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 2
+              this.title = '艺术家'
+            })
+          }
+          .width('90%')
+          .height('auto')
+          .borderRadius(20)
+          .clip(true)
+          .backgroundColor($r('app.color.bar_background'))
+
+          Column() {
+            Playlists()
+          }
+          .width('90%')
+          .height('100%')
+          .layoutWeight(1)
+          .margin({ top: 20, bottom: 20 })
+          .borderRadius(20)
+          .clip(true)
+          .backgroundColor($r('app.color.bar_background'))
+
+          Column() {
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image("")
+                Text("统计")
+                  .fontSize(20)
+                  .fontColor($r('app.color.font'))
+              }
+            }
+            .width('100%')
+            .height(60)
+            .borderRadius(20)
+            .backgroundColor($r('app.color.bar_background'))
+            .onClick(() => {
+              animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 3
+              this.title = '统计'
+            })
+
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image("")
+                Text("设置")
+                  .fontSize(20)
+                  .fontColor($r('app.color.font'))
+              }
+            }
+            .width('100%')
+            .height(60)
+            .borderRadius(20)
+            .backgroundColor($r('app.color.bar_background'))
+            .onClick(() => {
+              animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 4
+              this.title = '设置'
+            })
+
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image("")
+                Text("关于")
+                  .fontSize(20)
+                  .fontColor($r('app.color.font'))
+              }
+            }
+            .width('100%')
+            .height(60)
+            .borderRadius(20)
+            .backgroundColor($r('app.color.bar_background'))
+            .onClick(() => {
+              animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 5
+              this.title = '关于'
+            })
+          }
+          .width('90%')
+          .height('auto')
+          .borderRadius(20)
+          .clip(true)
+          .backgroundColor($r('app.color.bar_background'))
+        }
+        .width('100%')
+        .height('100%')
+        .backgroundColor($r('app.color.content_background'))
+        .padding({
+          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 12 : this.statusBarHeight + 57,
+          bottom: 27
+        })
+        .shadow({
+          radius: this.shadowRadius,
+          color: '#95000000',
+          offsetX: 0,
+          offsetY: 0
+        })
+
+        Stack() {
+          Navigation(this.pageStack) {
+            Stack() {
+              Column() {
+                Column() {
+                  Songs()
+                }
+                .height('100%')
+                .width('100%')
+                .visibility(this.nowPage === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+                Column() {
+                  Albums()
+                }
+                .height('100%')
+                .width('100%')
+                .visibility(this.nowPage === 1 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+                Column() {
+                  Artists()
+                }
+                .height('100%')
+                .width('100%')
+                .visibility(this.nowPage === 2 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+              }
+              .height('100%')
+              .width('100%')
+              .visibility(this.serverStatus === true ? Visibility.Visible : Visibility.None)
+
+              Column() {
+                Stats()
+              }
+              .height('100%')
+              .width('100%')
+              .visibility(this.nowPage === 3 ? Visibility.Visible : Visibility.None)
+
+              Column() {
+                Setting()
+              }
+              .height('100%')
+              .width('100%')
+              .visibility(this.nowPage === 4 ? Visibility.Visible : Visibility.None)
+
+              Column() {
+                About()
+              }
+              .height('100%')
+              .width('100%')
+              .visibility(this.nowPage === 5 ? Visibility.Visible : Visibility.None)
+
+              Column() {
+                LoadingProgress()
+                  .width("100%")
+                  .height(80)
+                  .color($r('app.color.font'))
+              }
+              .height('100%')
+              .width('100%')
+              .justifyContent(FlexAlign.Center)
+              .visibility(this.showProgress === true && this.nowPage <= 2 ? Visibility.Visible : Visibility.None)
+
+              Column() {
+                Text("连接服务器失败")
+                  .fontSize(24)
+                  .fontColor($r('app.color.font'))
+                Button() {
+                  Text("重试")
+                    .fontSize(20)
+                    .fontColor($r('app.color.font'))
+                }
+                .width(100)
+                .height(50)
+                .margin({ top: 20 })
+                .backgroundColor($r('app.color.bar_background'))
+                .onClick(async () => {
+                  if (this.baseURL === '') {
                     promptAction.showToast({
-                      message: '连接服务器失败，请检查网络或设置！',
+                      message: '请先设置服务器！',
                       duration: 500
                     });
+                  } else {
+                    this.serverStatus = true
+                    this.showProgress = true
+                    let status: string | null = await ping()
+                    console.log("Server status", status)
+                    if (status === 'ok') {
+                      this.artists = []
+                      this.albums = []
+                      this.songs = []
+                      this.playlists = []
+                      this.artists = await getIndexes()
+                      this.artists = this.clearArtists(this.artists)
+                      for (const artist of this.artists) {
+                        artist.album = await getArtist(artist.id);
+                        this.albums = this.albums.concat(artist.album!);
+                        this.albums = this.clearAlbums(this.albums)
+                        for (const album of artist.album!) {
+                          album.song = await getAlbum(album.id);
+                          this.songs = this.songs.concat(album.song!);
+                          this.songs = this.claerSongs(this.songs)
+                        }
+                      }
+                      this.playlists = (await getPlaylists()).sort((a, b) => {
+                        return Date.parse(b.changed) - Date.parse(a.changed);
+                      })
+                      this.selectedPlaylists = []
+                      for (let playlist of this.playlists) {
+                        this.selectedPlaylists.push(false)
+                      }
+                      let starred = await getStarred()
+                      if (starred !== null) {
+                        this.starredSongs = starred!.song!
+                      }
+                      this.selectedIndex = 0
+                      this.songs.sort((a, b) => {
+                        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+                      })
+                      this.albums.sort((a, b) => {
+                        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+                      })
+                      this.artists.sort((a, b) => {
+                        return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+                      })
+                      console.log("获取到艺术家", this.artists.length)
+                      console.log("获取到专辑", this.albums.length)
+                      console.log("获取到歌曲", this.songs.length)
+                      console.log("获取到歌单", this.playlists.length)
+                    } else {
+                      this.serverStatus = false
+                      promptAction.showToast({
+                        message: '连接服务器失败，请检查网络或设置！',
+                        duration: 500
+                      });
+                    }
+                    this.showProgress = false
                   }
-                  this.showProgress = false
+                })
+              }
+              .height('100%')
+              .width('100%')
+              .justifyContent(FlexAlign.Center)
+              .visibility(this.serverStatus === false && this.nowPage <= 2 ? Visibility.Visible : Visibility.None)
+            }
+          }
+          .mode(NavigationMode.Stack)
+          .title(this.titlebar())
+          .titleMode(NavigationTitleMode.Mini)
+          .hideBackButton(true)
+          .padding({ top: this.statusBarHeight })
+          .menus(this.menuBuilder())
+          .bindSheet($$this.showMenu, this.bindMenuBuilder, {
+            showClose: false,
+            height: SheetSize.FIT_CONTENT,
+            backgroundColor: $r('app.color.content_background'),
+          })
+          .onClick(() => {
+            animateTo({
+              duration: 300,
+              curve: Curve.EaseOut,
+            }, () => {
+              this.showSidebar = false
+            })
+          })
+
+          Row() {
+            Row() {
+              Image(this.baseURL + this.getCoverUrl + this.auth +
+                `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                .alt($rawfile('nocover.png'))
+                .objectFit(ImageFit.Fill)
+                .width(60)
+                .aspectRatio(1)
+                .borderRadius(5)
+              Column() {
+                Marquee({
+                  start: true,
+                  step: 3,
+                  src: this.nowPlayingSong?.title
+                })
+                  .fontSize(18)
+                  .fontColor($r('app.color.font'))
+                Marquee({
+                  start: true,
+                  step: 3,
+                  src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
+                })
+                  .fontSize(15)
+                  .fontColor($r('app.color.font_secondary'))
+                  .margin({ top: 5 })
+              }
+              .margin({ left: 10, right: 10 })
+              .alignItems(HorizontalAlign.Start)
+              .width('100%')
+              .layoutWeight(1)
+            }
+            .width('100%')
+            .layoutWeight(1)
+            .justifyContent(FlexAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.prev'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(35)
+              .height(35)
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                animateTo({
+                  duration: 300,
+                  curve: Curve.EaseOut,
+                }, () => {
+                  this.showSidebar = false
+                })
+                await this.avPlayer!.reset();
+                if (this.nowPlayingIndex === 0) {
+                  this.nowPlayingIndex = this.nowPlayingList.length - 1
+                } else {
+                  this.nowPlayingIndex -= 1
                 }
+                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                if (this.nowPlayingLyrics !== null) {
+                  this.groupLyrics()
+                }
+                this.avPlayer!.url =
+                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              })
+
+              Stack() {
+                Progress({
+                  value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                  total: 100,
+                  type: ProgressType.Ring
+                })
+                  .width(45)
+                  .height(45)
+                  .color($r('app.color.progress'))
+                  .backgroundColor($r('app.color.progress_background'))
+                  .style({
+                    strokeWidth: 3
+                  })
+
+                Button({ type: ButtonType.Circle }) {
+                  Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
+                    .width(25)
+                    .height(25)
+                }
+                .width(45)
+                .height(45)
+                .backgroundColor('#00000000')
+                .onClick(() => {
+                  this.isPlaying = !this.isPlaying
+                  if (this.isPlaying === false) {
+                    this.avPlayer!.pause()
+                  } else {
+                    this.avPlayer!.play()
+                  }
+                  animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                })
+              }
+
+              Button({ type: ButtonType.Circle }) {
+                Image($r('app.media.next'))
+                  .width(30)
+                  .height(30)
+              }
+              .width(35)
+              .height(35)
+              .backgroundColor('#00000000')
+              .onClick(async () => {
+                animateTo({
+                  duration: 300,
+                  curve: Curve.EaseOut,
+                }, () => {
+                  this.showSidebar = false
+                })
+                await this.avPlayer!.reset();
+                if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+                  this.nowPlayingIndex = 0
+                } else {
+                  this.nowPlayingIndex += 1
+                }
+                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                if (this.nowPlayingLyrics !== null) {
+                  this.groupLyrics()
+                }
+                this.avPlayer!.url =
+                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
               })
             }
-            .height('100%')
-            .width('100%')
-            .justifyContent(FlexAlign.Center)
-            .visibility(this.serverStatus === false && this.nowPage <= 2 ? Visibility.Visible : Visibility.None)
+            .width(125)
+            .justifyContent(FlexAlign.SpaceBetween)
           }
+          .width('100%')
+          .height(85)
+          .backgroundColor($r('app.color.bar_background'))
+          .padding({ left: 15, right: 15, bottom: 5 })
+          .position({
+            bottom: 0
+          })
+          .bindContentCover($$this.showPlay, this.bindContentCoverBuilder(), {
+            modalTransition: ModalTransition.NONE,
+          })
+          .onClick(() => {
+            if (this.showPlay === true) {
+              this.showPlay = false
+            }
+            this.showPlay = true
+          })
+          .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
+          .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: curves.springMotion(0.6, 1) }))
         }
-        .mode(NavigationMode.Stack)
-        .title(this.titlebar())
-        .titleMode(NavigationTitleMode.Mini)
-        .hideBackButton(true)
-        .padding({ top: this.statusBarHeight })
-        .menus(this.menuBuilder())
-        .bindSheet($$this.showMenu, this.bindMenuBuilder, {
-          showClose: false,
-          height: SheetSize.FIT_CONTENT,
-          backgroundColor: $r('app.color.content_background'),
-        })
-        .onClick(() => {
+        .width("100%")
+        .height('100%')
+        .onTouch(() => {
           animateTo({
             duration: 300,
             curve: Curve.EaseOut,
@@ -1342,203 +1500,52 @@ struct Index {
             this.showSidebar = false
           })
         })
-
-        Row() {
-          Row() {
-            Image(this.baseURL + this.getCoverUrl + this.auth +
-              `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-              .alt($rawfile('nocover.png'))
-              .objectFit(ImageFit.Fill)
-              .width(60)
-              .aspectRatio(1)
-              .borderRadius(5)
-            Column() {
-              Marquee({
-                start: true,
-                step: 3,
-                src: this.nowPlayingSong?.title
-              })
-                .fontSize(18)
-                .fontColor($r('app.color.font'))
-              Marquee({
-                start: true,
-                step: 3,
-                src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
-              })
-                .fontSize(15)
-                .fontColor($r('app.color.font_secondary'))
-                .margin({ top: 5 })
-            }
-            .margin({ left: 10, right: 10 })
-            .alignItems(HorizontalAlign.Start)
-            .width('100%')
-            .layoutWeight(1)
-          }
-          .width('100%')
-          .layoutWeight(1)
-          .justifyContent(FlexAlign.Start)
-
-          Row() {
-            Button({ type: ButtonType.Circle }) {
-              Image($r('app.media.prev'))
-                .width(30)
-                .height(30)
-            }
-            .width(35)
-            .height(35)
-            .backgroundColor('#00000000')
-            .onClick(async () => {
-              animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              await this.avPlayer!.reset();
-              if (this.nowPlayingIndex === 0) {
-                this.nowPlayingIndex = this.nowPlayingList.length - 1
-              } else {
-                this.nowPlayingIndex -= 1
-              }
-              this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-              this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
-              if (this.nowPlayingLyrics !== null) {
-                this.groupLyrics()
-              }
-              this.avPlayer!.url =
-                this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
-            })
-
-            Stack() {
-              Progress({
-                value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
-                total: 100,
-                type: ProgressType.Ring
-              })
-                .width(45)
-                .height(45)
-                .color($r('app.color.progress'))
-                .backgroundColor($r('app.color.progress_background'))
-                .style({
-                  strokeWidth: 3
-                })
-
-              Button({ type: ButtonType.Circle }) {
-                Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
-                  .width(25)
-                  .height(25)
-              }
-              .width(45)
-              .height(45)
-              .backgroundColor('#00000000')
-              .onClick(() => {
-                this.isPlaying = !this.isPlaying
-                if (this.isPlaying === false) {
-                  this.avPlayer!.pause()
-                } else {
-                  this.avPlayer!.play()
-                }
-                animateTo({
-                  duration: 300,
-                  curve: Curve.EaseOut,
-                }, () => {
-                  this.showSidebar = false
-                })
-              })
-            }
-
-            Button({ type: ButtonType.Circle }) {
-              Image($r('app.media.next'))
-                .width(30)
-                .height(30)
-            }
-            .width(35)
-            .height(35)
-            .backgroundColor('#00000000')
-            .onClick(async () => {
-              animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              await this.avPlayer!.reset();
-              if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
-                this.nowPlayingIndex = 0
-              } else {
-                this.nowPlayingIndex += 1
-              }
-              this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-              this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
-              if (this.nowPlayingLyrics !== null) {
-                this.groupLyrics()
-              }
-              this.avPlayer!.url =
-                this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
-            })
-          }
-          .width(125)
-          .justifyContent(FlexAlign.SpaceBetween)
-        }
-        .width('100%')
-        .height(85)
-        .backgroundColor($r('app.color.bar_background'))
-        .padding({ left: 15, right: 15, bottom: 5 })
-        .position({
-          bottom: 0
-        })
-        .bindContentCover($$this.showPlay, this.bindContentCoverBuilder(), {
-          modalTransition: ModalTransition.NONE,
-        })
-        .onClick(() => {
-          if (this.showPlay === true) {
-            this.showPlay = false
-          }
-          this.showPlay = true
-        })
-        .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
-        .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: curves.springMotion(0.6, 1) }))
       }
       .width("100%")
       .height('100%')
-      .onTouch(() => {
+      .backgroundColor($r('app.color.content_background'))
+      .sideBarWidth(this.sideBarWidth)
+      .showSideBar(this.sidebarType === SideBarContainerType.Embed ? true : this.showSidebar)
+      .showControlButton(false)
+      .autoHide(this.sidebarType === SideBarContainerType.Embed ? false : true)
+      .sideBarPosition(SideBarPosition.Start)
+      .onChange((show: boolean) => {
+        if (show === true && this.sidebarType === SideBarContainerType.Overlay) {
+          this.shadowRadius = 100
+          this.showSidebar = true
+        } else {
+          setTimeout(() => {
+            this.shadowRadius = 0
+            this.showSidebar = false
+          }, 300)
+        }
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Image($r('app.media.sidebar'))
+          .width(24)
+          .aspectRatio(1)
+      }
+      .position({
+        x: 10,
+        y: this.statusBarHeight + 2
+      })
+      .width(this.controlButtonWidth)
+      .height(48)
+      .borderRadius(8)
+      .backgroundColor('#00000000')
+      .onClick(async () => {
         animateTo({
           duration: 300,
           curve: Curve.EaseOut,
         }, () => {
-          this.showSidebar = false
+          this.showSidebar = !this.showSidebar
         })
       })
+      .visibility(this.sidebarType === SideBarContainerType.Overlay && this.showControlButton === true ?
+      Visibility.Visible : Visibility.Hidden)
     }
     .width("100%")
     .height('100%')
-    .backgroundColor($r('app.color.content_background'))
-    .sideBarWidth(this.sideBarWidth)
-    .showSideBar(this.sidebarType === SideBarContainerType.Embed ? true : this.showSidebar)
-    .showControlButton(this.sidebarType === SideBarContainerType.Embed ? false : this.showControlButton)
-    .controlButton({
-      top: 16 + this.statusBarHeight,
-      left: 24,
-      width: this.controlButtonWidth,
-      height: 24,
-      icons: {
-        shown: this.sidebarIcon,
-        hidden: this.sidebarIcon,
-        switching: this.sidebarIcon
-      }
-    })
-    .autoHide(this.sidebarType === SideBarContainerType.Embed ? false : true)
-    .sideBarPosition(SideBarPosition.Start)
-    .onChange((show: boolean) => {
-      if (show === true && this.sidebarType === SideBarContainerType.Overlay) {
-        this.shadowRadius = 100
-        this.showSidebar = true
-      } else {
-        setTimeout(() => {
-          this.shadowRadius = 0
-          this.showSidebar = false
-        }, 300)
-      }
-    })
   }
 }
