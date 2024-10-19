@@ -1539,7 +1539,7 @@ struct Index {
       }
       .position({
         x: 10,
-        y: this.statusBarHeight + 2
+        y: this.statusBarHeight + 4
       })
       .width(this.controlButtonWidth)
       .height(48)
