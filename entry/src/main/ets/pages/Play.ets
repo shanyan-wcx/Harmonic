@@ -7,8 +7,10 @@ import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
-import { common } from '@kit.AbilityKit';
+import { common, ConfigurationConstant } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+
+let context = getContext(this) as common.UIAbilityContext;
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -85,6 +87,7 @@ export default struct Play {
   @State sleepValue: number = 0
   @State coverSize: number = 512
   @StorageLink('playMode') @Watch('changePlayMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
+  @StorageLink('fadeVolume') fadeVolume: boolean = false
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
   private controller: SwiperController = new SwiperController();
@@ -199,6 +202,41 @@ export default struct Play {
         break
       }
     }
+  }
+
+  fadeIn() {
+    let duration = 1000
+    let volume = 0;
+    const step = 50; // 调整间隔时间，单位 ms
+    const increment = step / duration; // 每次增加的音量比例
+    this.avPlayer!.setVolume(volume);
+    this.avPlayer!.play();
+    const interval = setInterval(() => {
+      volume += increment;
+      if (volume >= 1.0) {
+        this.avPlayer!.setVolume(1.0);
+        clearInterval(interval);
+      } else {
+        this.avPlayer!.setVolume(volume);
+      }
+    }, step);
+  }
+
+  fadeOut() {
+    let duration = 1000
+    let volume = 1.0; // 假设当前音量是最大值
+    const step = 50; // 调整间隔时间，单位 ms
+    const decrement = step / duration; // 每次减少的音量比例
+    const interval = setInterval(() => {
+      volume -= decrement;
+      if (volume <= 0.0) {
+        this.avPlayer!.setVolume(0.0);
+        clearInterval(interval);
+        this.avPlayer!.pause(); // 在音量完全降为 0 后暂停
+      } else {
+        this.avPlayer!.setVolume(volume);
+      }
+    }, step);
   }
 
   scrollLyrics() {
@@ -475,10 +513,10 @@ export default struct Play {
             `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
           .backgroundImageSize(ImageSize.FILL)
           .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
-          .width('100%')
-          .height('100%')
-        Column()
-          .backgroundColor($r('app.color.play_background'))
+          .backgroundBrightness({
+            rate: 0.5,
+            lightUpDegree: context.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.15 : 0.5
+          })
           .width('100%')
           .height('100%')
         Row() {
@@ -810,9 +848,17 @@ export default struct Play {
                 .onClick(() => {
                   this.isPlaying = !this.isPlaying
                   if (this.isPlaying === false) {
-                    this.avPlayer!.pause()
+                    if (this.fadeVolume === true) {
+                      this.fadeOut()
+                    } else {
+                      this.avPlayer!.pause()
+                    }
                   } else {
-                    this.avPlayer!.play()
+                    if (this.fadeVolume === true) {
+                      this.fadeIn()
+                    } else {
+                      this.avPlayer!.play()
+                    }
                   }
                 })
 

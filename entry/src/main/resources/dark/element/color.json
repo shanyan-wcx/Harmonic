@@ -17,10 +17,6 @@
       "value": "#0F0F0F"
     },
     {
-      "name": "play_background",
-      "value": "#20FFFFFF"
-    },
-    {
       "name": "font",
       "value": "#F8F9FB"
     },
@@ -34,7 +30,7 @@
     },
     {
       "name": "font_lyrics_secondary",
-      "value": "#A3A3A3"
+      "value": "#C8C8C8"
     },
     {
       "name": "progress",
@@ -59,6 +55,10 @@
     {
       "name": "radio",
       "value": "#404040"
+    },
+    {
+      "name": "sidebarShadow",
+      "value": "#95FFFFFF"
     }
   ]
 }

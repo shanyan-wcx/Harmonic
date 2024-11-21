@@ -42,6 +42,7 @@ import Stats from './Stats';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 
+PersistentStorage.persistProp('firstStart', true);
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -121,6 +122,8 @@ struct Index {
   @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
+  @StorageLink('fadeVolume') fadeVolume: boolean = false
+  @StorageLink('firstStart') firstStart: boolean = true
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 340,
@@ -248,6 +251,41 @@ struct Index {
     return Array.from(uniqueItems.values());
   }
 
+  fadeIn() {
+    let duration = 1000
+    let volume = 0;
+    const step = 50; // 调整间隔时间，单位 ms
+    const increment = step / duration; // 每次增加的音量比例
+    this.avPlayer!.setVolume(volume);
+    this.avPlayer!.play();
+    const interval = setInterval(() => {
+      volume += increment;
+      if (volume >= 1.0) {
+        this.avPlayer!.setVolume(1.0);
+        clearInterval(interval);
+      } else {
+        this.avPlayer!.setVolume(volume);
+      }
+    }, step);
+  }
+
+  fadeOut() {
+    let duration = 1000
+    let volume = 1.0; // 假设当前音量是最大值
+    const step = 50; // 调整间隔时间，单位 ms
+    const decrement = step / duration; // 每次减少的音量比例
+    const interval = setInterval(() => {
+      volume -= decrement;
+      if (volume <= 0.0) {
+        this.avPlayer!.setVolume(0.0);
+        clearInterval(interval);
+        this.avPlayer!.pause(); // 在音量完全降为 0 后暂停
+      } else {
+        this.avPlayer!.setVolume(volume);
+      }
+    }, step);
+  }
+
   async startContinuousTask() {
     let wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [
@@ -316,11 +354,19 @@ struct Index {
   async setSessionCallback() {
     this.session!.on('play', () => {
       this.isPlaying = true
-      this.avPlayer!.play()
+      if (this.fadeVolume === true) {
+        this.fadeIn()
+      } else {
+        this.avPlayer!.play()
+      }
     });
     this.session!.on('pause', () => {
       this.isPlaying = false
-      this.avPlayer!.pause()
+      if (this.fadeVolume === true) {
+        this.fadeOut()
+      } else {
+        this.avPlayer!.pause()
+      }
     });
     this.session!.on('stop', async () => {
       this.startPlaying = false
@@ -400,7 +446,11 @@ struct Index {
       if (this.sleepTime > 0 && this.isPlaying === true) {
         this.sleepTime -= 0.1
         if (this.sleepTime <= 0) {
-          this.avPlayer!.pause()
+          if (this.fadeVolume === true) {
+            this.fadeOut()
+          } else {
+            this.avPlayer!.pause()
+          }
           this.isPlaying = false
           this.sleepTime = 0
         }
@@ -466,9 +516,17 @@ struct Index {
             this.avPlayer!.setVolume((100 + this.nowPlayingSong!.replayGain!.trackGain) / 100)
           }
           if (this.isPlaying === true) {
-            this.avPlayer!.play()
+            if (this.fadeVolume === true) {
+              this.fadeIn()
+            } else {
+              this.avPlayer!.play()
+            }
           } else {
-            this.avPlayer!.pause()
+            if (this.fadeVolume === true) {
+              this.fadeOut()
+            } else {
+              this.avPlayer!.pause()
+            }
           }
           break;
         case 'playing':
@@ -523,11 +581,19 @@ struct Index {
         switch (interruptEvent.hintType) {
           case audio.InterruptHint.INTERRUPT_HINT_PAUSE:
             this.isPlaying = false
-            this.avPlayer!.pause()
+            if (this.fadeVolume === true) {
+              this.fadeOut()
+            } else {
+              this.avPlayer!.pause()
+            }
             break;
           case audio.InterruptHint.INTERRUPT_HINT_STOP:
             this.isPlaying = false
-            this.avPlayer!.pause()
+            if (this.fadeVolume === true) {
+              this.fadeOut()
+            } else {
+              this.avPlayer!.pause()
+            }
             break;
           default:
             break;
@@ -536,7 +602,11 @@ struct Index {
         switch (interruptEvent.hintType) {
           case audio.InterruptHint.INTERRUPT_HINT_RESUME:
             this.isPlaying = true
-            this.avPlayer!.play()
+            if (this.fadeVolume === true) {
+              this.fadeIn()
+            } else {
+              this.avPlayer!.play()
+            }
             break;
           default:
             break;
@@ -911,7 +981,27 @@ struct Index {
     }
     if (this.baseURL === '') {
       this.serverStatus = false
+      if (this.firstStart === true) {
+        AlertDialog.show(
+          {
+            title: '首次启动',
+            message: '请先到设置页面配置服务器连接。',
+            autoCancel: false,
+            height: 200,
+            confirm: {
+              value: '确认',
+              fontColor: $r('app.color.font'),
+              action: () => {
+                this.firstStart = false
+              }
+            }
+          }
+        )
+      }
     } else {
+      if (this.firstStart === true) {
+        this.firstStart = false
+      }
       this.showProgress = true
       let status: string | null = await ping()
       console.log("Server status", status)
@@ -1176,7 +1266,7 @@ struct Index {
         })
         .shadow({
           radius: this.shadowRadius,
-          color: '#95000000',
+          color: $r('app.color.sidebarShadow'),
           offsetX: 0,
           offsetY: 0
         })
@@ -1236,6 +1326,10 @@ struct Index {
                   .width("100%")
                   .height(80)
                   .color($r('app.color.font'))
+                Text("加载时请勿退至后台")
+                  .fontSize(21)
+                  .fontColor($r('app.color.font'))
+                  .margin({ bottom: 160 })
               }
               .height('100%')
               .width('100%')
@@ -1436,9 +1530,17 @@ struct Index {
                 .onClick(() => {
                   this.isPlaying = !this.isPlaying
                   if (this.isPlaying === false) {
-                    this.avPlayer!.pause()
+                    if (this.fadeVolume === true) {
+                      this.fadeOut()
+                    } else {
+                      this.avPlayer!.pause()
+                    }
                   } else {
-                    this.avPlayer!.play()
+                    if (this.fadeVolume === true) {
+                      this.fadeIn()
+                    } else {
+                      this.avPlayer!.play()
+                    }
                   }
                   animateTo({
                     duration: 300,

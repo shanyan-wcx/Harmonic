@@ -4,6 +4,7 @@ export default struct Setting {
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
+  @StorageLink('fadeVolume') fadeVolume: boolean = false
 
   build() {
     Scroll() {
@@ -123,7 +124,21 @@ export default struct Setting {
               .switchPointColor($r('app.color.font'))
           }
           .width('100%')
-          .margin({ top: 20 ,bottom : 20})
+          .margin({ top: 20, bottom: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          Row() {
+            Text("淡入淡出")
+              .fontColor($r('app.color.font'))
+              .fontSize(20)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+            Toggle({ type: ToggleType.Switch, isOn: $$this.fadeVolume })
+              .selectedColor($r('app.color.radio'))
+              .switchPointColor($r('app.color.font'))
+          }
+          .width('100%')
+          .margin({ bottom: 20 })
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
