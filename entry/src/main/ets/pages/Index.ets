@@ -14,6 +14,7 @@ import { audio } from '@kit.AudioKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
+import { picker } from '@kit.CoreFileKit';
 import CryptoJS from '@ohos/crypto-js';
 import {
   getAlbum,
@@ -43,6 +44,7 @@ import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 
 PersistentStorage.persistProp('firstStart', true);
+PersistentStorage.persistProp('downloadDir', '');
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -124,6 +126,7 @@ struct Index {
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('firstStart') firstStart: boolean = true
+  @StorageLink('downloadDir') downloadDir: string = ''
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 340,
@@ -188,6 +191,18 @@ struct Index {
         })
       }
     }
+  }
+
+  createDir() {
+    const documentViewPicker = new picker.DocumentViewPicker(context);
+    const documentSaveOptions = new picker.DocumentSaveOptions();
+    documentSaveOptions.pickerMode = picker.DocumentPickerMode.DOWNLOAD;
+    documentViewPicker.save(documentSaveOptions).then((documentSaveResult: Array<string>) => {
+      this.downloadDir = documentSaveResult[0];
+      console.info('下载目录创建成功：' + this.downloadDir);
+    }).catch((err: BusinessError) => {
+      console.error(`下载目录创建失败, code is ${err.code}, message is ${err.message}`);
+    })
   }
 
   groupLyrics() {
@@ -978,6 +993,9 @@ struct Index {
       this.playModeIcon = $r('app.media.loop')
     } else {
       this.playModeIcon = $r('app.media.shuffle')
+    }
+    if (this.downloadDir === '') {
+      this.createDir()
     }
     if (this.baseURL === '') {
       this.serverStatus = false

@@ -8,7 +8,8 @@ import infoBuilder from './dialogs/Info';
 import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common, ConfigurationConstant } from '@kit.AbilityKit';
-import { BusinessError } from '@kit.BasicServicesKit';
+import { BusinessError, request } from '@kit.BasicServicesKit';
+import { fileIo as fs, fileUri, picker } from '@kit.CoreFileKit';
 
 let context = getContext(this) as common.UIAbilityContext;
 
@@ -88,6 +89,7 @@ export default struct Play {
   @State coverSize: number = 512
   @StorageLink('playMode') @Watch('changePlayMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('fadeVolume') fadeVolume: boolean = false
+  @StorageLink('downloadDir') downloadDir: string = ''
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
   private controller: SwiperController = new SwiperController();
@@ -413,6 +415,65 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.selectPlaylist.open()
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("下载歌曲")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .borderRadius(10)
+      .padding({ left: 20, right: 20 })
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        try {
+          let sanPath = context.filesDir + `/${this.nowPlayingSong!.title}.${this.nowPlayingSong!.suffix}`;
+          let res = fs.accessSync(sanPath)
+          if (res === true) {
+            fs.unlinkSync(sanPath);
+          }
+          request.downloadFile(context, {
+            url: this.baseURL + '/rest/download' + this.auth + `&id=${this.nowPlayingSong!.id}`,
+            filePath: sanPath
+          }).then((downloadTask: request.DownloadTask) => {
+            downloadTask.on('complete', () => {
+              console.info('下载完成');
+              const documentSaveOptions = new picker.DocumentSaveOptions();
+              documentSaveOptions.pickerMode = picker.DocumentPickerMode.DOWNLOAD
+              const documentViewPicker = new picker.DocumentViewPicker;
+              documentViewPicker.save(documentSaveOptions)
+                .then(async (documentSaveResult) => {
+                  let uri = documentSaveResult[0];
+                  let path: string = new fileUri.FileUri(uri).path
+                  let filePath: string = path + `/${this.nowPlayingSong!.title}.${this.nowPlayingSong!.suffix}`;
+                  let sanFile = fs.openSync(sanPath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+                  let pubFile = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+                  fs.copyFileSync(sanFile.fd, pubFile.fd)
+                  fs.closeSync(sanFile.fd)
+                  fs.closeSync(pubFile.fd)
+                  fs.unlinkSync(sanPath);
+                }).catch((err: Error) => {
+                console.error(`调用documentPicker.select失败, message is ${err.message}`);
+              })
+            })
+          }).catch((err: BusinessError) => {
+            console.error(`下载失败, code is ${err.code}, 1message is ${err.message}`);
+          });
+          promptAction.showToast({
+            message: '下载成功！',
+            duration: 500
+          });
+        } catch (error) {
+          promptAction.showToast({
+            message: '下载失败！',
+            duration: 500
+          });
+        }
       })
 
       Button({ type: ButtonType.Normal }) {
