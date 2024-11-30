@@ -308,6 +308,32 @@ export default struct Play {
   }
 
   @Builder
+  playlistEnd(index: number) {
+    Button({ type: ButtonType.Circle }) {
+      Image($r('app.media.delete'))
+        .width(30)
+        .height(30)
+    }
+    .width(40)
+    .height(40)
+    .margin({ left: 10, right: 10 })
+    .backgroundColor(Color.Red)
+    .onClick(() => {
+      if (index === this.nowPlayingIndex) {
+        promptAction.showToast({
+          message: '正在播放，无法删除！',
+          duration: 500
+        });
+      } else if (index > this.nowPlayingIndex) {
+        this.nowPlayingList.splice(index, 1);
+      } else {
+        this.nowPlayingList.splice(index, 1);
+        this.nowPlayingIndex--
+      }
+    })
+  }
+
+  @Builder
   listBuilder() {
     Column() {
       List({ scroller: this.listScroller }) {
@@ -361,6 +387,13 @@ export default struct Play {
               this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
             })
           }
+          .swipeAction({
+            end: {
+              builder: () => {
+                this.playlistEnd(index)
+              },
+            }
+          })
         })
       }
       .width('100%')
