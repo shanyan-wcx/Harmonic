@@ -215,84 +215,74 @@ export default struct PlaylistDetail {
             .height(1)
             .color($r('app.color.divider'))
 
-          List() {
-            ForEach(this.playlist!.entry, (song: Song, index) => {
-              ListItem() {
-                Button({ type: ButtonType.Normal }) {
-                  Row() {
-                    Text((index + 1).toString())
-                      .fontSize(18)
-                      .fontColor($r('app.color.font_secondary'))
-                      .width(70)
-                      .textAlign(TextAlign.Center)
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Fill)
-                      .width(60)
-                      .aspectRatio(1)
-                      .borderRadius(5)
-                    Column() {
-                      Text(song.title)
-                        .fontSize(18)
-                        .fontColor($r('app.color.font'))
-                        .maxLines(1)
-                        .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      Text(song.artist)
-                        .fontSize(15)
-                        .fontColor($r('app.color.font_secondary'))
-                        .margin({ top: 5 })
-                        .maxLines(1)
-                        .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    }
-                    .alignItems(HorizontalAlign.Start)
-                    .padding({ left: 15, right: 15 })
-                    .width('100%')
-                    .layoutWeight(1)
-                  }
-                  .width('100%')
-                  .height('100%')
+          ForEach(this.playlist!.entry, (song: Song, index) => {
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Text((index + 1).toString())
+                  .fontSize(18)
+                  .fontColor($r('app.color.font_secondary'))
+                  .width(70)
+                  .textAlign(TextAlign.Center)
+                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
+                  .alt($rawfile('nocover.png'))
+                  .objectFit(ImageFit.Fill)
+                  .width(60)
+                  .aspectRatio(1)
+                  .borderRadius(5)
+                Column() {
+                  Text(song.title)
+                    .fontSize(18)
+                    .fontColor($r('app.color.font'))
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  Text(song.artist)
+                    .fontSize(15)
+                    .fontColor($r('app.color.font_secondary'))
+                    .margin({ top: 5 })
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
                 }
+                .alignItems(HorizontalAlign.Start)
+                .padding({ left: 15, right: 15 })
                 .width('100%')
-                .height(80)
-                .borderRadius(10)
-                .backgroundColor('#00000000')
-                .onClick(async () => {
-                  await this.avPlayer!.reset()
-                  this.nowPlayingSong = song
-                  this.nowPlayingLyrics = await getLyrics(song.id)
-                  if (this.nowPlayingLyrics !== null) {
-                    this.groupLyrics()
-                  }
-                  this.nowPlayingListOriginal = this.playlist!.entry!.slice()
-                  if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
-                    this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
-                  } else {
-                    this.nowPlayingList = this.nowPlayingListOriginal.slice()
-                  }
-                  this.getNowPlayingIndex(song, this.nowPlayingList)
-                  this.nowPlayingStar = await this.getStar(song)
-                  this.isPlaying = true
-                  this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
-                  this.startPlaying = true
-                })
-                .gesture(
-                  LongPressGesture()
-                    .onAction(async (event: GestureEvent) => {
-                      this.longPressSong = song
-                      this.longPressStar = await this.getStar(song)
-                      this.longPressIndex = index
-                      this.showMenu = true
-                    })
-                )
+                .layoutWeight(1)
               }
+              .width('100%')
+              .height('100%')
+            }
+            .width('100%')
+            .height(80)
+            .borderRadius(10)
+            .backgroundColor('#00000000')
+            .onClick(async () => {
+              await this.avPlayer!.reset()
+              this.nowPlayingSong = song
+              this.nowPlayingLyrics = await getLyrics(song.id)
+              if (this.nowPlayingLyrics !== null) {
+                this.groupLyrics()
+              }
+              this.nowPlayingListOriginal = this.playlist!.entry!.slice()
+              if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+                this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
+              } else {
+                this.nowPlayingList = this.nowPlayingListOriginal.slice()
+              }
+              this.getNowPlayingIndex(song, this.nowPlayingList)
+              this.nowPlayingStar = await this.getStar(song)
+              this.isPlaying = true
+              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
+              this.startPlaying = true
             })
-          }
-          .width('100%')
-          .height('100%')
-          .layoutWeight(1)
-          .listDirection(Axis.Vertical)
-          .scrollBar(BarState.Off)
-          .edgeEffect(EdgeEffect.Fade)
+            .gesture(
+              LongPressGesture()
+                .onAction(async (event: GestureEvent) => {
+                  this.longPressSong = song
+                  this.longPressStar = await this.getStar(song)
+                  this.longPressIndex = index
+                  this.showMenu = true
+                })
+            )
+          })
         }
       }
       .width('100%')
