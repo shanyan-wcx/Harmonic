@@ -606,8 +606,8 @@ export default struct Play {
           .backgroundImageSize(ImageSize.FILL)
           .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
           .backgroundBrightness({
-            rate: 0.5,
-            lightUpDegree: context.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.15 : 0.5
+            rate: context.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.2 : 0.5,
+            lightUpDegree: context.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.1 : 0.5
           })
           .width('100%')
           .height('100%')

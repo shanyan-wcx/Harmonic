@@ -1604,7 +1604,7 @@ struct Index {
           }
           .width('100%')
           .height(85)
-          .backgroundColor($r('app.color.bar_background'))
+          .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
           .padding({ left: 15, right: 15, bottom: 5 })
           .position({
             bottom: 0
