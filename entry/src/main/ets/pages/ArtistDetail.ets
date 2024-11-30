@@ -114,7 +114,7 @@ export default struct ArtistDetail {
                 .backgroundColor('#00000000')
                 .onClick(() => {
                   this.album = album
-                  this.pageStack.pushPathByName('AlbumDetail', null);
+                  this.pageStack.replacePathByName('AlbumDetail', null);
                 })
               }
             })

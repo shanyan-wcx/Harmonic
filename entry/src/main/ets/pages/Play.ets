@@ -525,8 +525,7 @@ export default struct Play {
         this.showMore = false
         this.showPlay = false
         this.getArtist()
-        this.pageStack.pop()
-        this.pageStack.pushPathByName('ArtistDetail', null);
+        this.pageStack.replacePathByName('ArtistDetail', null);
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -545,8 +544,7 @@ export default struct Play {
         this.showMore = false
         this.showPlay = false
         this.getAlbum()
-        this.pageStack.pop()
-        this.pageStack.pushPathByName('AlbumDetail', null);
+        this.pageStack.replacePathByName('AlbumDetail', null);
       })
 
       Button({ type: ButtonType.Normal }) {

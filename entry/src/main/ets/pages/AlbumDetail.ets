@@ -2,7 +2,7 @@ import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred } from '../utils/Api';
-import { Album, Song, StructuredLyric, Line } from '../utils/Interface'
+import { Album, Song, StructuredLyric, Line, Artist } from '../utils/Interface'
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -37,6 +37,8 @@ export default struct AlbumDetail {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
+  @Consume artists: Artist[]
+  @Consume artist: Artist | null
   @Consume nowPlayingSong: Song | null
   @Consume nowPlayingLyrics: StructuredLyric | null
   @Consume nowPlayingLyricsByGroup: Line[][]
@@ -55,6 +57,15 @@ export default struct AlbumDetail {
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
   @State coverSize: number = 256
+
+  getArtist() {
+    for (let artist of this.artists) {
+      if (artist.name === this.album.artist) {
+        this.artist = artist
+        break
+      }
+    }
+  }
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -138,10 +149,18 @@ export default struct AlbumDetail {
                 .fontSize(24)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
-              Text(this.album.artist)
-                .fontSize(17)
-                .fontColor($r('app.color.font_secondary'))
-                .margin({ top: 5 })
+              Button({ type: ButtonType.Normal }) {
+                Text(this.album.artist)
+                  .fontSize(17)
+                  .fontColor($r('app.color.font_secondary'))
+              }
+              .margin({ top: 5 })
+              .backgroundColor('#00000000')
+              .stateEffect(false)
+              .onClick(async () => {
+                this.getArtist()
+                this.pageStack.replacePathByName('ArtistDetail', null);
+              })
             }
             .margin({ left: 15, right: 15 })
             .padding({ bottom: 20 })
