@@ -134,16 +134,12 @@ export default struct AlbumDetail {
         Column() {
           Row() {
             Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`)
+              .alt($rawfile('nocover.png'))
+              .objectFit(ImageFit.Contain)
               .width(140)
               .aspectRatio(1)
               .borderRadius(10)
               .margin({ left: 20 })
-              .shadow({
-                offsetX: 0,
-                offsetY: 0,
-                radius: 25,
-                color: '#25000000'
-              })
             Column() {
               Text(this.album.title)
                 .fontSize(24)

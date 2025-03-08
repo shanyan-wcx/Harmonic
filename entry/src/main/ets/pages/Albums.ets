@@ -29,7 +29,7 @@ export default struct Albums {
               Column() {
                 Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
                   .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Fill)
+                  .objectFit(ImageFit.Contain)
                   .width('100%')
                   .aspectRatio(1)
                   .borderRadius(10)

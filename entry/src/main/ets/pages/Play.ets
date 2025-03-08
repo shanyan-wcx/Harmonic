@@ -343,7 +343,7 @@ export default struct Play {
               Row() {
                 Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
                   .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Fill)
+                  .objectFit(ImageFit.Contain)
                   .width(45)
                   .aspectRatio(1)
                   .borderRadius(5)
@@ -758,10 +758,10 @@ export default struct Play {
                   Image(this.baseURL + this.getCoverUrl + this.auth +
                     `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
                     .alt($rawfile('nocover.png'))
+                    .objectFit(ImageFit.Contain)
                     .height('100%')
                     .aspectRatio(1)
                     .borderRadius(10)
-                    .objectFit(ImageFit.Fill)
                 }
                 .width('100%')
                 .height('100%')
@@ -843,10 +843,10 @@ export default struct Play {
                 Image(this.baseURL + this.getCoverUrl + this.auth +
                   `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
                   .alt($rawfile('nocover.png'))
+                  .objectFit(ImageFit.Contain)
                   .height('100%')
                   .aspectRatio(1)
                   .borderRadius(10)
-                  .objectFit(ImageFit.Fill)
               }
               .height('45%')
               .width('90%')

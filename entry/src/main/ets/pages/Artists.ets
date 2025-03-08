@@ -28,7 +28,7 @@ export default struct Artists {
               Column() {
                 Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
                   .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Fill)
+                  .objectFit(ImageFit.Cover)
                   .width('100%')
                   .aspectRatio(1)
                   .borderRadius(100)

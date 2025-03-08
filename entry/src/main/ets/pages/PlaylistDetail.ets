@@ -225,7 +225,7 @@ export default struct PlaylistDetail {
                   .textAlign(TextAlign.Center)
                 Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
                   .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Fill)
+                  .objectFit(ImageFit.Contain)
                   .width(60)
                   .aspectRatio(1)
                   .borderRadius(5)

@@ -52,7 +52,7 @@ export default struct ArtistDetail {
         Column() {
           Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`)
             .alt($rawfile('noprofile.jpg'))
-            .objectFit(ImageFit.Fill)
+            .objectFit(ImageFit.Cover)
             .width(120)
             .aspectRatio(1)
             .borderRadius(100)
@@ -99,7 +99,7 @@ export default struct ArtistDetail {
                   Column() {
                     Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
                       .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Fill)
+                      .objectFit(ImageFit.Contain)
                       .width('100%')
                       .aspectRatio(1)
                       .borderRadius(10)
