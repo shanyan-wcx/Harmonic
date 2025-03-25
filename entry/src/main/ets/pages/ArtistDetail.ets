@@ -1,27 +1,15 @@
-import { Album, Artist } from '../utils/Interface'
-import { curves, window } from '@kit.ArkUI';
+import { Album, Artist } from '../utils/Interface';
+import { curves } from '@kit.ArkUI';
 
 @Builder
 export function ArtistDetailBuilder() {
   ArtistDetail()
 }
 
-function calculateRow(itemsPerRow: number, totalItems: number): string {
-  const rows = Math.ceil(totalItems / itemsPerRow);
-  const rowFractions: Array<string> = Array(rows).fill('1fr');
-  return rowFractions.join(' ');
-}
-
-function calculateColumns(itemsPerRow: number): string {
-  const rowFractions: Array<string> = Array(itemsPerRow).fill('1fr');
-  return rowFractions.join(' ');
-}
-
 @Entry
 @Component
 export default struct ArtistDetail {
-  @Consume mainWindow: window.Window
-  @State displayWidth: number = 0
+  @Consume displayWidth: number
   @Consume pageStack: NavPathStack
   @Consume showControlButton: boolean
   @StorageLink('baseURL') baseURL: string = ''
@@ -38,13 +26,6 @@ export default struct ArtistDetail {
   @State albumPerRow: number = 3
   @State profileSize: number = 256
   @State coverSize: number = 256
-
-  aboutToAppear() {
-    this.displayWidth = px2vp(this.mainWindow.getWindowProperties().windowRect.width)
-    this.mainWindow.on('windowSizeChange', (size) => {
-      this.displayWidth = px2vp(size.width)
-    })
-  }
 
   build() {
     NavDestination() {
@@ -120,14 +101,12 @@ export default struct ArtistDetail {
             })
           }
           .width('100%')
-          .height((this.displayWidth - 20) / this.albumPerRow * Math.ceil(this.artist!.albumCount / this.albumPerRow))
-          .columnsTemplate(calculateColumns(this.albumPerRow))
-          .rowsTemplate(calculateRow(this.albumPerRow, this.artist!.albumCount))
+          .columnsTemplate(this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")
           .columnsGap(0)
           .rowsGap(0)
           .scrollBar(BarState.Off)
           .edgeEffect(EdgeEffect.Fade)
-          .padding({ left: 10, right: 10 })
+          .padding({ left: 10, right: 10, bottom: 10 })
         }
         .width('100%')
         .height('auto')

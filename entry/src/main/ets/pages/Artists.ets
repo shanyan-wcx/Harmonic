@@ -17,6 +17,7 @@ export default struct Artists {
   @Consume showSidebar: boolean
   @Consume artist: Artist | null
   @Consume serverStatus: boolean
+  @Consume displayWidth: number
   @State profileSize: number = 256
 
   build() {
@@ -66,7 +67,7 @@ export default struct Artists {
       }
       .width('100%')
       .height('100%')
-      .columnsTemplate("1fr 1fr 1fr")
+      .columnsTemplate(this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")
       .columnsGap(0)
       .rowsGap(0)
       .scrollBar(BarState.Off)

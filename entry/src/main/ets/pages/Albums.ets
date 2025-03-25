@@ -18,6 +18,7 @@ export default struct Albums {
   @Consume showSidebar: boolean
   @Consume serverStatus: boolean
   @Consume discs: Song[][]
+  @Consume displayWidth: number
   @State coverSize: number = 320
 
   build() {
@@ -59,7 +60,7 @@ export default struct Albums {
       }
       .width('100%')
       .height('100%')
-      .columnsTemplate("1fr 1fr")
+      .columnsTemplate(this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr" : "1fr 1fr")
       .columnsGap(0)
       .rowsGap(0)
       .scrollBar(BarState.Off)
