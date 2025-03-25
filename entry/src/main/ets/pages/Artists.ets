@@ -28,7 +28,7 @@ export default struct Artists {
             Button({ type: ButtonType.Normal }) {
               Column() {
                 Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                  .alt($rawfile('nocover.png'))
+                  .alt($rawfile('noprofile.jpg'))
                   .objectFit(ImageFit.Cover)
                   .width('100%')
                   .aspectRatio(1)
