@@ -2,7 +2,7 @@ import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getStarred } from '../utils/Api';
-import { Album, Song, StructuredLyric, Line, Artist } from '../utils/Interface'
+import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -57,6 +57,8 @@ export default struct AlbumDetail {
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
   @State coverSize: number = 256
+  @State showDiscHeader: boolean = false
+  @State discsKeys: number[] = []
 
   getArtist() {
     for (let artist of this.artists) {
@@ -119,13 +121,19 @@ export default struct AlbumDetail {
   aboutToAppear(): void {
     const groupedSongsMap = new Map<number, Song[]>();
     this.album.song!.forEach((song) => {
-      const discNumber = song.discNumber ?? 0;
-      if (!groupedSongsMap.has(discNumber)) {
-        groupedSongsMap.set(discNumber, []);
+      let disc = song.discNumber;
+      if (disc === undefined) {
+        disc = 0;
       }
-      groupedSongsMap.get(discNumber)?.push(song);
+      if (!groupedSongsMap.has(disc)) {
+        groupedSongsMap.set(disc, []);
+      }
+      groupedSongsMap.get(disc)?.push(song);
     });
-    this.discs = Array.from(groupedSongsMap.values());
+    const sortedKeys = Array.from(groupedSongsMap.keys()).sort((a, b) => a - b);
+    this.discs = sortedKeys.map(key => groupedSongsMap.get(key)!);
+    this.discsKeys = sortedKeys;
+    this.showDiscHeader = !(sortedKeys.length === 1 && (sortedKeys[0] === 0 || sortedKeys[0] === 1));
   }
 
   build() {
@@ -213,14 +221,85 @@ export default struct AlbumDetail {
             .height(1)
             .color($r('app.color.divider'))
 
-          ForEach(this.discs, (disc: Song[], index) => {
-            Text("DISC " + (index + 1))
-              .width('100%')
-              .fontSize(17)
-              .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
-              .padding({ left: 20, top: 20 })
-            ForEach(disc, (song: Song, index2) => {
+          if (this.showDiscHeader) {
+            ForEach(this.discs, (disc: Song[], index) => {
+              Column() {
+                Text(this.discsKeys[index] === 0 ? "DISC" : "DISC " + this.discsKeys[index])
+                  .width('100%')
+                  .fontSize(17)
+                  .fontColor($r('app.color.font'))
+                  .fontWeight(FontWeight.Bold)
+                  .padding({ left: 20, top: 20 })
+                ForEach(disc, (song: Song, index2) => {
+                  Button({ type: ButtonType.Normal }) {
+                    Row() {
+                      Text(song.track !== undefined ? song.track.toString() : '-')
+                        .fontSize(18)
+                        .fontColor($r('app.color.font_secondary'))
+                        .width(80)
+                        .textAlign(TextAlign.Center)
+                      Column() {
+                        Text(song.title)
+                          .fontSize(18)
+                          .fontColor($r('app.color.font'))
+                          .maxLines(1)
+                          .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        Text(song.artist)
+                          .fontSize(15)
+                          .fontColor($r('app.color.font_secondary'))
+                          .margin({ top: 5 })
+                          .maxLines(1)
+                          .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      }
+                      .alignItems(HorizontalAlign.Start)
+                      .padding({ right: 15 })
+                      .width('100%')
+                      .layoutWeight(1)
+                    }
+                    .width('100%')
+                    .height('100%')
+                  }
+                  .width('100%')
+                  .height(80)
+                  .borderRadius(10)
+                  .backgroundColor('#00000000')
+                  .onClick(async () => {
+                    await this.avPlayer!.reset()
+                    this.nowPlayingSong = song
+                    this.nowPlayingLyrics = await getLyrics(song.id)
+                    if (this.nowPlayingLyrics !== null) {
+                      this.groupLyrics()
+                    }
+                    this.nowPlayingListOriginal = this.album.song!.slice()
+                    if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+                      this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
+                    } else {
+                      this.nowPlayingList = this.nowPlayingListOriginal.slice()
+                    }
+                    this.getNowPlayingIndex(song, this.nowPlayingList)
+                    this.nowPlayingStar = await this.getStar(song)
+                    this.isPlaying = true
+                    this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
+                    this.startPlaying = true
+                  })
+                  .gesture(
+                    LongPressGesture()
+                      .onAction(async (event: GestureEvent) => {
+                        this.longPressSong = song
+                        this.longPressStar = await this.getStar(song)
+                        this.showMenu = true
+                      })
+                  )
+                })
+                Divider()
+                  .width('90%')
+                  .height(1)
+                  .color($r('app.color.divider'))
+                  .visibility(index === this.discs.length - 1 ? Visibility.None : Visibility.Visible)
+              }
+            })
+          } else {
+            ForEach(this.discs[0], (song: Song, index) => {
               Button({ type: ButtonType.Normal }) {
                 Row() {
                   Text(song.track !== undefined ? song.track.toString() : '-')
@@ -281,12 +360,7 @@ export default struct AlbumDetail {
                   })
               )
             })
-            Divider()
-              .width('90%')
-              .height(1)
-              .color($r('app.color.divider'))
-              .visibility(index === this.discs.length - 1 ? Visibility.None : Visibility.Visible)
-          })
+          }
         }
       }
       .width('100%')
