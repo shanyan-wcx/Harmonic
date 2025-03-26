@@ -114,7 +114,7 @@ export default struct Setting {
             .margin({ top: 15 })
             .textAlign(TextAlign.Center)
           Row() {
-            Text("统一音量")
+            Text("回放增益")
               .fontColor($r('app.color.font'))
               .fontSize(20)
               .maxLines(1)
