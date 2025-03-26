@@ -5,6 +5,7 @@ export default struct Setting {
   @StorageLink('password') password: string = ''
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
+  @StorageLink('collate') collate: boolean = false
 
   build() {
     Scroll() {
@@ -139,6 +140,35 @@ export default struct Setting {
           }
           .width('100%')
           .margin({ bottom: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+        }
+        .width('100%')
+        .backgroundColor($r('app.color.bar_background'))
+        .borderRadius(10)
+        .padding({ left: 20, right: 20 })
+        .margin({ top: 20 })
+
+        Column() {
+          Text("下载设置")
+            .width('100%')
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+            .fontWeight(FontWeight.Bold)
+            .padding({ left: 20, right: 20 })
+            .margin({ top: 15 })
+            .textAlign(TextAlign.Center)
+          Row() {
+            Text("按【艺术家/专辑】下载")
+              .fontColor($r('app.color.font'))
+              .fontSize(20)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+            Toggle({ type: ToggleType.Switch, isOn: $$this.collate })
+              .selectedColor($r('app.color.radio'))
+              .switchPointColor($r('app.color.font'))
+          }
+          .width('100%')
+          .margin({ top: 20, bottom: 20 })
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')

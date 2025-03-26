@@ -2,14 +2,14 @@ import { promptAction, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { createShare, getCover, getLyrics, getStarred, star, unstar } from '../utils/Api';
-import { Song, StructuredLyric, Line, Artist, Album } from '../utils/Interface'
+import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 import { systemShare } from '@kit.ShareKit';
 import { uniformTypeDescriptor as utd } from '@kit.ArkData';
 import { common, ConfigurationConstant } from '@kit.AbilityKit';
 import { BusinessError, request } from '@kit.BasicServicesKit';
-import { fileIo as fs, fileUri, picker } from '@kit.CoreFileKit';
+import { fileUri, fileIo as fs, picker } from '@kit.CoreFileKit';
 
 let context = getContext(this) as common.UIAbilityContext;
 
@@ -89,6 +89,7 @@ export default struct Play {
   @State coverSize: number = 512
   @StorageLink('playMode') @Watch('changePlayMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('fadeVolume') fadeVolume: boolean = false
+  @StorageLink('collate') collate: boolean = false
   @StorageLink('downloadDir') downloadDir: string = ''
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
@@ -483,6 +484,12 @@ export default struct Play {
                 .then(async (documentSaveResult) => {
                   let uri = documentSaveResult[0];
                   let path: string = new fileUri.FileUri(uri).path
+                  if (this.collate) {
+                    fs.mkdirSync(path + `/${this.nowPlayingSong!.artist.replace(/\//g, "&")}`)
+                    fs.mkdirSync(path +
+                      `/${this.nowPlayingSong!.artist.replace(/\//g, "&")}/${this.nowPlayingSong!.album}`)
+                    path += `/${this.nowPlayingSong!.artist.replace(/\//g, "&")}/${this.nowPlayingSong!.album}`
+                  }
                   let filePath: string = path + `/${this.nowPlayingSong!.title}.${this.nowPlayingSong!.suffix}`;
                   let sanFile = fs.openSync(sanPath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
                   let pubFile = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
@@ -490,16 +497,16 @@ export default struct Play {
                   fs.closeSync(sanFile.fd)
                   fs.closeSync(pubFile.fd)
                   fs.unlinkSync(sanPath);
+                  promptAction.showToast({
+                    message: '下载成功！',
+                    duration: 500
+                  });
                 }).catch((err: Error) => {
                 console.error(`调用documentPicker.select失败, message is ${err.message}`);
               })
             })
           }).catch((err: BusinessError) => {
             console.error(`下载失败, code is ${err.code}, 1message is ${err.message}`);
-          });
-          promptAction.showToast({
-            message: '下载成功！',
-            duration: 500
           });
         } catch (error) {
           promptAction.showToast({
