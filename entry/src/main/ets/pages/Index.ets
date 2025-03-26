@@ -2,8 +2,8 @@ import { curves, promptAction, window } from '@kit.ArkUI';
 import { i18n, intl } from '@kit.LocalizationKit';
 import {
   common,
-  ConfigurationConstant,
   Configuration,
+  ConfigurationConstant,
   EnvironmentCallback,
   wantAgent,
   WantAgent
@@ -30,8 +30,8 @@ import {
   star,
   unstar,
   updatePlaylist
-} from '../utils/Api'
-import { Album, Artist, Playlist, Song, StructuredLyric, Line } from '../utils/Interface';
+} from '../utils/Api';
+import { Album, Artist, Line, Playlist, Song, StructuredLyric } from '../utils/Interface';
 import Albums from './Albums';
 import Artists from './Artists';
 import Play from './Play';
@@ -1355,7 +1355,7 @@ struct Index {
               .visibility(this.showProgress === true && this.nowPage <= 2 ? Visibility.Visible : Visibility.None)
 
               Column() {
-                Text("连接服务器失败")
+                Text(this.baseURL === '' ? "请先设置服务器" : "连接服务器失败")
                   .fontSize(24)
                   .fontColor($r('app.color.font'))
                 Button() {

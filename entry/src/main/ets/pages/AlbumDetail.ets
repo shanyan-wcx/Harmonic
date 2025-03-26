@@ -291,7 +291,7 @@ export default struct AlbumDetail {
       }
       .width('100%')
       .height('100%')
-      .padding({ bottom: this.startPlaying === true ? 85 : 0 })
+      .padding({ bottom: this.startPlaying === true ? 85 : 10 })
       .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)

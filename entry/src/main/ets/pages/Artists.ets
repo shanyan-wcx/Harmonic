@@ -72,7 +72,7 @@ export default struct Artists {
       .rowsGap(0)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade)
-      .padding({ left: 10, right: 10 })
+      .padding({ left: 10, right: 10, bottom: 10 })
       .visibility(this.artists.length > 0 ? Visibility.Visible : Visibility.None)
 
       Column() {

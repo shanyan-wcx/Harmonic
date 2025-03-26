@@ -133,7 +133,7 @@ export default struct Songs {
             .borderRadius(10)
             .backgroundColor('#00000000')
             .padding({ left: 20, right: 20 })
-            .margin({ bottom: this.startPlaying === true && index === this.songs.length - 1 ? 85 : 0 })
+            .margin({ bottom: index === this.songs.length - 1 ? (this.startPlaying ? 85 : 10) : 0 })
             .animation({ curve: curves.springMotion(0.6, 1) })
             .onClick(async () => {
               animateTo({
