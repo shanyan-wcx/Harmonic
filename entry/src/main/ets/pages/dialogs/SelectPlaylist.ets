@@ -4,6 +4,9 @@ import { promptAction } from '@kit.ArkUI'
 
 @CustomDialog
 export default struct selectPlaylistBuilder {
+  @StorageLink('baseURL') baseURL: string = ''
+  @StorageLink('username') username: string = ''
+  @StorageLink('password') password: string = ''
   @Consume playlists: Playlist[]
   @Consume nowPlayingSong: Song | null
   @Consume selectedPlaylists: boolean[]
@@ -105,7 +108,7 @@ export default struct selectPlaylistBuilder {
           let success: boolean = true
           for (let index = 0; index < this.selectedPlaylists.length; index++) {
             if (this.selectedPlaylists[index] === true) {
-              let tmp: boolean = await updatePlaylist(this.playlists[index].id, undefined, undefined,
+              let tmp: boolean = await updatePlaylist(this.baseURL, this.username, this.password, this.playlists[index].id, undefined, undefined,
                 this.showPlay === true ? this.nowPlayingSong!.id : this.longPressSong!.id)
               if (tmp === false) {
                 success = false
@@ -124,9 +127,9 @@ export default struct selectPlaylistBuilder {
             });
           }
           if (this.playlist !== null) {
-            this.playlist = await getPlaylist(this.playlist!.id)
+            this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
           }
-          this.playlists = (await getPlaylists()).sort((a, b) => {
+          this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
         })

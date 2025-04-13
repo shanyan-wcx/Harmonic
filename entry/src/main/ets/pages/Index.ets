@@ -42,6 +42,9 @@ import About from './About';
 import Stats from './Stats';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
+import { fileIo as fs, ReadOptions } from '@kit.CoreFileKit';
+import { buffer } from '@kit.ArkTS';
+import { worker } from '@kit.ArkTS';
 
 PersistentStorage.persistProp('firstStart', true);
 PersistentStorage.persistProp('downloadDir', '');
@@ -56,6 +59,9 @@ let options: intl.CollatorOptions = {
 };
 let locale = new intl.Locale();
 let collator = new intl.Collator(locale.toString(), options);
+let filesDir = context.filesDir;
+
+const workerInstance: worker.ThreadWorker = new worker.ThreadWorker('entry/ets/workers/Sync.ets');
 
 @Entry
 @Component
@@ -266,6 +272,120 @@ struct Index {
     return Array.from(uniqueItems.values());
   }
 
+  async connectToServer() {
+    workerInstance.postMessage({ type: "stop" })
+    console.log("开始连接服务器")
+    let status: string | null = await ping(this.baseURL, this.username, this.password)
+    console.log("Server status", status)
+    if (status === 'ok') {
+      console.log("连接服务器成功")
+      promptAction.showToast({
+        message: '连接服务器成功！',
+        duration: 500
+      });
+      try {
+        workerInstance.postMessage({
+          type: "start",
+          baseURL: this.baseURL,
+          username: this.username,
+          password: this.password,
+          artists: JSON.stringify(this.artists),
+          albums: JSON.stringify(this.albums),
+          songs: JSON.stringify(this.songs),
+          playlists: JSON.stringify(this.playlists),
+          starredSongs: JSON.stringify(this.starredSongs),
+        });
+      } catch (e) {
+        console.error('postMessage failed:', e);
+      }
+    } else {
+      console.log("连接服务器失败")
+      promptAction.showToast({
+        message: '连接服务器失败，请检查网络！',
+        duration: 500
+      });
+    }
+  }
+
+  async getMusicData() {
+    this.serverStatus = true
+    this.showProgress = true
+    let status: string | null = await ping(this.baseURL, this.username, this.password)
+    console.log("Server status", status)
+    if (status === 'ok') {
+      this.artists = []
+      this.albums = []
+      this.songs = []
+      this.playlists = []
+      this.artists = await getIndexes(this.baseURL, this.username, this.password)
+      this.artists = this.clearArtists(this.artists)
+      for (const artist of this.artists) {
+        artist.biography = await getArtistInfo(this.baseURL, this.username, this.password, artist.id)
+        artist.album = await getArtist(this.baseURL, this.username, this.password, artist.id);
+        this.albums = this.albums.concat(artist.album!);
+        this.albums = this.clearAlbums(this.albums)
+        for (const album of artist.album!) {
+          album.song = await getAlbum(this.baseURL, this.username, this.password, album.id);
+          this.songs = this.songs.concat(album.song!);
+          this.songs = this.claerSongs(this.songs)
+        }
+      }
+      this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+        return Date.parse(b.changed) - Date.parse(a.changed);
+      })
+      this.selectedPlaylists = []
+      for (let playlist of this.playlists) {
+        this.selectedPlaylists.push(false)
+      }
+      let starred = await getStarred(this.baseURL, this.username, this.password)
+      if (starred !== null) {
+        this.starredSongs = starred!.song!
+      }
+      this.selectedIndex = 0
+      this.songs.sort((a, b) => {
+        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+      })
+      this.albums.sort((a, b) => {
+        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
+      })
+      this.artists.sort((a, b) => {
+        return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+      })
+
+      let file =
+        fs.openSync(filesDir + '/artists.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+      fs.writeSync(file.fd, JSON.stringify(this.artists));
+      fs.closeSync(file);
+      file =
+        fs.openSync(filesDir + '/albums.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+      fs.writeSync(file.fd, JSON.stringify(this.albums));
+      fs.closeSync(file);
+      file = fs.openSync(filesDir + '/songs.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+      fs.writeSync(file.fd, JSON.stringify(this.songs));
+      fs.closeSync(file);
+      file =
+        fs.openSync(filesDir + '/playlists.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+      fs.writeSync(file.fd, JSON.stringify(this.playlists));
+      fs.closeSync(file);
+      file = fs.openSync(filesDir + '/starredSongs.json',
+        fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+      fs.writeSync(file.fd, JSON.stringify(this.starredSongs));
+      fs.closeSync(file);
+
+      console.log("获取到艺术家", this.artists.length)
+      console.log("获取到专辑", this.albums.length)
+      console.log("获取到歌曲", this.songs.length)
+      console.log("获取到歌单", this.playlists.length)
+    } else {
+      this.serverStatus = false
+      promptAction.showToast({
+        message: '连接服务器失败，请检查网络！',
+        duration: 500
+      });
+    }
+    this.showProgress = false
+  }
+
   fadeIn() {
     let duration = 1000
     let volume = 0;
@@ -335,7 +455,8 @@ struct Index {
     let metadata: AVSessionManager.AVMetadata = {
       assetId: '0',
       title: this.nowPlayingSong!.title,
-      mediaImage: this.getPixelMap(await getCover(this.nowPlayingSong!.id, 512)),
+      mediaImage: this.getPixelMap(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id,
+        512)),
       duration: this.nowPlayingSong!.duration * 1000,
       artist: this.nowPlayingSong!.artist,
       lyric: this.convertToLrc(this.nowPlayingLyrics),
@@ -397,7 +518,7 @@ struct Index {
         this.nowPlayingIndex -= 1
       }
       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-      this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+      this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
       if (this.nowPlayingLyrics !== null) {
         this.groupLyrics()
       }
@@ -411,7 +532,7 @@ struct Index {
         this.nowPlayingIndex += 1
       }
       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-      this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+      this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
       if (this.nowPlayingLyrics !== null) {
         this.groupLyrics()
       }
@@ -431,7 +552,7 @@ struct Index {
     })
     this.session!.on('toggleFavorite', async (assetId: string) => {
       if (this.nowPlayingStar === true) {
-        let starStatus = await unstar(this.nowPlayingSong!.id)
+        let starStatus = await unstar(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
         if (starStatus === true) {
           this.nowPlayingStar = false
           if (this.isPlaying === true) {
@@ -441,7 +562,7 @@ struct Index {
           }
         }
       } else {
-        let starStatus = await star(this.nowPlayingSong!.id)
+        let starStatus = await star(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
         if (starStatus === true) {
           this.nowPlayingStar = true
           if (this.isPlaying === true) {
@@ -490,7 +611,8 @@ struct Index {
     avPlayer.on('volumeChange', (vol: number) => {
       console.info('设置播放音量' + vol)
     })
-    avPlayer.on('error', (err: BusinessError) => {
+    avPlayer.on('error', async (err: BusinessError) => {
+      await avPlayer.reset();
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
       if (err.code === 5400106) {
         promptAction.showToast({
@@ -503,7 +625,6 @@ struct Index {
           duration: 500
         });
       }
-      avPlayer.reset();
     })
     avPlayer.on('stateChange', async (state: string, reason: media.StateChangeReason) => {
       switch (state) {
@@ -568,7 +689,7 @@ struct Index {
               this.nowPlayingIndex += 1
             }
             this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-            this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+            this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
             if (this.nowPlayingLyrics !== null) {
               this.groupLyrics()
             }
@@ -649,61 +770,7 @@ struct Index {
         }, () => {
           this.showSidebar = false
         })
-        this.serverStatus = true
-        this.showProgress = true
-        let status: string | null = await ping()
-        console.log("Server status", status)
-        if (status === 'ok') {
-          this.artists = []
-          this.albums = []
-          this.songs = []
-          this.playlists = []
-          this.artists = await getIndexes()
-          this.artists = this.clearArtists(this.artists)
-          for (const artist of this.artists) {
-            artist.biography = await getArtistInfo(artist.id)
-            artist.album = await getArtist(artist.id);
-            this.albums = this.albums.concat(artist.album!);
-            this.albums = this.clearAlbums(this.albums)
-            for (const album of artist.album!) {
-              album.song = await getAlbum(album.id);
-              this.songs = this.songs.concat(album.song!);
-              this.songs = this.claerSongs(this.songs)
-            }
-          }
-          this.playlists = (await getPlaylists()).sort((a, b) => {
-            return Date.parse(b.changed) - Date.parse(a.changed);
-          })
-          this.selectedPlaylists = []
-          for (let playlist of this.playlists) {
-            this.selectedPlaylists.push(false)
-          }
-          let starred = await getStarred()
-          if (starred !== null) {
-            this.starredSongs = starred!.song!
-          }
-          this.selectedIndex = 0
-          this.songs.sort((a, b) => {
-            return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-          })
-          this.albums.sort((a, b) => {
-            return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-          })
-          this.artists.sort((a, b) => {
-            return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-          })
-          console.log("获取到艺术家", this.artists.length)
-          console.log("获取到专辑", this.albums.length)
-          console.log("获取到歌曲", this.songs.length)
-          console.log("获取到歌单", this.playlists.length)
-        } else {
-          this.serverStatus = false
-          promptAction.showToast({
-            message: '连接服务器失败，请检查网络！',
-            duration: 500
-          });
-        }
-        this.showProgress = false
+        await this.connectToServer()
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -847,14 +914,16 @@ struct Index {
       .visibility(this.addOrDelete === false ? Visibility.Visible : Visibility.None)
       .onClick(async () => {
         this.showMenu = false
-        let success = await updatePlaylist(this.playlist!.id, undefined, undefined, undefined, this.longPressIndex)
+        let success =
+          await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, undefined, undefined,
+            undefined, this.longPressIndex)
         if (success === true) {
           promptAction.showToast({
             message: '删除成功！',
             duration: 500
           });
-          this.playlist = await getPlaylist(this.playlist!.id)
-          this.playlists = (await getPlaylists()).sort((a, b) => {
+          this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
+          this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
         } else {
@@ -879,7 +948,7 @@ struct Index {
       .onClick(async () => {
         this.showMenu = false
         if (this.longPressStar === true) {
-          let starStatus = await unstar(this.longPressSong!.id)
+          let starStatus = await unstar(this.baseURL, this.username, this.password, this.longPressSong!.id)
           if (starStatus === true) {
             promptAction.showToast({
               message: '取消收藏成功！',
@@ -895,7 +964,7 @@ struct Index {
             }
           }
         } else {
-          let starStatus = await star(this.longPressSong!.id)
+          let starStatus = await star(this.baseURL, this.username, this.password, this.longPressSong!.id)
           if (starStatus === true) {
             promptAction.showToast({
               message: '收藏成功！',
@@ -997,6 +1066,8 @@ struct Index {
     if (this.downloadDir === '') {
       this.createDir()
     }
+    this.avPlayer = await media.createAVPlayer();
+    this.setAVPlayerCallback(this.avPlayer!);
     if (this.baseURL === '') {
       this.serverStatus = false
       if (this.firstStart === true) {
@@ -1017,62 +1088,157 @@ struct Index {
         )
       }
     } else {
-      if (this.firstStart === true) {
-        this.firstStart = false
-      }
-      this.showProgress = true
-      let status: string | null = await ping()
-      console.log("Server status", status)
-      if (status === 'ok') {
-        this.artists = await getIndexes()
-        this.artists = this.clearArtists(this.artists)
-        for (const artist of this.artists) {
-          artist.biography = await getArtistInfo(artist.id)
-          artist.album = await getArtist(artist.id);
-          this.albums = this.albums.concat(artist.album!);
-          this.albums = this.clearAlbums(this.albums)
-          for (const album of artist.album!) {
-            album.song = await getAlbum(album.id);
-            this.songs = this.songs.concat(album.song!);
-            this.songs = this.claerSongs(this.songs)
-          }
-        }
-        this.playlists = (await getPlaylists()).sort((a, b) => {
-          return Date.parse(b.changed) - Date.parse(a.changed);
-        })
-        this.selectedPlaylists = []
-        for (let playlist of this.playlists) {
-          this.selectedPlaylists.push(false)
-        }
-        let starred = await getStarred()
-        if (starred !== null) {
-          this.starredSongs = starred!.song!
-        }
-        this.selectedIndex = 0
-        this.songs.sort((a, b) => {
-          return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-        })
-        this.albums.sort((a, b) => {
-          return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-        })
-        this.artists.sort((a, b) => {
-          return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-        })
-        console.log("获取到艺术家", this.artists.length)
-        console.log("获取到专辑", this.albums.length)
-        console.log("获取到歌曲", this.songs.length)
-        console.log("获取到歌单", this.playlists.length)
+      let bufSize = 4096;
+      let readSize = 0;
+      let str = "";
+      let buf = new ArrayBuffer(bufSize);
+      let readOptions: ReadOptions = {
+        offset: readSize,
+        length: bufSize
+      };
+      let file = fs.openSync(filesDir + '/artists.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      let readLen = fs.readSync(file.fd, buf, readOptions);
+      if (readLen === 0) {
+        this.artists = []
+        fs.writeSync(file.fd, "[]");
       } else {
-        this.serverStatus = false
-        promptAction.showToast({
-          message: '连接服务器失败，请检查网络！',
-          duration: 500
-        });
+        while (readLen > 0) {
+          readSize += readLen;
+          str += buffer.from(buf, 0, readLen).toString();
+          readOptions.offset = readSize;
+          readLen = fs.readSync(file.fd, buf, readOptions);
+        }
+        this.artists = JSON.parse(str);
       }
-      this.showProgress = false
+      fs.closeSync(file);
+      str = "";
+      readSize = 0;
+      readOptions.offset = 0;
+      file = fs.openSync(filesDir + '/albums.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      readLen = fs.readSync(file.fd, buf, readOptions);
+      if (readLen === 0) {
+        this.albums = []
+        fs.writeSync(file.fd, "[]");
+      } else {
+        while (readLen > 0) {
+          readSize += readLen;
+          str += buffer.from(buf, 0, readLen).toString();
+          readOptions.offset = readSize;
+          readLen = fs.readSync(file.fd, buf, readOptions);
+        }
+        this.albums = JSON.parse(str);
+      }
+      fs.closeSync(file);
+      str = "";
+      readSize = 0;
+      readOptions.offset = 0;
+      file = fs.openSync(filesDir + '/songs.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      readLen = fs.readSync(file.fd, buf, readOptions);
+      if (readLen === 0) {
+        this.songs = []
+        fs.writeSync(file.fd, "[]");
+      } else {
+        while (readLen > 0) {
+          readSize += readLen;
+          str += buffer.from(buf, 0, readLen).toString();
+          readOptions.offset = readSize;
+          readLen = fs.readSync(file.fd, buf, readOptions);
+        }
+        this.songs = JSON.parse(str);
+      }
+      fs.closeSync(file);
+      str = "";
+      readSize = 0;
+      readOptions.offset = 0;
+      file = fs.openSync(filesDir + '/playlists.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      readLen = fs.readSync(file.fd, buf, readOptions);
+      if (readLen === 0) {
+        this.playlists = []
+        fs.writeSync(file.fd, "[]");
+      } else {
+        while (readLen > 0) {
+          readSize += readLen;
+          str += buffer.from(buf, 0, readLen).toString();
+          readOptions.offset = readSize;
+          readLen = fs.readSync(file.fd, buf, readOptions);
+        }
+        this.playlists = JSON.parse(str);
+      }
+      fs.closeSync(file);
+      str = "";
+      readSize = 0;
+      readOptions.offset = 0;
+      file = fs.openSync(filesDir + '/starredSongs.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      readLen = fs.readSync(file.fd, buf, readOptions);
+      if (readLen === 0) {
+        this.starredSongs = []
+        fs.writeSync(file.fd, "[]");
+      } else {
+        while (readLen > 0) {
+          readSize += readLen;
+          str += buffer.from(buf, 0, readLen).toString();
+          readOptions.offset = readSize;
+          readLen = fs.readSync(file.fd, buf, readOptions);
+        }
+        this.starredSongs = JSON.parse(str);
+      }
+      fs.closeSync(file);
+      str = "";
+      readSize = 0;
+      readOptions.offset = 0;
+      workerInstance.onmessage = async (event) => {
+        if (event.data.type.toString() === "update") {
+          this.artists = JSON.parse(event.data.artists);
+          this.albums = JSON.parse(event.data.albums);
+          this.songs = JSON.parse(event.data.songs);
+          this.playlists = JSON.parse(event.data.playlists);
+          this.starredSongs = JSON.parse(event.data.starredSongs);
+          for (let playlist of this.playlists) {
+            this.selectedPlaylists.push(false)
+          }
+          if (this.nowPlayingSong) {
+            let star = false
+            for (let song of this.starredSongs) {
+              if (song.id === this.nowPlayingSong!.id) {
+                star = true
+                break
+              }
+            }
+            this.nowPlayingStar = star
+            if (this.isPlaying === true) {
+              await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
+            } else {
+              await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
+            }
+          }
+          let file =
+            fs.openSync(filesDir + '/artists.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+          fs.writeSync(file.fd, JSON.stringify(this.artists));
+          fs.closeSync(file);
+          file =
+            fs.openSync(filesDir + '/albums.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+          fs.writeSync(file.fd, JSON.stringify(this.albums));
+          fs.closeSync(file);
+          file = fs.openSync(filesDir + '/songs.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+          fs.writeSync(file.fd, JSON.stringify(this.songs));
+          fs.closeSync(file);
+          file =
+            fs.openSync(filesDir + '/playlists.json', fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+          fs.writeSync(file.fd, JSON.stringify(this.playlists));
+          fs.closeSync(file);
+          file = fs.openSync(filesDir + '/starredSongs.json',
+            fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC);
+          fs.writeSync(file.fd, JSON.stringify(this.starredSongs));
+          fs.closeSync(file);
+          console.log("数据已更新。");
+          console.log("同步服务器完成");
+        } else if (event.data.type.toString() === "unchanged") {
+          console.log("数据无变化。");
+          console.log("同步服务器完成");
+        }
+      }
+      await this.connectToServer()
     }
-    this.avPlayer = await media.createAVPlayer();
-    this.setAVPlayerCallback(this.avPlayer!);
   }
 
   registerInterception() {
@@ -1374,60 +1540,7 @@ struct Index {
                       duration: 500
                     });
                   } else {
-                    this.serverStatus = true
-                    this.showProgress = true
-                    let status: string | null = await ping()
-                    console.log("Server status", status)
-                    if (status === 'ok') {
-                      this.artists = []
-                      this.albums = []
-                      this.songs = []
-                      this.playlists = []
-                      this.artists = await getIndexes()
-                      this.artists = this.clearArtists(this.artists)
-                      for (const artist of this.artists) {
-                        artist.album = await getArtist(artist.id);
-                        this.albums = this.albums.concat(artist.album!);
-                        this.albums = this.clearAlbums(this.albums)
-                        for (const album of artist.album!) {
-                          album.song = await getAlbum(album.id);
-                          this.songs = this.songs.concat(album.song!);
-                          this.songs = this.claerSongs(this.songs)
-                        }
-                      }
-                      this.playlists = (await getPlaylists()).sort((a, b) => {
-                        return Date.parse(b.changed) - Date.parse(a.changed);
-                      })
-                      this.selectedPlaylists = []
-                      for (let playlist of this.playlists) {
-                        this.selectedPlaylists.push(false)
-                      }
-                      let starred = await getStarred()
-                      if (starred !== null) {
-                        this.starredSongs = starred!.song!
-                      }
-                      this.selectedIndex = 0
-                      this.songs.sort((a, b) => {
-                        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-                      })
-                      this.albums.sort((a, b) => {
-                        return collator.compare(transliterator.transform(a.title), transliterator.transform(b.title));
-                      })
-                      this.artists.sort((a, b) => {
-                        return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-                      })
-                      console.log("获取到艺术家", this.artists.length)
-                      console.log("获取到专辑", this.albums.length)
-                      console.log("获取到歌曲", this.songs.length)
-                      console.log("获取到歌单", this.playlists.length)
-                    } else {
-                      this.serverStatus = false
-                      promptAction.showToast({
-                        message: '连接服务器失败，请检查网络或设置！',
-                        duration: 500
-                      });
-                    }
-                    this.showProgress = false
+                    await this.getMusicData()
                   }
                 })
               }
@@ -1515,7 +1628,8 @@ struct Index {
                   this.nowPlayingIndex -= 1
                 }
                 this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                this.nowPlayingLyrics =
+                  await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }
@@ -1591,7 +1705,8 @@ struct Index {
                   this.nowPlayingIndex += 1
                 }
                 this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                this.nowPlayingLyrics =
+                  await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }

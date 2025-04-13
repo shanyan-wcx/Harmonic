@@ -19,6 +19,14 @@ export default struct Setting {
             .padding({ left: 20, right: 20 })
             .margin({ top: 15 })
             .textAlign(TextAlign.Center)
+          Text("修改后请点击右上角刷新按钮重新连接服务器")
+            .width('100%')
+            .fontSize(14)
+            .fontColor($r('app.color.font_secondary'))
+            .fontWeight(FontWeight.Bold)
+            .padding({ left: 20, right: 20 })
+            .margin({ top: 5 })
+            .textAlign(TextAlign.Center)
           Row() {
             Text("服务器")
               .width(60)
@@ -44,7 +52,7 @@ export default struct Setting {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
-          .margin({ top: 15 })
+          .margin({ top: 10 })
 
           Row() {
             Text("账号")

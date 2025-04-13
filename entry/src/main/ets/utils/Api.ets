@@ -9,10 +9,7 @@ let salt = 'abcdef'
 let version = '1.16.1'
 let client = 'Harmonic'
 
-export async function ping() {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function ping(baseURL: string, username: string, password: string, ) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -28,10 +25,7 @@ export async function ping() {
   }
 }
 
-export async function getIndexes() {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getIndexes(baseURL: string, username: string, password: string, ) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   let artists: Artist[] = []
   try {
@@ -50,10 +44,7 @@ export async function getIndexes() {
   }
 }
 
-export async function getGenres() {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getGenres(baseURL: string, username: string, password: string, ) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -66,10 +57,7 @@ export async function getGenres() {
   }
 }
 
-export async function getArtist(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getArtist(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -77,17 +65,14 @@ export async function getArtist(id: string) {
         timeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    return subsonicResponse.artist!.album
+    return subsonicResponse.artist!.album ?? []
   } catch (error) {
     console.error(JSON.stringify(error));
     return []
   }
 }
 
-export async function getArtistInfo(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getArtistInfo(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -106,10 +91,7 @@ export async function getArtistInfo(id: string) {
   }
 }
 
-export async function getAlbum(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getAlbum(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -124,10 +106,7 @@ export async function getAlbum(id: string) {
   }
 }
 
-export async function getSong(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getSong(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -140,10 +119,7 @@ export async function getSong(id: string) {
   }
 }
 
-export async function getPlaylists() {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getPlaylists(baseURL: string, username: string, password: string, ) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   let playlists: Playlist[] = []
   try {
@@ -154,7 +130,7 @@ export async function getPlaylists() {
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.playlists!.playlist && subsonicResponse.playlists!.playlist.length > 0) {
       await Promise.all(subsonicResponse.playlists!.playlist.map(async (playlist) => {
-        let tmpPlaylist = await getPlaylist(playlist.id)
+        let tmpPlaylist = await getPlaylist(baseURL, username, password, playlist.id)
         if (tmpPlaylist !== null) {
           playlists.push(tmpPlaylist)
         }
@@ -167,10 +143,7 @@ export async function getPlaylists() {
   }
 }
 
-export async function getPlaylist(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getPlaylist(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -185,10 +158,7 @@ export async function getPlaylist(id: string) {
   }
 }
 
-export async function getLyrics(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getLyrics(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -207,10 +177,7 @@ export async function getLyrics(id: string) {
   }
 }
 
-export async function getCover(id: string, size: number) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getCover(baseURL: string, username: string, password: string, id: string, size: number) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -224,11 +191,8 @@ export async function getCover(id: string, size: number) {
   }
 }
 
-export async function updatePlaylist(playlistId: string, name?: string, comment?: string, songIdToAdd?: string,
+export async function updatePlaylist(baseURL: string, username: string, password: string, playlistId: string, name?: string, comment?: string, songIdToAdd?: string,
   songIndexToRemove?: number) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   let url = baseURL + '/rest/updatePlaylist' + auth + `&playlistId=${playlistId}`
   if (name !== undefined) {
@@ -255,10 +219,7 @@ export async function updatePlaylist(playlistId: string, name?: string, comment?
   }
 }
 
-export async function createPlaylist(name: string, comment: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function createPlaylist(baseURL: string, username: string, password: string, name: string, comment: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -268,7 +229,7 @@ export async function createPlaylist(name: string, comment: string) {
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     let playlist = subsonicResponse.playlist
     if (playlist !== undefined) {
-      let success = await updatePlaylist(playlist.id, undefined, comment)
+      let success = await updatePlaylist(baseURL, username, password, playlist.id, undefined, comment)
       if (success === false) {
         return false
       }
@@ -282,10 +243,7 @@ export async function createPlaylist(name: string, comment: string) {
   }
 }
 
-export async function deletePlaylist(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function deletePlaylist(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -299,10 +257,7 @@ export async function deletePlaylist(id: string) {
   }
 }
 
-export async function getStarred() {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function getStarred(baseURL: string, username: string, password: string, ) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -320,10 +275,7 @@ export async function getStarred() {
   }
 }
 
-export async function star(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function star(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -345,10 +297,7 @@ export async function star(id: string) {
   }
 }
 
-export async function unstar(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function unstar(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -370,10 +319,7 @@ export async function unstar(id: string) {
   }
 }
 
-export async function createShare(id: string) {
-  let baseURL = AppStorage.get('baseURL')!
-  let username = AppStorage.get('username')!
-  let password = AppStorage.get('password')!
+export async function createShare(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   let currentDate = new Date();
   currentDate.setMonth(currentDate.getMonth() + 1);

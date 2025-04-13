@@ -1,9 +1,9 @@
-import { curves } from '@kit.ArkUI'
-import { media } from '@kit.MediaKit'
+import { curves } from '@kit.ArkUI';
+import { media } from '@kit.MediaKit';
 import { i18n } from '@kit.LocalizationKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics, getStarred } from '../utils/Api'
-import { Song, StructuredLyric, Line } from '../utils/Interface'
+import { getLyrics, getStarred } from '../utils/Api';
+import { Line, Song, StructuredLyric } from '../utils/Interface';
 
 let indexUtil = i18n.getInstance();
 let indexList = indexUtil.getIndexList();
@@ -69,7 +69,7 @@ export default struct Songs {
 
   async getStar(song: Song) {
     let starredSongs: Song[] = []
-    let starred = await getStarred()
+    let starred = await getStarred(this.baseURL, this.username, this.password)
     if (starred !== null) {
       starredSongs = starred!.song!
     }
@@ -144,7 +144,7 @@ export default struct Songs {
               })
               await this.avPlayer!.reset()
               this.nowPlayingSong = song
-              this.nowPlayingLyrics = await getLyrics(song.id)
+              this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
@@ -199,6 +199,7 @@ export default struct Songs {
       .width('100%')
       .height('100%')
       .justifyContent(FlexAlign.Center)
+      .margin({ bottom: 160 })
       .visibility(this.songs.length === 0 && this.serverStatus === true ? Visibility.Visible : Visibility.None)
 
       AlphabetIndexer({ arrayValue: indexList, selected: 0 })

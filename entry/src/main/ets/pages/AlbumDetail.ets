@@ -94,7 +94,7 @@ export default struct AlbumDetail {
 
   async getStar(song: Song) {
     let starredSongs: Song[] = []
-    let starred = await getStarred()
+    let starred = await getStarred(this.baseURL, this.username, this.password)
     if (starred !== null) {
       starredSongs = starred!.song!
     }
@@ -266,7 +266,7 @@ export default struct AlbumDetail {
                   .onClick(async () => {
                     await this.avPlayer!.reset()
                     this.nowPlayingSong = song
-                    this.nowPlayingLyrics = await getLyrics(song.id)
+                    this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
                     if (this.nowPlayingLyrics !== null) {
                       this.groupLyrics()
                     }
@@ -335,7 +335,7 @@ export default struct AlbumDetail {
               .onClick(async () => {
                 await this.avPlayer!.reset()
                 this.nowPlayingSong = song
-                this.nowPlayingLyrics = await getLyrics(song.id)
+                this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
                 if (this.nowPlayingLyrics !== null) {
                   this.groupLyrics()
                 }

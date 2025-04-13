@@ -4,6 +4,9 @@ import { promptAction } from '@kit.ArkUI'
 
 @CustomDialog
 export default struct editPlaylistBuilder {
+  @StorageLink('baseURL') baseURL: string = ''
+  @StorageLink('username') username: string = ''
+  @StorageLink('password') password: string = ''
   @Consume playlist: Playlist | null
   @Consume playlists: Playlist[]
   @Consume pageStack: NavPathStack
@@ -85,14 +88,14 @@ export default struct editPlaylistBuilder {
         .backgroundColor($r('app.color.content_background'))
         .onClick(async () => {
           this.editPlaylist.close()
-          let success = await updatePlaylist(this.playlist!.id, this.name, this.comment)
+          let success = await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, this.name, this.comment)
           if (success === true) {
             promptAction.showToast({
               message: '修改成功！',
               duration: 500
             });
-            this.playlist = await getPlaylist(this.playlist!.id)
-            this.playlists = (await getPlaylists()).sort((a, b) => {
+            this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
+            this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
           } else {
@@ -114,13 +117,13 @@ export default struct editPlaylistBuilder {
         .backgroundColor(Color.Red)
         .onClick(async () => {
           this.editPlaylist.close()
-          let success = await deletePlaylist(this.playlist!.id)
+          let success = await deletePlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
           if (success === true) {
             promptAction.showToast({
               message: '删除成功！',
               duration: 500
             });
-            this.playlists = (await getPlaylists()).sort((a, b) => {
+            this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
             this.pageStack.pop()

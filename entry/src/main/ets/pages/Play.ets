@@ -379,7 +379,7 @@ export default struct Play {
               this.showList = false
               await this.avPlayer!.reset()
               this.nowPlayingSong = song
-              this.nowPlayingLyrics = await getLyrics(song.id)
+              this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
               if (this.nowPlayingLyrics !== null) {
                 this.groupLyrics()
               }
@@ -491,8 +491,8 @@ export default struct Play {
                     path += `/${this.nowPlayingSong!.artist.replace(/\//g, "&")}/${this.nowPlayingSong!.album}`
                   }
                   let filePath: string = path + `/${this.nowPlayingSong!.title}.${this.nowPlayingSong!.suffix}`;
-                  let sanFile = fs.openSync(sanPath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
-                  let pubFile = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE)
+                  let sanFile = fs.openSync(sanPath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC)
+                  let pubFile = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE | fs.OpenMode.TRUNC)
                   fs.copyFileSync(sanFile.fd, pubFile.fd)
                   fs.closeSync(sanFile.fd)
                   fs.closeSync(pubFile.fd)
@@ -663,13 +663,13 @@ export default struct Play {
               .margin({ right: 25 })
               .backgroundColor('#00000000')
               .onClick(async () => {
-                let url = await createShare(this.nowPlayingSong!.id)
+                let url = await createShare(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
                 if (url !== null) {
                   let shareData: systemShare.SharedData = new systemShare.SharedData({
                     utd: utd.UniformDataType.HYPERLINK,
                     content: url,
                     description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
-                    thumbnail: new Uint8Array(await getCover(this.nowPlayingSong!.id, 128))
+                    thumbnail: new Uint8Array(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, 128))
                   });
                   let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
                   let context = getContext(this) as common.UIAbilityContext;
@@ -725,10 +725,10 @@ export default struct Play {
               .backgroundColor('#00000000')
               .onClick(async () => {
                 if (this.nowPlayingStar === true) {
-                  let starStatus = await unstar(this.nowPlayingSong!.id)
+                  let starStatus = await unstar(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
                   if (starStatus === true) {
                     this.nowPlayingStar = false
-                    let starred = await getStarred()
+                    let starred = await getStarred(this.baseURL, this.username, this.password)
                     if (starred !== null) {
                       this.starredSongs = starred!.song!
                     }
@@ -739,10 +739,10 @@ export default struct Play {
                     }
                   }
                 } else {
-                  let starStatus = await star(this.nowPlayingSong!.id)
+                  let starStatus = await star(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
                   if (starStatus === true) {
                     this.nowPlayingStar = true
-                    let starred = await getStarred()
+                    let starred = await getStarred(this.baseURL, this.username, this.password)
                     if (starred !== null) {
                       this.starredSongs = starred!.song!
                     }
@@ -928,7 +928,7 @@ export default struct Play {
                     this.nowPlayingIndex -= 1
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                  this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                  this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== null) {
                     this.groupLyrics()
                   }
@@ -977,7 +977,7 @@ export default struct Play {
                     this.nowPlayingIndex += 1
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                  this.nowPlayingLyrics = await getLyrics(this.nowPlayingSong.id)
+                  this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== null) {
                     this.groupLyrics()
                   }

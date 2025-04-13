@@ -4,6 +4,9 @@ import { promptAction } from '@kit.ArkUI'
 
 @CustomDialog
 export default struct createPlaylistBuilder {
+  @StorageLink('baseURL') baseURL: string = ''
+  @StorageLink('username') username: string = ''
+  @StorageLink('password') password: string = ''
   @Consume playlists: Playlist[]
   @State name: string = ''
   @State comment: string = ''
@@ -83,13 +86,13 @@ export default struct createPlaylistBuilder {
       .onClick(async () => {
         if(this.name!==''){
           this.createPlaylist.close()
-          let success = await createPlaylist(this.name, this.comment)
+          let success = await createPlaylist(this.baseURL, this.username, this.password, this.name, this.comment)
           if (success === true) {
             promptAction.showToast({
               message: '新建成功！',
               duration: 500
             });
-            this.playlists = (await getPlaylists()).sort((a, b) => {
+            this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
           } else {
