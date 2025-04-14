@@ -14,7 +14,7 @@ import { audio } from '@kit.AudioKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { picker } from '@kit.CoreFileKit';
+import { fileIo as fs, picker, ReadOptions } from '@kit.CoreFileKit';
 import CryptoJS from '@ohos/crypto-js';
 import {
   getAlbum,
@@ -42,9 +42,7 @@ import About from './About';
 import Stats from './Stats';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
-import { fileIo as fs, ReadOptions } from '@kit.CoreFileKit';
-import { buffer } from '@kit.ArkTS';
-import { worker } from '@kit.ArkTS';
+import { buffer, worker } from '@kit.ArkTS';
 
 PersistentStorage.persistProp('firstStart', true);
 PersistentStorage.persistProp('downloadDir', '');
@@ -127,6 +125,7 @@ struct Index {
   @State themeIcon: Resource = $r('app.media.auto')
   @State sidebarIcon: Resource = $r('app.media.sidebar')
   @State sideBarWidth: number = 240
+  @State linkImage: Resource = $rawfile('link-sync.png')
   @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
@@ -273,11 +272,13 @@ struct Index {
   }
 
   async connectToServer() {
+    this.linkImage = $rawfile('link-sync.png')
     workerInstance.postMessage({ type: "stop" })
     console.log("开始连接服务器")
     let status: string | null = await ping(this.baseURL, this.username, this.password)
     console.log("Server status", status)
     if (status === 'ok') {
+      this.linkImage = $rawfile('link-sucess.png')
       console.log("连接服务器成功")
       promptAction.showToast({
         message: '连接服务器成功！',
@@ -299,6 +300,7 @@ struct Index {
         console.error('postMessage failed:', e);
       }
     } else {
+      this.linkImage = $rawfile('link-faild.png')
       console.log("连接服务器失败")
       promptAction.showToast({
         message: '连接服务器失败，请检查网络！',
@@ -755,9 +757,10 @@ struct Index {
   menuBuilder() {
     Row() {
       Button({ type: ButtonType.Normal }) {
-        Image($r('app.media.refresh'))
-          .width(24)
+        Image(this.linkImage)
+          .width(28)
           .aspectRatio(1)
+          .margin({ top: 3 })
       }
       .width(48)
       .aspectRatio(1)
@@ -770,6 +773,10 @@ struct Index {
         }, () => {
           this.showSidebar = false
         })
+        promptAction.showToast({
+          message: '尝试连接服务器',
+          duration: 500
+        });
         await this.connectToServer()
       })
 
@@ -1070,6 +1077,7 @@ struct Index {
     this.setAVPlayerCallback(this.avPlayer!);
     if (this.baseURL === '') {
       this.serverStatus = false
+      this.linkImage = $rawfile('link-faild.png')
       if (this.firstStart === true) {
         AlertDialog.show(
           {
@@ -1235,6 +1243,9 @@ struct Index {
         } else if (event.data.type.toString() === "unchanged") {
           console.log("数据无变化。");
           console.log("同步服务器完成");
+        } else if (event.data.type.toString() === "faild") {
+          this.linkImage = $rawfile('link-faild.png')
+          console.log("同步服务器失败");
         }
       }
       await this.connectToServer()

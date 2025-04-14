@@ -101,6 +101,8 @@ async function syncFromServer(baseURL: string, username: string, password: strin
       workerPort.postMessage({ type: "unchanged" });
     }
   } else {
+    workerPort.postMessage({ type: "faild" });
+    console.log("连接服务器失败")
     promptAction.showToast({
       message: '连接服务器失败，请检查网络！',
       duration: 500
@@ -116,7 +118,7 @@ async function syncFromServer(baseURL: string, username: string, password: strin
  */
 workerPort.onmessage = async (event: MessageEvents) => {
   if (event.data.type.toString() === "start") {
-    console.log("同步任务开始")
+    console.log("同步任务启动")
     let baseURL: string = event.data.baseURL.toString();
     let username: string = event.data.username.toString();
     let password: string = event.data.password.toString();
@@ -129,7 +131,7 @@ workerPort.onmessage = async (event: MessageEvents) => {
     intervalId = setInterval(async () => {
       await syncFromServer(baseURL, username, password, artists, albums, songs, playlists, starredSongs)
     }, 30 * 1000);
-  } else if (event.data.type.toString() === "stop"){
+  } else if (event.data.type.toString() === "stop") {
     clearInterval(intervalId)
     console.log("同步任务停止")
   }
