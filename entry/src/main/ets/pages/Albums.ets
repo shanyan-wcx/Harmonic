@@ -19,6 +19,7 @@ export default struct Albums {
   @Consume serverStatus: boolean
   @Consume discs: Song[][]
   @Consume displayWidth: number
+  @Consume showProgress: boolean
   @State coverSize: number = 320
 
   build() {

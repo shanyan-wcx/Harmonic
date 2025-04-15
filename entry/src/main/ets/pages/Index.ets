@@ -1075,6 +1075,7 @@ struct Index {
     }
     this.avPlayer = await media.createAVPlayer();
     this.setAVPlayerCallback(this.avPlayer!);
+    this.showProgress = true
     if (this.baseURL === '') {
       this.serverStatus = false
       this.linkImage = $rawfile('link-faild.png')
@@ -1248,6 +1249,7 @@ struct Index {
           console.log("同步服务器失败");
         }
       }
+      this.showProgress = false
       await this.connectToServer()
     }
   }

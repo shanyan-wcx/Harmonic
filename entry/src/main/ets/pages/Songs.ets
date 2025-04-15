@@ -38,6 +38,7 @@ export default struct Songs {
   @Consume longPressStar: boolean
   @Consume sleepTime: number
   @Consume selectedIndex: number
+  @Consume showProgress: boolean
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
@@ -142,7 +143,9 @@ export default struct Songs {
               }, () => {
                 this.showSidebar = false
               })
+              this.startPlaying = true
               await this.avPlayer!.reset()
+              this.isPlaying = true
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
               if (this.nowPlayingLyrics !== null) {
@@ -156,16 +159,14 @@ export default struct Songs {
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
               this.nowPlayingStar = await this.getStar(song)
-              this.isPlaying = true
               this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
-              this.startPlaying = true
             })
             .gesture(
               LongPressGesture()
                 .onAction(async (event: GestureEvent) => {
                   this.longPressSong = song
-                  this.longPressStar = await this.getStar(song)
                   this.showMenu = true
+                  this.longPressStar = await this.getStar(song)
                 })
             )
           }

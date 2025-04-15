@@ -18,6 +18,7 @@ export default struct Artists {
   @Consume artist: Artist | null
   @Consume serverStatus: boolean
   @Consume displayWidth: number
+  @Consume showProgress: boolean
   @State profileSize: number = 256
 
   build() {
