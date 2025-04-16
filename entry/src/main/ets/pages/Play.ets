@@ -1,6 +1,6 @@
 import { promptAction, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
-import { avSession as AVSessionManager } from '@kit.AVSessionKit';
+import { AVCastPicker, avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { createShare, getCover, getLyrics, getStarred, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
@@ -248,6 +248,13 @@ export default struct Play {
 
   async aboutToAppear() {
     this.getStatusBarHeight()
+  }
+
+  @Builder
+  AVCastBuilder(): void {
+    Image($r('app.media.radiowave'))
+      .width(30)
+      .height(30)
   }
 
   @Builder
@@ -517,6 +524,46 @@ export default struct Play {
       })
 
       Button({ type: ButtonType.Normal }) {
+        Text("分享歌曲")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .borderRadius(10)
+      .padding({ left: 20, right: 20 })
+      .backgroundColor($r('app.color.bar_background'))
+      .onClick(async () => {
+        this.showMore = false
+        let url = await createShare(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+        if (url !== null) {
+          let shareData: systemShare.SharedData = new systemShare.SharedData({
+            utd: utd.UniformDataType.HYPERLINK,
+            content: url,
+            description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
+            thumbnail: new Uint8Array(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, 128))
+          });
+          let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
+          let context = getContext(this) as common.UIAbilityContext;
+          controller.show(context, {
+            selectionMode: systemShare.SelectionMode.SINGLE,
+            previewMode: systemShare.SharePreviewMode.DEFAULT,
+          }).then(() => {
+            console.info('分享成功。');
+          }).catch((error: BusinessError) => {
+            console.error(`分享失败，code: ${error.code}, message: ${error.message}`);
+          });
+        } else {
+          promptAction.showToast({
+            message: '创建分享链接失败，请检查网络！',
+            duration: 500
+          });
+        }
+      })
+
+      Button({ type: ButtonType.Normal }) {
         Text("艺术家：" + this.nowPlayingSong?.artist)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -653,41 +700,14 @@ export default struct Play {
               .backgroundColor($r('app.color.content_background'))
               .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
 
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.radiowave'))
-                  .width(30)
-                  .height(30)
-              }
-              .width(40)
-              .height(40)
-              .margin({ right: 25 })
-              .backgroundColor('#00000000')
-              .onClick(async () => {
-                let url = await createShare(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
-                if (url !== null) {
-                  let shareData: systemShare.SharedData = new systemShare.SharedData({
-                    utd: utd.UniformDataType.HYPERLINK,
-                    content: url,
-                    description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
-                    thumbnail: new Uint8Array(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, 128))
-                  });
-                  let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-                  let context = getContext(this) as common.UIAbilityContext;
-                  controller.show(context, {
-                    selectionMode: systemShare.SelectionMode.SINGLE,
-                    previewMode: systemShare.SharePreviewMode.DEFAULT,
-                  }).then(() => {
-                    console.info('分享成功。');
-                  }).catch((error: BusinessError) => {
-                    console.error(`分享失败，code: ${error.code}, message: ${error.message}`);
-                  });
-                } else {
-                  promptAction.showToast({
-                    message: '创建分享链接失败，请检查网络！',
-                    duration: 500
-                  });
-                }
+              AVCastPicker({
+                customPicker: (): void => this.AVCastBuilder(),
+
               })
+                .width(40)
+                .height(40)
+                .margin({ right: 25 })
+                .backgroundColor('#00000000')
             }
             .width("100%")
             .justifyContent(FlexAlign.SpaceBetween)
@@ -928,7 +948,8 @@ export default struct Play {
                     this.nowPlayingIndex -= 1
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                  this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                  this.nowPlayingLyrics =
+                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== null) {
                     this.groupLyrics()
                   }
@@ -977,7 +998,8 @@ export default struct Play {
                     this.nowPlayingIndex += 1
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                  this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                  this.nowPlayingLyrics =
+                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== null) {
                     this.groupLyrics()
                   }

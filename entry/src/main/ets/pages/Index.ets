@@ -13,7 +13,7 @@ import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { avSession as AVSessionManager } from '@kit.AVSessionKit';
+import { avSession, avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { fileIo as fs, picker, ReadOptions } from '@kit.CoreFileKit';
 import CryptoJS from '@ohos/crypto-js';
 import {
@@ -44,8 +44,6 @@ import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 import { buffer, worker } from '@kit.ArkTS';
 
-PersistentStorage.persistProp('firstStart', true);
-PersistentStorage.persistProp('downloadDir', '');
 let context = getContext(this) as common.UIAbilityContext;
 let applicationContext = context.getApplicationContext();
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -648,6 +646,9 @@ struct Index {
             await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_INITIAL)
           }
           await this.session!.activate()
+          this.session!.setExtras({
+            requireAbilityList: ['url-cast'],
+          });
           await this.setSessionInfo()
           await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PREPARE)
           if (this.audioNormalization === true && this.nowPlayingSong!.replayGain?.trackGain !== undefined) {
@@ -1020,6 +1021,26 @@ struct Index {
     .padding({ left: 72, top: 1 })
   }
 
+  onDidBuild(){
+    if (this.firstStart !== false) {
+      AlertDialog.show(
+        {
+          title: '首次启动',
+          message: '请先到设置页面配置服务器连接。',
+          autoCancel: false,
+          height: 200,
+          confirm: {
+            value: '确认',
+            fontColor: $r('app.color.font'),
+            action: () => {
+              this.firstStart = false
+            }
+          }
+        }
+      )
+    }
+  }
+
   async aboutToAppear() {
     context.getApplicationContext().setColorMode(this.theme)
     this.mainWindow = await window.getLastWindow(getContext(this))
@@ -1075,28 +1096,11 @@ struct Index {
     }
     this.avPlayer = await media.createAVPlayer();
     this.setAVPlayerCallback(this.avPlayer!);
-    this.showProgress = true
     if (this.baseURL === '') {
       this.serverStatus = false
       this.linkImage = $rawfile('link-faild.png')
-      if (this.firstStart === true) {
-        AlertDialog.show(
-          {
-            title: '首次启动',
-            message: '请先到设置页面配置服务器连接。',
-            autoCancel: false,
-            height: 200,
-            confirm: {
-              value: '确认',
-              fontColor: $r('app.color.font'),
-              action: () => {
-                this.firstStart = false
-              }
-            }
-          }
-        )
-      }
     } else {
+      this.showProgress = true
       let bufSize = 4096;
       let readSize = 0;
       let str = "";
@@ -1195,6 +1199,7 @@ struct Index {
       str = "";
       readSize = 0;
       readOptions.offset = 0;
+      this.showProgress = false
       workerInstance.onmessage = async (event) => {
         if (event.data.type.toString() === "update") {
           this.artists = JSON.parse(event.data.artists);
@@ -1249,7 +1254,6 @@ struct Index {
           console.log("同步服务器失败");
         }
       }
-      this.showProgress = false
       await this.connectToServer()
     }
   }
