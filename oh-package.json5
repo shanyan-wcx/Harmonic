@@ -2,8 +2,8 @@
   "modelVersion": "5.0.0",
   "description": "Please describe the basic information.",
   "dependencies": {
-    "@ohos/axios": "^2.2.2",
-    "@ohos/crypto-js": "^2.0.3"
+    "@ohos/axios": "^2.2.6",
+    "@ohos/crypto-js": "^2.0.4"
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.18",

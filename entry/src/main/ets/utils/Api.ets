@@ -9,7 +9,7 @@ let salt = 'abcdef'
 let version = '1.16.1'
 let client = 'Harmonic'
 
-export async function ping(baseURL: string, username: string, password: string, ) {
+export async function ping(baseURL: string, username: string, password: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -25,7 +25,7 @@ export async function ping(baseURL: string, username: string, password: string, 
   }
 }
 
-export async function getIndexes(baseURL: string, username: string, password: string, ) {
+export async function getIndexes(baseURL: string, username: string, password: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   let artists: Artist[] = []
   try {
@@ -44,7 +44,7 @@ export async function getIndexes(baseURL: string, username: string, password: st
   }
 }
 
-export async function getGenres(baseURL: string, username: string, password: string, ) {
+export async function getGenres(baseURL: string, username: string, password: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -58,6 +58,21 @@ export async function getGenres(baseURL: string, username: string, password: str
 }
 
 export async function getArtist(baseURL: string, username: string, password: string, id: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${id}`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.artist
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined
+  }
+}
+
+export async function getArtistAlbum(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -106,6 +121,36 @@ export async function getAlbum(baseURL: string, username: string, password: stri
   }
 }
 
+export async function getRecentAlbums(baseURL: string, username: string, password: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=newest`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.albumList!.album
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return []
+  }
+}
+
+export async function getFrequentAlbums(baseURL: string, username: string, password: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=frequent`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.albumList!.album
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return []
+  }
+}
+
 export async function getSong(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
@@ -113,13 +158,15 @@ export async function getSong(baseURL: string, username: string, password: strin
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getSong' + auth + `&id=${id}`, {
         timeout: 10000
       })
-    console.log(JSON.stringify(response.data))
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.song
   } catch (error) {
     console.error(JSON.stringify(error));
+    return undefined
   }
 }
 
-export async function getPlaylists(baseURL: string, username: string, password: string, ) {
+export async function getPlaylists(baseURL: string, username: string, password: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   let playlists: Playlist[] = []
   try {
@@ -198,8 +245,10 @@ export async function updatePlaylist(baseURL: string, username: string, password
   if (name !== undefined) {
     url += `&name=${name}`
   }
-  if (comment !== undefined) {
+  if (comment !== undefined && comment.length > 0) {
     url += `&comment=${comment}`
+  } else {
+    url += `&comment=`
   }
   if (songIdToAdd !== undefined) {
     url += `&songIdToAdd=${songIdToAdd}`
@@ -257,7 +306,7 @@ export async function deletePlaylist(baseURL: string, username: string, password
   }
 }
 
-export async function getStarred(baseURL: string, username: string, password: string, ) {
+export async function getStarredArtists(baseURL: string, username: string, password: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -265,13 +314,31 @@ export async function getStarred(baseURL: string, username: string, password: st
         timeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    if (Object.keys(subsonicResponse.starred!).length !== 0 && subsonicResponse.starred!.song !== undefined) {
-      return subsonicResponse.starred
+    if (Object.keys(subsonicResponse.starred!).length !== 0 && subsonicResponse.starred!.artist !== undefined) {
+      return subsonicResponse.starred!.artist
     }
-    return null
+    return []
   } catch (error) {
     console.error(JSON.stringify(error));
-    return null
+    return []
+  }
+}
+
+export async function getStarredAlbums(baseURL: string, username: string, password: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getStarred' + auth, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    if (Object.keys(subsonicResponse.starred!).length !== 0 && subsonicResponse.starred!.album !== undefined) {
+      return subsonicResponse.starred!.album
+    }
+    return []
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return []
   }
 }
 
@@ -338,5 +405,20 @@ export async function createShare(baseURL: string, username: string, password: s
   } catch (error) {
     console.error(JSON.stringify(error));
     return null
+  }
+}
+
+export async function search(baseURL: string, username: string, password: string, query: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.searchResult2;
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined;
   }
 }

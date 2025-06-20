@@ -1,5 +1,17 @@
 import { Artist } from '../utils/Interface'
 import { curves } from '@kit.ArkUI'
+import { i18n, intl } from '@kit.LocalizationKit';
+import { getIndexes } from '../utils/Api';
+
+let transliterator = i18n.Transliterator.getInstance('Any-Latn');
+let options: intl.CollatorOptions = {
+  localeMatcher: "lookup",
+  usage: "sort",
+  sensitivity: "variant",
+  numeric: true
+};
+let locale = new intl.Locale();
+let collator = new intl.Collator(locale.toString(), options);
 
 @Component
 export default struct Artists {
@@ -11,7 +23,7 @@ export default struct Artists {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume artists: Artist[]
+  @State artists: Artist[] = []
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
@@ -20,6 +32,15 @@ export default struct Artists {
   @Consume displayWidth: number
   @Consume showProgress: boolean
   @State profileSize: number = 256
+
+  async aboutToAppear() {
+    this.showProgress = true
+    this.artists = await getIndexes(this.baseURL, this.username, this.password)
+    this.artists.sort((a, b) => {
+      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+    })
+    this.showProgress = false
+  }
 
   build() {
     Column() {
@@ -74,7 +95,7 @@ export default struct Artists {
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade)
       .padding({ left: 10, right: 10, bottom: 10 })
-      .visibility(this.artists.length > 0 ? Visibility.Visible : Visibility.None)
+      .visibility(this.artists.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
       Column() {
         Text("没有艺术家")
@@ -83,8 +104,9 @@ export default struct Artists {
       }
       .width('100%')
       .height('100%')
+      .padding({ bottom: 160 })
       .justifyContent(FlexAlign.Center)
-      .visibility(this.artists.length === 0 && this.serverStatus === true ? Visibility.Visible : Visibility.None)
+      .visibility(this.artists.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
     }
     .width('100%')
     .height('100%')

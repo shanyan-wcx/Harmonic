@@ -1,6 +1,7 @@
 import { AbilityConstant, UIAbility, Want, Configuration, ConfigurationConstant } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { deviceInfo } from '@kit.BasicServicesKit';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -32,12 +33,30 @@ export default class EntryAbility extends UIAbility {
       PersistentStorage.persistProp('username', '');
       PersistentStorage.persistProp('password', '');
     });
-    let mainWindow = windowStage.getMainWindowSync();
-    mainWindow.setWindowSystemBarEnable(["status"]);
-    mainWindow.setWindowSystemBarProperties({
-      statusBarColor: "#00000000"
+    // let mainWindow = windowStage.getMainWindowSync();
+    // mainWindow.setWindowSystemBarEnable(["status"]);
+    // mainWindow.setWindowSystemBarProperties({
+    //   statusBarColor: "#00000000"
+    // })
+    // mainWindow.setWindowLayoutFullScreen(true)
+
+    windowStage.getMainWindow().then((data: window.Window) => {
+      let deviceTypeInfo: string = deviceInfo.deviceType;
+      if (deviceTypeInfo === '2in1') {
+        data.setWindowDecorVisible(false);
+        data.setWindowDecorHeight(55);
+        data.setDecorButtonStyle({
+          buttonBackgroundSize: 40,
+          spacingBetweenButtons: 12,
+          closeButtonRightMargin: 10
+        });
+      }
+      data.setWindowSystemBarEnable(["status"]);
+      data.setWindowSystemBarProperties({
+        statusBarColor: "#00000000"
+      })
+      data.setWindowLayoutFullScreen(true)
     })
-    mainWindow.setWindowLayoutFullScreen(true)
   }
 
   onWindowStageDestroy(): void {

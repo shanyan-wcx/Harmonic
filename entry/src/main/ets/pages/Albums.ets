@@ -1,5 +1,17 @@
-import { Album, Song } from '../utils/Interface'
+import { Album, Artist, Song } from '../utils/Interface'
 import { curves } from '@kit.ArkUI'
+import { getArtistAlbum, getIndexes } from '../utils/Api'
+import { i18n, intl } from '@kit.LocalizationKit';
+
+let transliterator = i18n.Transliterator.getInstance('Any-Latn');
+let options: intl.CollatorOptions = {
+  localeMatcher: "lookup",
+  usage: "sort",
+  sensitivity: "variant",
+  numeric: true
+};
+let locale = new intl.Locale();
+let collator = new intl.Collator(locale.toString(), options);
 
 @Component
 export default struct Albums {
@@ -11,7 +23,8 @@ export default struct Albums {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume albums: Album[]
+  @State artists: Artist[] = []
+  @State albums: Album[] = []
   @Consume album: Album | null
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
@@ -21,6 +34,19 @@ export default struct Albums {
   @Consume displayWidth: number
   @Consume showProgress: boolean
   @State coverSize: number = 320
+
+  async aboutToAppear() {
+    this.showProgress = true
+    this.artists = await getIndexes(this.baseURL, this.username, this.password)
+    for (const artist of this.artists) {
+      const albums: Album[] = await getArtistAlbum(this.baseURL, this.username, this.password, artist.id)
+      this.albums = this.albums.concat(albums);
+    }
+    this.albums.sort((a, b) => {
+      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+    })
+    this.showProgress = false
+  }
 
   build() {
     Column() {
@@ -67,7 +93,7 @@ export default struct Albums {
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade)
       .padding({ left: 10, right: 10, bottom: 10 })
-      .visibility(this.albums.length > 0 ? Visibility.Visible : Visibility.None)
+      .visibility(this.albums.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
       Column() {
         Text("没有专辑")
@@ -76,8 +102,9 @@ export default struct Albums {
       }
       .width('100%')
       .height('100%')
+      .padding({ bottom: 160 })
       .justifyContent(FlexAlign.Center)
-      .visibility(this.albums.length === 0 && this.serverStatus === true ? Visibility.Visible : Visibility.None)
+      .visibility(this.albums.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
     }
     .width('100%')
     .height('100%')

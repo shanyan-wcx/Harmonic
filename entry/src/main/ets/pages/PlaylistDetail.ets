@@ -1,7 +1,7 @@
 import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics, getStarred } from '../utils/Api';
+import { getLyrics, getPlaylist, getSong } from '../utils/Api';
 import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
 import editPlaylistBuilder from './dialogs/EditPlaylist';
 
@@ -46,12 +46,10 @@ export default struct PlaylistDetail {
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
   @Consume starredSongs: Song[]
-  @Consume nowPlayingStar: boolean
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume showMenu: boolean
   @Consume longPressSong: Song | null
-  @Consume longPressStar: boolean
   @Consume longPressIndex: number
   @Consume salt: string
   @Consume version: string
@@ -66,6 +64,7 @@ export default struct PlaylistDetail {
   @StorageLink('password') password: string = ''
   @StorageLink('playMode') playMode: number = 0
   @State coverSize: number = 128
+  @State showProgress: boolean = false
   editPlaylist: CustomDialogController = new CustomDialogController({
     builder: editPlaylistBuilder(),
     width: 340,
@@ -96,22 +95,6 @@ export default struct PlaylistDetail {
     }
   }
 
-  async getStar(song: Song) {
-    let starredSongs: Song[] = []
-    let starred = await getStarred(this.baseURL, this.username, this.password)
-    if (starred !== null) {
-      starredSongs = starred!.song!
-    }
-    if (starredSongs.length > 0) {
-      for (let starredSong of starredSongs) {
-        if (song.id === starredSong.id) {
-          return true
-        }
-      }
-    }
-    return false
-  }
-
   shuffleList<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -122,8 +105,9 @@ export default struct PlaylistDetail {
     return array;
   }
 
-  aboutToAppear() {
+  async aboutToAppear() {
     this.addOrDelete = false
+    this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
   }
 
   aboutToDisappear() {
@@ -270,7 +254,6 @@ export default struct PlaylistDetail {
                 this.nowPlayingList = this.nowPlayingListOriginal.slice()
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
-              this.nowPlayingStar = await this.getStar(song)
               this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
             })
             .gesture(
@@ -279,7 +262,10 @@ export default struct PlaylistDetail {
                   this.longPressSong = song
                   this.longPressIndex = index
                   this.showMenu = true
-                  this.longPressStar = await this.getStar(song)
+                  let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                  if(tmp_song !== undefined && tmp_song.starred !== undefined){
+                    this.longPressSong!.starred = tmp_song.starred
+                  }
                 })
             )
           })
@@ -291,6 +277,19 @@ export default struct PlaylistDetail {
       .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
+      .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+      Column() {
+        LoadingProgress()
+          .width("100%")
+          .height(80)
+          .color($r('app.color.font'))
+          .margin({ bottom: 160 })
+      }
+      .height('100%')
+      .width('100%')
+      .justifyContent(FlexAlign.Center)
+      .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
   }

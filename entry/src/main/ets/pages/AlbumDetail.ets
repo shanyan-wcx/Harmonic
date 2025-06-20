@@ -1,7 +1,7 @@
 import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getLyrics, getStarred } from '../utils/Api';
+import { getAlbum, getArtist, getLyrics, getSong } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 
 function formatDuration(seconds: number): string {
@@ -37,37 +37,27 @@ export default struct AlbumDetail {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume artists: Artist[]
-  @Consume artist: Artist | null
+  @State artists: Artist[] = []
+  @Consume artist: Artist | undefined
   @Consume nowPlayingSong: Song | null
   @Consume nowPlayingLyrics: StructuredLyric | null
   @Consume nowPlayingLyricsByGroup: Line[][]
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
   @Consume nowPlayingIndex: number
-  @Consume nowPlayingStar: boolean
   @Consume starredSongs: Song[]
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume discs: Song[][]
   @Consume showMenu: boolean
-  @Consume longPressSong: Song | null
-  @Consume longPressStar: boolean
+  @Consume longPressSong: Song | undefined
   @Consume avPlayer: media.AVPlayer | null
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | null
   @State coverSize: number = 256
   @State showDiscHeader: boolean = false
   @State discsKeys: number[] = []
-
-  getArtist() {
-    for (let artist of this.artists) {
-      if (artist.name === this.album.artist) {
-        this.artist = artist
-        break
-      }
-    }
-  }
+  @State showProgress: boolean = false
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -92,22 +82,6 @@ export default struct AlbumDetail {
     }
   }
 
-  async getStar(song: Song) {
-    let starredSongs: Song[] = []
-    let starred = await getStarred(this.baseURL, this.username, this.password)
-    if (starred !== null) {
-      starredSongs = starred!.song!
-    }
-    if (starredSongs.length > 0) {
-      for (let starredSong of starredSongs) {
-        if (song.id === starredSong.id) {
-          return true
-        }
-      }
-    }
-    return false
-  }
-
   shuffleList<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -118,7 +92,9 @@ export default struct AlbumDetail {
     return array;
   }
 
-  aboutToAppear(): void {
+  async aboutToAppear() {
+    this.showProgress = true
+    this.album.song = await getAlbum(this.baseURL, this.username, this.password, this.album.id);
     const groupedSongsMap = new Map<number, Song[]>();
     this.album.song!.forEach((song) => {
       let disc = song.discNumber;
@@ -134,6 +110,7 @@ export default struct AlbumDetail {
     this.discs = sortedKeys.map(key => groupedSongsMap.get(key)!);
     this.discsKeys = sortedKeys;
     this.showDiscHeader = !(sortedKeys.length === 1 && (sortedKeys[0] === 0 || sortedKeys[0] === 1));
+    this.showProgress = false
   }
 
   build() {
@@ -162,7 +139,7 @@ export default struct AlbumDetail {
               .backgroundColor('#00000000')
               .stateEffect(false)
               .onClick(async () => {
-                this.getArtist()
+                this.artist = await getArtist(this.baseURL, this.username, this.password, this.album.artistId)
                 this.pageStack.replacePathByName('ArtistDetail', null);
               })
             }
@@ -279,7 +256,6 @@ export default struct AlbumDetail {
                       this.nowPlayingList = this.nowPlayingListOriginal.slice()
                     }
                     this.getNowPlayingIndex(song, this.nowPlayingList)
-                    this.nowPlayingStar = await this.getStar(song)
                     this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
                   })
                   .gesture(
@@ -287,7 +263,11 @@ export default struct AlbumDetail {
                       .onAction(async (event: GestureEvent) => {
                         this.longPressSong = song
                         this.showMenu = true
-                        this.longPressStar = await this.getStar(song)
+                        let tmp_song: Song | undefined =
+                          await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                        if (tmp_song !== undefined && tmp_song.starred !== undefined) {
+                          this.longPressSong!.starred = tmp_song.starred
+                        }
                       })
                   )
                 })
@@ -348,7 +328,6 @@ export default struct AlbumDetail {
                   this.nowPlayingList = this.nowPlayingListOriginal.slice()
                 }
                 this.getNowPlayingIndex(song, this.nowPlayingList)
-                this.nowPlayingStar = await this.getStar(song)
                 this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
               })
               .gesture(
@@ -356,7 +335,11 @@ export default struct AlbumDetail {
                   .onAction(async (event: GestureEvent) => {
                     this.longPressSong = song
                     this.showMenu = true
-                    this.longPressStar = await this.getStar(song)
+                    let tmp_song: Song | undefined =
+                      await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                    if (tmp_song !== undefined && tmp_song.starred !== undefined) {
+                      this.longPressSong!.starred = tmp_song.starred
+                    }
                   })
               )
             })
@@ -369,6 +352,19 @@ export default struct AlbumDetail {
       .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
+      .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+      Column() {
+        LoadingProgress()
+          .width("100%")
+          .height(80)
+          .color($r('app.color.font'))
+          .margin({ bottom: 160 })
+      }
+      .height('100%')
+      .width('100%')
+      .justifyContent(FlexAlign.Center)
+      .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
   }

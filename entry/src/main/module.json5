@@ -24,6 +24,8 @@
         "startWindowIcon": "$media:startIcon",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
+        "minWindowWidth": 410,
+        "minWindowHeight": 300,
         "backgroundModes": [
           "audioPlayback"
         ],

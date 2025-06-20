@@ -5,7 +5,8 @@ export interface Artist {
   albumCount: number;
   artistImageUrl?: string;
   album?: Album[];
-  biography?: string
+  biography?: string;
+  starred?: string;
 }
 
 export interface SimilarArtist {
@@ -36,6 +37,10 @@ export interface Indexes {
   index: Index[];
 }
 
+export interface AlbumList {
+  album: Album[];
+}
+
 export interface SubsonicResponse {
   status: string;
   version: string;
@@ -45,12 +50,15 @@ export interface SubsonicResponse {
   indexes?: Indexes;
   artist?: Artist;
   album?: Album;
+  song?: Song;
+  albumList?: AlbumList;
   playlists?: Playlists;
   playlist?: Playlist;
   artistInfo?: ArtistInfo;
   lyricsList?: LyricsList;
   starred?: Starred;
   shares?: Shares;
+  searchResult2?: SearchResult;
 }
 
 export interface ApiResponse {
@@ -83,6 +91,7 @@ export interface Album {
   channelCount: number;
   samplingRate: number;
   song?: Song[];
+  starred?: string;
 }
 
 export interface Song {
@@ -99,6 +108,7 @@ export interface Song {
   size: number;
   contentType: string;
   suffix: string;
+  starred?: string;
   duration: number;
   bitRate: number;
   path: string;
@@ -117,6 +127,8 @@ export interface Song {
   replayGain?: ReplayGain;
   channelCount: number;
   samplingRate: number;
+  transcodedContentType?: string;
+  transcodedSuffix?: string;
 }
 
 export interface Genre {
@@ -184,4 +196,10 @@ export interface Share {
 
 export interface Shares {
   share: Share[];
+}
+
+export interface SearchResult {
+  song?: Song[];
+  album?: Album[];
+  artist?: Artist[];
 }

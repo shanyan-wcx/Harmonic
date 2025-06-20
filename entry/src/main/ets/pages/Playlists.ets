@@ -1,13 +1,18 @@
+import { getPlaylists } from '../utils/Api'
 import { Playlist } from '../utils/Interface'
 import createPlaylistBuilder from './dialogs/CreatePlaylist'
 
 @Component
 export default struct Playlists {
+  @StorageLink('baseURL') baseURL: string = ''
+  @StorageLink('username') username: string = ''
+  @StorageLink('password') password: string = ''
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
   @Consume playlists: Playlist[]
   @Consume playlist: Playlist | null
+  @Consume showProgress: boolean
   createPlaylist: CustomDialogController = new CustomDialogController({
     builder: createPlaylistBuilder(),
     width: 340,
@@ -15,17 +20,40 @@ export default struct Playlists {
     backgroundColor: $r('app.color.content_background')
   })
 
+  async aboutToAppear() {
+    this.showProgress = true
+    this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+      return Date.parse(b.changed) - Date.parse(a.changed);
+    })
+    this.showProgress = false
+  }
+
   build() {
     Column() {
       Row() {
-        Image("")
-        Text("歌单")
-          .fontSize(20)
-          .fontColor($r('app.color.font'))
+        Button({ type: ButtonType.Normal }) {
+          Text("+")
+            .fontSize(40)
+            .fontColor($r('app.color.font'))
+            .fontWeight(FontWeight.Lighter)
+        }
+        .width('90%')
+        .height(50)
+        .borderRadius(15)
+        .backgroundColor($r('app.color.bar_background'))
+        .onClick(() => {
+          animateTo({
+            duration: 300,
+            curve: Curve.EaseOut,
+          }, () => {
+            this.showSidebar = false
+          })
+          this.createPlaylist.open()
+        })
       }
       .width('100%')
       .height(60)
-      .backgroundColor($r('app.color.bar_background'))
+      .margin({ bottom: 10 })
       .justifyContent(FlexAlign.Center)
 
       Divider()
@@ -49,8 +77,8 @@ export default struct Playlists {
               .padding({ left: 20, right: 20 })
             }
             .width('100%')
-            .height(50)
-            .borderRadius(15)
+            .height(80)
+            .borderRadius(10)
             .backgroundColor('#00000000')
             .padding({ left: 20, right: 20 })
             .onClick(() => {
@@ -69,51 +97,22 @@ export default struct Playlists {
       .width('100%')
       .height('100%')
       .layoutWeight(1)
+      .margin({ bottom: this.startPlaying === true ? 85 : 0 })
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade)
-      .visibility(this.playlists.length > 0 ? Visibility.Visible : Visibility.None)
+      .visibility(this.playlists.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
       Column() {
         Text("没有歌单")
-          .fontSize(19)
+          .fontSize(32)
           .fontColor($r('app.color.font'))
       }
       .width('100%')
       .height('100%')
-      .layoutWeight(1)
+      .padding({ bottom: 140 })
       .justifyContent(FlexAlign.Center)
-      .visibility(this.playlists.length > 0 ? Visibility.None : Visibility.Visible)
-
-      Divider()
-        .width('90%')
-        .height(1)
-        .color($r('app.color.divider'))
-
-      Row() {
-        Button({type:ButtonType.Normal}) {
-          Text("新建")
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-        }
-        .width('90%')
-        .height(50)
-        .borderRadius(15)
-        .backgroundColor($r('app.color.content_background'))
-        .onClick(() => {
-          animateTo({
-            duration: 300,
-            curve: Curve.EaseOut,
-          }, () => {
-            this.showSidebar = false
-          })
-          this.createPlaylist.open()
-        })
-      }
-      .width('100%')
-      .height(60)
-      .backgroundColor($r('app.color.bar_background'))
-      .justifyContent(FlexAlign.Center)
+      .visibility(this.playlists.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
     }
     .width('100%')
     .height('100%')

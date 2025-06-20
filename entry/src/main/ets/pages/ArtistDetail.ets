@@ -1,5 +1,6 @@
 import { Album, Artist } from '../utils/Interface';
 import { curves } from '@kit.ArkUI';
+import { getArtistAlbum, getArtistInfo } from '../utils/Api';
 
 @Builder
 export function ArtistDetailBuilder() {
@@ -26,6 +27,14 @@ export default struct ArtistDetail {
   @State albumPerRow: number = 3
   @State profileSize: number = 256
   @State coverSize: number = 256
+  @State showProgress: boolean = false
+
+  async aboutToAppear() {
+    this.showProgress = true
+    this.artist!.biography = await getArtistInfo(this.baseURL, this.username, this.password, this.artist!.id)
+    this.artist!.album = await getArtistAlbum(this.baseURL, this.username, this.password, this.artist!.id)
+    this.showProgress = false
+  }
 
   build() {
     NavDestination() {
@@ -117,6 +126,19 @@ export default struct ArtistDetail {
       .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
+      .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+      Column() {
+        LoadingProgress()
+          .width("100%")
+          .height(80)
+          .color($r('app.color.font'))
+          .margin({ bottom: 160 })
+      }
+      .height('100%')
+      .width('100%')
+      .justifyContent(FlexAlign.Center)
+      .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
   }
