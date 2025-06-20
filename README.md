@@ -30,20 +30,20 @@ Navidrome的鸿蒙Next客户端，适配手机、平板、车机。
 
 #### 浅色
 
-<div style="display: flex; justify-content: space-between;">
-  <img src="./assets/PC/light1.png" alt="Image 1" style="width: 24%; border-radius: 15px;">
-  <img src="./assets/PC/light2.png" alt="Image 2" style="width: 24%; border-radius: 15px;">
-  <img src="./assets/PC/light3.png" alt="Image 3" style="width: 24%; border-radius: 15px;">
-  <img src="./assets/PC/light4.png" alt="Image 4" style="width: 24%; border-radius: 15px;">
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+  <img src="./assets/PC/light1.png" alt="Image 1" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
+  <img src="./assets/PC/light2.png" alt="Image 2" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
+  <img src="./assets/PC/light3.png" alt="Image 3" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
+  <img src="./assets/PC/light4.png" alt="Image 4" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
 </div>
 
 #### 深色
 
-<div style="display: flex; justify-content: space-between;">
-  <img src="./assets/PC/dark1.png" alt="Image 1" style="width: 24%; border-radius: 15px;">
-  <img src="./assets/PC/dark2.png" alt="Image 2" style="width: 24%; border-radius: 15px;">
-  <img src="./assets/PC/dark3.png" alt="Image 3" style="width: 24%; border-radius: 15px;">
-  <img src="./assets/PC/dark4.png" alt="Image 4" style="width: 24%; border-radius: 15px;">
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+  <img src="./assets/PC/dark1.png" alt="Image 1" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
+  <img src="./assets/PC/dark2.png" alt="Image 2" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
+  <img src="./assets/PC/dark3.png" alt="Image 3" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
+  <img src="./assets/PC/dark4.png" alt="Image 4" style="width: 49%; margin-bottom: 10px; border-radius: 15px;">
 </div>
 
 ## 安装方式
