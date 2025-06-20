@@ -1161,6 +1161,7 @@ export default struct Play {
               .borderRadius(10)
               .listDirection(Axis.Vertical)
               .scrollBar(BarState.Off)
+              .fadingEdge(true,{fadingEdgeLength:LengthMetrics.vp(50)})
             }
             .width('50%')
             .height('65%')
