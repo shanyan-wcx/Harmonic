@@ -76,9 +76,9 @@ export default struct Playlists {
               .height('100%')
               .padding({ left: 20, right: 20 })
             }
-            .width('100%')
+            .width('90%')
             .height(80)
-            .borderRadius(10)
+            .borderRadius(15)
             .backgroundColor('#00000000')
             .padding({ left: 20, right: 20 })
             .onClick(() => {
@@ -97,6 +97,7 @@ export default struct Playlists {
       .width('100%')
       .height('100%')
       .layoutWeight(1)
+      .alignListItem(ListItemAlign.Center)
       .margin({ bottom: this.startPlaying === true ? 85 : 0 })
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)

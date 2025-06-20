@@ -54,7 +54,7 @@ export default struct Artists {
                   .objectFit(ImageFit.Cover)
                   .width('100%')
                   .aspectRatio(1)
-                  .borderRadius(100)
+                  .borderRadius(10000)
                   .margin({ top: 10, left: 10, right: 10 })
                 Text(artist.name)
                   .width('100%')
@@ -90,8 +90,8 @@ export default struct Artists {
       .width('100%')
       .height('100%')
       .columnsTemplate(this.displayWidth > 1400 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
-        (this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr 1fr" :
-          (this.displayWidth > 600 ? "1fr 1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")))
+        (this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr 1fr" : (this.displayWidth > 800 ? "1fr 1fr 1fr 1fr 1fr" :
+          (this.displayWidth > 700 ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr"))))
       .columnsGap(0)
       .rowsGap(0)
       .scrollBar(BarState.Off)

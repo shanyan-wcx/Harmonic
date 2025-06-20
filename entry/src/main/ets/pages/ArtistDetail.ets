@@ -45,7 +45,7 @@ export default struct ArtistDetail {
             .objectFit(ImageFit.Cover)
             .width(120)
             .aspectRatio(1)
-            .borderRadius(100)
+            .borderRadius(10000)
           Column() {
             Text(this.artist!.name)
               .fontSize(24)
