@@ -749,6 +749,9 @@ struct Index {
       .onClick(async () => {
         this.showMenu = false
         this.selectPlaylist.open()
+        this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+          return Date.parse(b.changed) - Date.parse(a.changed);
+        })
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -1269,6 +1272,8 @@ struct Index {
           .bindSheet($$this.showMenu, this.bindMenuBuilder, {
             showClose: false,
             height: SheetSize.FIT_CONTENT,
+            width: this.sidebarType === SideBarContainerType.Embed ? 600 : '100%',
+            preferType: SheetType.BOTTOM,
             backgroundColor: $r('app.color.content_background'),
           })
           .onClick(() => {

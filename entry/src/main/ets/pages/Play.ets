@@ -1,8 +1,8 @@
 import { LengthMetrics, promptAction, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { AVCastPicker, avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { createShare, getCover, getLyrics, getSong, star, unstar } from '../utils/Api';
-import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
+import { createShare, getCover, getLyrics, getPlaylists, getSong, star, unstar } from '../utils/Api';
+import { Album, Artist, Line, Playlist, Song, StructuredLyric } from '../utils/Interface';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 import { systemShare } from '@kit.ShareKit';
@@ -82,6 +82,7 @@ export default struct Play {
   @Consume session: AVSessionManager.AVSession | null
   @Consume selectedPlaylists: boolean[]
   @Consume sidebarType: number
+  @Consume playlists: Playlist[]
   @Provide selectDeviceHeight: number = 300
   @State showSleep: boolean = false
   @State showList: boolean = false
@@ -250,7 +251,7 @@ export default struct Play {
   async aboutToAppear() {
     this.getStatusBarHeight()
     let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
-    if(tmp_song !== undefined && tmp_song.starred !== undefined){
+    if (tmp_song !== undefined && tmp_song.starred !== undefined) {
       this.nowPlayingSong!.starred = tmp_song.starred
     }
   }
@@ -461,6 +462,9 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.selectPlaylist.open()
+        this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+          return Date.parse(b.changed) - Date.parse(a.changed);
+        })
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -548,7 +552,8 @@ export default struct Play {
             utd: utd.UniformDataType.HYPERLINK,
             content: url,
             description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
-            thumbnail: new Uint8Array(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, 128))
+            thumbnail: new Uint8Array(await getCover(this.baseURL, this.username, this.password,
+              this.nowPlayingSong!.id, 128))
           });
           let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
           let context = getContext(this) as common.UIAbilityContext;
@@ -761,8 +766,9 @@ export default struct Play {
                 } else {
                   let starStatus = await star(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
                   if (starStatus === true) {
-                    let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
-                    if(tmp_song !== undefined && tmp_song.starred !== undefined){
+                    let tmp_song: Song | undefined =
+                      await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+                    if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                       this.nowPlayingSong!.starred = tmp_song.starred
                     }
                     if (this.isPlaying === true) {
@@ -850,7 +856,7 @@ export default struct Play {
                   .borderRadius(10)
                   .listDirection(Axis.Vertical)
                   .scrollBar(BarState.Off)
-                  .fadingEdge(true,{fadingEdgeLength:LengthMetrics.vp(50)})
+                  .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(50) })
                 }
                 .width('100%')
                 .height('100%')
@@ -1044,6 +1050,8 @@ export default struct Play {
                 .bindSheet($$this.showSleep, this.sleepBuilder, {
                   showClose: false,
                   height: SheetSize.FIT_CONTENT,
+                  width: this.sidebarType === SideBarContainerType.Embed ? 600 : '100%',
+                  preferType: SheetType.BOTTOM,
                   backgroundColor: $r('app.color.content_background'),
                   title: {
                     title: '睡眠定时'
@@ -1064,6 +1072,8 @@ export default struct Play {
                 .bindSheet($$this.showList, this.listBuilder, {
                   showClose: false,
                   height: SheetSize.FIT_CONTENT,
+                  width: this.sidebarType === SideBarContainerType.Embed ? 600 : '100%',
+                  preferType: SheetType.BOTTOM,
                   backgroundColor: $r('app.color.content_background'),
                   title: {
                     title: '播放队列'
@@ -1084,6 +1094,8 @@ export default struct Play {
                 .bindSheet($$this.showMore, this.moreBuilder, {
                   showClose: false,
                   height: SheetSize.FIT_CONTENT,
+                  width: this.sidebarType === SideBarContainerType.Embed ? 600 : '100%',
+                  preferType: SheetType.BOTTOM,
                   backgroundColor: $r('app.color.content_background'),
                   title: {
                     title: '更多'
@@ -1161,7 +1173,7 @@ export default struct Play {
               .borderRadius(10)
               .listDirection(Axis.Vertical)
               .scrollBar(BarState.Off)
-              .fadingEdge(true,{fadingEdgeLength:LengthMetrics.vp(50)})
+              .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(50) })
             }
             .width('50%')
             .height('65%')
