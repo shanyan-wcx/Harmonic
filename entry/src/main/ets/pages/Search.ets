@@ -94,7 +94,29 @@ export default struct Search_ {
             size: 20
           })
           .type(InputType.Normal)
-          .enterKeyType(EnterKeyType.Next)
+          .enterKeyType(EnterKeyType.Search)
+          .onSubmit(async (enterKey: EnterKeyType, event: SubmitEvent) => {
+            if (this.searchQuery !== "") {
+              this.showProgress = true;
+              this.songs = [];
+              this.albums = [];
+              this.artists = [];
+              let searchResult: SearchResult | undefined =
+                await search(this.baseURL, this.username, this.password, this.searchQuery)
+              if (searchResult !== undefined) {
+                if (searchResult.song !== undefined) {
+                  this.songs = searchResult.song;
+                }
+                if (searchResult.album !== undefined) {
+                  this.albums = searchResult.album;
+                }
+                if (searchResult.artist !== undefined) {
+                  this.artists = searchResult.artist;
+                }
+              }
+              this.showProgress = false;
+            }
+          })
 
         Button({ type: ButtonType.Normal }) {
           Text("搜索")
@@ -105,7 +127,7 @@ export default struct Search_ {
         }
         .width(80)
         .height(40)
-        .borderRadius(10)
+        .borderRadius(15)
         .padding({ left: 20, right: 20 })
         .margin({ right: 20 })
         .backgroundColor($r('app.color.bar_background'))
