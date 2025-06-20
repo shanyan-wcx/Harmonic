@@ -89,7 +89,9 @@ export default struct Artists {
       }
       .width('100%')
       .height('100%')
-      .columnsTemplate(this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")
+      .columnsTemplate(this.displayWidth > 1400 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
+        (this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr 1fr" :
+          (this.displayWidth > 600 ? "1fr 1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")))
       .columnsGap(0)
       .rowsGap(0)
       .scrollBar(BarState.Off)
