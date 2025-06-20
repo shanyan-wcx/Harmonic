@@ -375,8 +375,10 @@ export default struct Search_ {
           .padding({ bottom: 160 })
           .visibility(this.songs.length === 0 && this.albums.length === 0 && this.artists.length === 0 &&
             this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+          Column()
+            .height(this.startPlaying === true ? 95 : 20 )
         }
-        .padding({ bottom: this.startPlaying === true ? 95 : 20 })
       }
       .width('100%')
       .height('100%')
