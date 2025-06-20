@@ -86,7 +86,7 @@ export default struct Search_ {
           .height(40)
           .layoutWeight(1)
           .borderRadius(15)
-          .margin({ left: 15, right: 10 })
+          .margin({ left: 20, right: 10 })
           .caretColor($r('app.color.font_secondary'))
           .fontColor($r('app.color.font'))
           .fontSize(20)
