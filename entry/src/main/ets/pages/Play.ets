@@ -254,6 +254,7 @@ export default struct Play {
     if (tmp_song !== undefined && tmp_song.starred !== undefined) {
       this.nowPlayingSong!.starred = tmp_song.starred
     }
+    this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
   }
 
   @Builder
