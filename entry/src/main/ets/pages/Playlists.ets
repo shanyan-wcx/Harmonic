@@ -98,7 +98,7 @@ export default struct Playlists {
       .height('100%')
       .layoutWeight(1)
       .alignListItem(ListItemAlign.Center)
-      .margin({ bottom: this.startPlaying === true ? 85 : 0 })
+      .padding({ bottom: this.startPlaying === true ? 95 : 10 })
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade)

@@ -378,7 +378,7 @@ export default struct Search_ {
             this.showProgress === false ? Visibility.Visible : Visibility.None)
 
           Column()
-            .height(this.startPlaying === true ? 95 : 20)
+            .height(this.startPlaying === true ? 95 : 10)
         }
       }
       .width('100%')

@@ -279,7 +279,7 @@ export default struct Home {
           (this.frequentAlbums === undefined || this.frequentAlbums!.length === 0) &&
           (this.recentAlbums === undefined || this.recentAlbums!.length === 0)) && this.showProgress === false ? Visibility.Visible : Visibility.None)
       }
-      .padding({ bottom: this.startPlaying === true ? 95 : 20 })
+      .padding({ bottom: this.startPlaying === true ? 95 : 10 })
     }
     .width('100%')
     .height('100%')
