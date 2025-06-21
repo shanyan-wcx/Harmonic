@@ -41,6 +41,7 @@ export default struct Search_ {
   @Consume session: AVSessionManager.AVSession | null
   @State coverSize: number = 256
   @State profileSize: number = 256
+  @Consume displayWidth: number
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -83,15 +84,15 @@ export default struct Search_ {
           text: $$this.searchQuery
         })
           .width("100%")
-          .height(40)
+          .height(this.displayWidth > 1400 ? 50 : 40)
           .layoutWeight(1)
           .borderRadius(15)
           .margin({ left: 20, right: 10 })
           .caretColor($r('app.color.font_secondary'))
           .fontColor($r('app.color.font'))
-          .fontSize(20)
+          .fontSize(this.displayWidth > 1400 ? 22 : 20)
           .placeholderFont({
-            size: 20
+            size: this.displayWidth > 1400 ? 22 : 20
           })
           .type(InputType.Normal)
           .enterKeyType(EnterKeyType.Search)
@@ -122,11 +123,11 @@ export default struct Search_ {
           Text("搜索")
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
-            .fontSize(18)
+            .fontSize(this.displayWidth > 1400 ? 20 : 18)
             .fontColor($r('app.color.font'))
         }
-        .width(80)
-        .height(40)
+        .width(this.displayWidth > 1400 ? 100 : 80)
+        .height(this.displayWidth > 1400 ? 50 : 40)
         .borderRadius(15)
         .padding({ left: 20, right: 20 })
         .margin({ right: 20 })
@@ -377,7 +378,7 @@ export default struct Search_ {
             this.showProgress === false ? Visibility.Visible : Visibility.None)
 
           Column()
-            .height(this.startPlaying === true ? 95 : 20 )
+            .height(this.startPlaying === true ? 95 : 20)
         }
       }
       .width('100%')
