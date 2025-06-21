@@ -11,8 +11,8 @@ export default struct Home {
   @State frequentAlbums: Album[] | undefined = []
   @State starredAlbums: Album[] | undefined = []
   @State starredArtists: Artist[] | undefined = []
-  @Consume album: Album | null
-  @Consume artist: Artist | null
+  @Consume album: Album | undefined
+  @Consume artist: Artist | undefined
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
@@ -71,7 +71,7 @@ export default struct Home {
                     this.showSidebar = false
                   })
                   this.album = album
-                  this.pageStack.pushPathByName('AlbumDetail', null);
+                  this.pageStack.pushPathByName('AlbumDetail', undefined);
                 })
               }
             })
@@ -127,7 +127,7 @@ export default struct Home {
                     this.showSidebar = false
                   })
                   this.album = album
-                  this.pageStack.pushPathByName('AlbumDetail', null);
+                  this.pageStack.pushPathByName('AlbumDetail', undefined);
                 })
               }
             })
@@ -183,7 +183,7 @@ export default struct Home {
                     this.showSidebar = false
                   })
                   this.album = album
-                  this.pageStack.pushPathByName('AlbumDetail', null);
+                  this.pageStack.pushPathByName('AlbumDetail', undefined);
                 })
               }
             })
@@ -248,7 +248,7 @@ export default struct Home {
                     this.showSidebar = false
                   })
                   this.artist = artist
-                  this.pageStack.pushPathByName('ArtistDetail', null);
+                  this.pageStack.pushPathByName('ArtistDetail', undefined);
                 })
               }
             })

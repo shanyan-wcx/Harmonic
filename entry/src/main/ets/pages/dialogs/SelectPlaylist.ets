@@ -8,11 +8,11 @@ export default struct selectPlaylistBuilder {
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
   @Consume playlists: Playlist[]
-  @Consume nowPlayingSong: Song | null
+  @Consume nowPlayingSong: Song | undefined
   @Consume selectedPlaylists: boolean[]
   @Consume showPlay: boolean
-  @Consume longPressSong: Song | null
-  @Consume playlist: Playlist | null
+  @Consume longPressSong: Song | undefined
+  @Consume playlist: Playlist | undefined
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder({})
   })
@@ -126,7 +126,7 @@ export default struct selectPlaylistBuilder {
               duration: 500
             });
           }
-          if (this.playlist !== null) {
+          if (this.playlist !== undefined) {
             this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
           }
           this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {

@@ -1,7 +1,7 @@
 import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getAlbum, getArtist, getLyrics, getSong } from '../utils/Api';
+import { getAlbumSong, getArtist, getLyrics, getSong } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 
 function formatDuration(seconds: number): string {
@@ -39,8 +39,8 @@ export default struct AlbumDetail {
   @Consume getCoverUrl: string
   @State artists: Artist[] = []
   @Consume artist: Artist | undefined
-  @Consume nowPlayingSong: Song | null
-  @Consume nowPlayingLyrics: StructuredLyric | null
+  @Consume nowPlayingSong: Song | undefined
+  @Consume nowPlayingLyrics: StructuredLyric | undefined
   @Consume nowPlayingLyricsByGroup: Line[][]
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
@@ -51,9 +51,9 @@ export default struct AlbumDetail {
   @Consume discs: Song[][]
   @Consume showMenu: boolean
   @Consume longPressSong: Song | undefined
-  @Consume avPlayer: media.AVPlayer | null
+  @Consume avPlayer: media.AVPlayer | undefined
   @StorageLink('playMode') playMode: number = 0
-  @Consume session: AVSessionManager.AVSession | null
+  @Consume session: AVSessionManager.AVSession | undefined
   @State coverSize: number = 256
   @State showDiscHeader: boolean = false
   @State discsKeys: number[] = []
@@ -94,7 +94,7 @@ export default struct AlbumDetail {
 
   async aboutToAppear() {
     this.showProgress = true
-    this.album.song = await getAlbum(this.baseURL, this.username, this.password, this.album.id);
+    this.album.song = await getAlbumSong(this.baseURL, this.username, this.password, this.album.id);
     const groupedSongsMap = new Map<number, Song[]>();
     this.album.song!.forEach((song) => {
       let disc = song.discNumber;
@@ -140,7 +140,7 @@ export default struct AlbumDetail {
               .stateEffect(false)
               .onClick(async () => {
                 this.artist = await getArtist(this.baseURL, this.username, this.password, this.album.artistId)
-                this.pageStack.replacePathByName('ArtistDetail', null);
+                this.pageStack.replacePathByName('ArtistDetail', undefined);
               })
             }
             .margin({ left: 15, right: 15 })
@@ -246,7 +246,7 @@ export default struct AlbumDetail {
                     this.isPlaying = true
                     this.nowPlayingSong = song
                     this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
-                    if (this.nowPlayingLyrics !== null) {
+                    if (this.nowPlayingLyrics !== undefined) {
                       this.groupLyrics()
                     }
                     this.nowPlayingListOriginal = this.album.song!.slice()
@@ -318,7 +318,7 @@ export default struct AlbumDetail {
                 this.isPlaying = true
                 this.nowPlayingSong = song
                 this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
-                if (this.nowPlayingLyrics !== null) {
+                if (this.nowPlayingLyrics !== undefined) {
                   this.groupLyrics()
                 }
                 this.nowPlayingListOriginal = this.album.song!.slice()

@@ -21,7 +21,7 @@ export async function ping(baseURL: string, username: string, password: string) 
     return subsonicResponse.status
   } catch (error) {
     console.error(JSON.stringify(error));
-    return null
+    return undefined
   }
 }
 
@@ -106,7 +106,7 @@ export async function getArtistInfo(baseURL: string, username: string, password:
   }
 }
 
-export async function getAlbum(baseURL: string, username: string, password: string, id: string) {
+export async function getAlbumSong(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
@@ -118,6 +118,21 @@ export async function getAlbum(baseURL: string, username: string, password: stri
   } catch (error) {
     console.error(JSON.stringify(error));
     return []
+  }
+}
+
+export async function getAlbum(baseURL: string, username: string, password: string, id: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.album
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined
   }
 }
 
@@ -178,7 +193,7 @@ export async function getPlaylists(baseURL: string, username: string, password: 
     if (subsonicResponse.playlists!.playlist && subsonicResponse.playlists!.playlist.length > 0) {
       await Promise.all(subsonicResponse.playlists!.playlist.map(async (playlist) => {
         let tmpPlaylist = await getPlaylist(baseURL, username, password, playlist.id)
-        if (tmpPlaylist !== null) {
+        if (tmpPlaylist !== undefined) {
           playlists.push(tmpPlaylist)
         }
       }));
@@ -201,7 +216,7 @@ export async function getPlaylist(baseURL: string, username: string, password: s
     return subsonicResponse.playlist!
   } catch (error) {
     console.error(JSON.stringify(error));
-    return null
+    return undefined
   }
 }
 
@@ -217,10 +232,10 @@ export async function getLyrics(baseURL: string, username: string, password: str
     if (lyricsList.structuredLyrics !== undefined) {
       return lyricsList.structuredLyrics[0]
     }
-    return null
+    return undefined
   } catch (error) {
     console.error(JSON.stringify(error));
-    return null
+    return undefined
   }
 }
 
@@ -234,7 +249,7 @@ export async function getCover(baseURL: string, username: string, password: stri
     return response.data
   } catch (error) {
     console.error(JSON.stringify(error));
-    return null
+    return undefined
   }
 }
 
@@ -401,10 +416,10 @@ export async function createShare(baseURL: string, username: string, password: s
     if (subsonicResponse.shares !== undefined) {
       return subsonicResponse.shares.share[0].url
     }
-    return null
+    return undefined
   } catch (error) {
     console.error(JSON.stringify(error));
-    return null
+    return undefined
   }
 }
 

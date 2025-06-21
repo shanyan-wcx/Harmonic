@@ -11,7 +11,7 @@ export default struct Playlists {
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
   @Consume playlists: Playlist[]
-  @Consume playlist: Playlist | null
+  @Consume playlist: Playlist | undefined
   @Consume showProgress: boolean
   createPlaylist: CustomDialogController = new CustomDialogController({
     builder: createPlaylistBuilder(),
@@ -89,7 +89,7 @@ export default struct Playlists {
                 this.showSidebar = false
               })
               this.playlist = playlist
-              this.pageStack.pushPathByName('PlaylistDetail', null);
+              this.pageStack.pushPathByName('PlaylistDetail', undefined);
             })
           }
         })

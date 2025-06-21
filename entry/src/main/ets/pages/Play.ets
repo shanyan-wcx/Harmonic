@@ -1,7 +1,9 @@
 import { LengthMetrics, promptAction, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { AVCastPicker, avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { createShare, getCover, getLyrics, getPlaylists, getSong, star, unstar } from '../utils/Api';
+import { createShare,
+  getAlbum,
+  getArtist, getCover, getLyrics, getPlaylists, getSong, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Playlist, Song, StructuredLyric } from '../utils/Interface';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
@@ -58,8 +60,8 @@ export default struct Play {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume nowPlayingSong: Song | null
-  @Consume nowPlayingLyrics: StructuredLyric | null
+  @Consume nowPlayingSong: Song | undefined
+  @Consume nowPlayingLyrics: StructuredLyric | undefined
   @Consume nowPlayingLyricsByGroup: Line[][]
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
@@ -72,14 +74,14 @@ export default struct Play {
   @Consume showPlay: boolean
   @Consume showCover: boolean
   @Consume sleepTime: number
-  @Consume avPlayer: media.AVPlayer | null
+  @Consume avPlayer: media.AVPlayer | undefined
   @Consume pageStack: NavPathStack
   @Consume artists: Artist[]
   @Consume albums: Album[]
-  @Consume artist: Artist | null
-  @Consume album: Album | null
+  @Consume artist: Artist | undefined
+  @Consume album: Album | undefined
   @Consume playModeIcon: Resource
-  @Consume session: AVSessionManager.AVSession | null
+  @Consume session: AVSessionManager.AVSession | undefined
   @Consume selectedPlaylists: boolean[]
   @Consume sidebarType: number
   @Consume playlists: Playlist[]
@@ -187,24 +189,6 @@ export default struct Play {
         this.nowPlayingLyricsByGroup[index].push(line)
       } else {
         this.nowPlayingLyricsByGroup[index].push(line)
-      }
-    }
-  }
-
-  getArtist() {
-    for (let artist of this.artists) {
-      if (artist.name === this.nowPlayingSong!.artist) {
-        this.artist = artist
-        break
-      }
-    }
-  }
-
-  getAlbum() {
-    for (let album of this.albums) {
-      if (album.name === this.nowPlayingSong!.album) {
-        this.album = album
-        break
       }
     }
   }
@@ -394,7 +378,7 @@ export default struct Play {
               await this.avPlayer!.reset()
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
-              if (this.nowPlayingLyrics !== null) {
+              if (this.nowPlayingLyrics !== undefined) {
                 this.groupLyrics()
               }
               this.nowPlayingIndex = index
@@ -548,7 +532,7 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         let url = await createShare(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
-        if (url !== null) {
+        if (url !== undefined) {
           let shareData: systemShare.SharedData = new systemShare.SharedData({
             utd: utd.UniformDataType.HYPERLINK,
             content: url,
@@ -589,8 +573,8 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.showPlay = false
-        this.getArtist()
-        this.pageStack.replacePathByName('ArtistDetail', null);
+        this.artist = this.artist = await getArtist(this.baseURL, this.username, this.password, this.nowPlayingSong!.artistId)
+        this.pageStack.replacePathByName('ArtistDetail', undefined);
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -608,8 +592,8 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.showPlay = false
-        this.getAlbum()
-        this.pageStack.replacePathByName('AlbumDetail', null);
+        this.album = await getAlbum(this.baseURL, this.username, this.password, this.nowPlayingSong!.albumId)
+        this.pageStack.replacePathByName('AlbumDetail', undefined);
       })
 
       Button({ type: ButtonType.Normal }) {
@@ -643,7 +627,7 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
-        this.nowPlayingSong = null
+        this.nowPlayingSong = undefined
         this.nowPlayingList = []
         this.avPlayer!.stop()
         setTimeout(() => {
@@ -807,7 +791,7 @@ export default struct Play {
 
                 Column() {
                   List({ scroller: this.lyricsScroller }) {
-                    if (this.nowPlayingLyrics !== null && this.nowPlayingLyricsByGroup.length > 0) {
+                    if (this.nowPlayingLyrics !== undefined && this.nowPlayingLyricsByGroup.length > 0) {
                       ForEach(this.nowPlayingLyricsByGroup, (group: Line[], index) => {
                         ListItem() {
                           Column() {
@@ -957,7 +941,7 @@ export default struct Play {
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                   this.nowPlayingLyrics =
                     await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-                  if (this.nowPlayingLyrics !== null) {
+                  if (this.nowPlayingLyrics !== undefined) {
                     this.groupLyrics()
                   }
                   this.avPlayer!.url =
@@ -1007,7 +991,7 @@ export default struct Play {
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                   this.nowPlayingLyrics =
                     await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-                  if (this.nowPlayingLyrics !== null) {
+                  if (this.nowPlayingLyrics !== undefined) {
                     this.groupLyrics()
                   }
                   this.avPlayer!.url =
@@ -1124,7 +1108,7 @@ export default struct Play {
           if (this.sidebarType === SideBarContainerType.Embed) {
             Column() {
               List({ scroller: this.lyricsScroller }) {
-                if (this.nowPlayingLyrics !== null && this.nowPlayingLyricsByGroup.length > 0) {
+                if (this.nowPlayingLyrics !== undefined && this.nowPlayingLyricsByGroup.length > 0) {
                   ForEach(this.nowPlayingLyricsByGroup, (group: Line[], index) => {
                     ListItem() {
                       Column() {

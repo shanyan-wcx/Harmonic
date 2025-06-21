@@ -21,7 +21,7 @@ export default struct ArtistDetail {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume artist: Artist | null
+  @Consume artist: Artist | undefined
   @Consume startPlaying: boolean
   @Consume album: Album
   @State albumPerRow: number = 3
@@ -104,7 +104,7 @@ export default struct ArtistDetail {
                 .backgroundColor('#00000000')
                 .onClick(() => {
                   this.album = album
-                  this.pageStack.replacePathByName('AlbumDetail', null);
+                  this.pageStack.replacePathByName('AlbumDetail', undefined);
                 })
               }
             })

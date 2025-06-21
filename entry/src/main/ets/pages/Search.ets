@@ -18,10 +18,10 @@ export default struct Search_ {
   @State albums: Album[] = []
   @State artists: Artist[] = []
   @State searchQuery: string = ""
-  @Consume artist: Artist | null
+  @Consume artist: Artist | undefined
   @Consume album: Album
-  @Consume nowPlayingSong: Song | null
-  @Consume nowPlayingLyrics: StructuredLyric | null
+  @Consume nowPlayingSong: Song | undefined
+  @Consume nowPlayingLyrics: StructuredLyric | undefined
   @Consume nowPlayingLyricsByGroup: Line[][]
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
@@ -31,14 +31,14 @@ export default struct Search_ {
   @Consume showSidebar: boolean
   @Consume serverStatus: boolean
   @Consume showMenu: boolean
-  @Consume longPressSong: Song | null
+  @Consume longPressSong: Song | undefined
   @Consume sleepTime: number
   @Consume selectedIndex: number
   @Consume showProgress: boolean
-  @Consume avPlayer: media.AVPlayer | null
+  @Consume avPlayer: media.AVPlayer | undefined
   @Consume pageStack: NavPathStack
   @StorageLink('playMode') playMode: number = 0
-  @Consume session: AVSessionManager.AVSession | null
+  @Consume session: AVSessionManager.AVSession | undefined
   @State coverSize: number = 256
   @State profileSize: number = 256
   @Consume displayWidth: number
@@ -217,7 +217,7 @@ export default struct Search_ {
                 this.isPlaying = true
                 this.nowPlayingSong = song
                 this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
-                if (this.nowPlayingLyrics !== null) {
+                if (this.nowPlayingLyrics !== undefined) {
                   this.groupLyrics()
                 }
                 this.nowPlayingListOriginal = this.songs.slice()
@@ -285,7 +285,7 @@ export default struct Search_ {
                       this.showSidebar = false
                     })
                     this.album = album
-                    this.pageStack.pushPathByName('AlbumDetail', null);
+                    this.pageStack.pushPathByName('AlbumDetail', undefined);
                   })
                 }
               })
@@ -349,7 +349,7 @@ export default struct Search_ {
                       this.showSidebar = false
                     })
                     this.artist = artist
-                    this.pageStack.pushPathByName('ArtistDetail', null);
+                    this.pageStack.pushPathByName('ArtistDetail', undefined);
                   })
                 }
               })

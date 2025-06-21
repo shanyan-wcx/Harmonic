@@ -27,7 +27,7 @@ export default struct Artists {
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
-  @Consume artist: Artist | null
+  @Consume artist: Artist | undefined
   @Consume serverStatus: boolean
   @Consume displayWidth: number
   @Consume showProgress: boolean
@@ -82,7 +82,7 @@ export default struct Artists {
                 this.showSidebar = false
               })
               this.artist = artist
-              this.pageStack.pushPathByName('ArtistDetail', null);
+              this.pageStack.pushPathByName('ArtistDetail', undefined);
             })
           }
         })

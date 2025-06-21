@@ -7,7 +7,7 @@ export default struct editPlaylistBuilder {
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
-  @Consume playlist: Playlist | null
+  @Consume playlist: Playlist | undefined
   @Consume playlists: Playlist[]
   @Consume pageStack: NavPathStack
   @State name: string = this.playlist!.name

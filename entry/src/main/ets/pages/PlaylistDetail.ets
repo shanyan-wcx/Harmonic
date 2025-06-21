@@ -38,9 +38,9 @@ export function PlaylistDetailBuilder() {
 export default struct PlaylistDetail {
   @Consume pageStack: NavPathStack
   @Consume showControlButton: boolean
-  @Consume playlist: Playlist | null
-  @Consume nowPlayingSong: Song | null
-  @Consume nowPlayingLyrics: StructuredLyric | null
+  @Consume playlist: Playlist | undefined
+  @Consume nowPlayingSong: Song | undefined
+  @Consume nowPlayingLyrics: StructuredLyric | undefined
   @Consume nowPlayingLyricsByGroup: Line[][]
   @Consume nowPlayingList: Song[]
   @Consume nowPlayingListOriginal: Song[]
@@ -49,7 +49,7 @@ export default struct PlaylistDetail {
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume showMenu: boolean
-  @Consume longPressSong: Song | null
+  @Consume longPressSong: Song | undefined
   @Consume longPressIndex: number
   @Consume salt: string
   @Consume version: string
@@ -57,8 +57,8 @@ export default struct PlaylistDetail {
   @Consume auth: string
   @Consume addOrDelete: boolean
   @Consume getCoverUrl: string
-  @Consume avPlayer: media.AVPlayer | null
-  @Consume session: AVSessionManager.AVSession | null
+  @Consume avPlayer: media.AVPlayer | undefined
+  @Consume session: AVSessionManager.AVSession | undefined
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
@@ -244,7 +244,7 @@ export default struct PlaylistDetail {
               this.isPlaying = true
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
-              if (this.nowPlayingLyrics !== null) {
+              if (this.nowPlayingLyrics !== undefined) {
                 this.groupLyrics()
               }
               this.nowPlayingListOriginal = this.playlist!.entry!.slice()

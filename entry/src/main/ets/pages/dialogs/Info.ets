@@ -22,9 +22,9 @@ function bytesToMB(bytes: number): number {
 
 @CustomDialog
 export default struct infoBuilder {
-  @Consume nowPlayingSong: Song | null
+  @Consume nowPlayingSong: Song | undefined
   @Consume showPlay: boolean
-  @Consume longPressSong: Song | null
+  @Consume longPressSong: Song | undefined
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder({})
   })

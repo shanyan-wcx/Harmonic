@@ -25,7 +25,7 @@ export default struct Albums {
   @Consume getCoverUrl: string
   @State artists: Artist[] = []
   @State albums: Album[] = []
-  @Consume album: Album | null
+  @Consume album: Album | undefined
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
@@ -80,7 +80,7 @@ export default struct Albums {
                 this.showSidebar = false
               })
               this.album = album
-              this.pageStack.pushPathByName('AlbumDetail', null);
+              this.pageStack.pushPathByName('AlbumDetail', undefined);
             })
           }
         })

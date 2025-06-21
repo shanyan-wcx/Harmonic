@@ -44,7 +44,7 @@ let deviceTypeInfo: string = deviceInfo.deviceType;
 @Entry
 @Component
 struct Index {
-  @Provide mainWindow: window.Window | null = null
+  @Provide mainWindow: window.Window | undefined = undefined
   @State title: string = '首页';
   @Provide pageStack: NavPathStack = new NavPathStack()
   @State statusBarHeight: number = 0;
@@ -68,8 +68,8 @@ struct Index {
   @Provide getCoverUrl: string = '/rest/getCoverArt'
   @Provide nowPage: number = 0
   @Provide serverStatus: boolean = true
-  @Provide nowPlayingSong: Song | null = null
-  @Provide nowPlayingLyrics: StructuredLyric | null = null
+  @Provide nowPlayingSong: Song | undefined = undefined
+  @Provide nowPlayingLyrics: StructuredLyric | undefined = undefined
   @Provide nowPlayingLyricsByGroup: Line[][] = []
   @Provide nowPlayingList: Song[] = []
   @Provide nowPlayingListOriginal: Song[] = []
@@ -82,19 +82,19 @@ struct Index {
   @Provide showDevice: boolean = false
   @Provide showCover: boolean = true
   @Provide showMenu: boolean = false
-  @Provide longPressSong: Song | null = null
+  @Provide longPressSong: Song | undefined = undefined
   @Provide longPressIndex: number = -1
   @Provide sleepTime: number = 0
   @Provide selectedIndex: number = 0
-  @Provide album: Album | null = null
-  @Provide artist: Artist | null = null
-  @Provide playlist: Playlist | null = null
+  @Provide album: Album | undefined = undefined
+  @Provide artist: Artist | undefined = undefined
+  @Provide playlist: Playlist | undefined = undefined
   @Provide discs: Song[][] = []
   @Provide starredSongs: Song[] = []
   @Provide addOrDelete: boolean = true
   @Provide playModeIcon: Resource = $r('app.media.loop')
-  @Provide avPlayer: media.AVPlayer | null = null
-  @Provide session: AVSessionManager.AVSession | null = null
+  @Provide avPlayer: media.AVPlayer | undefined = undefined
+  @Provide session: AVSessionManager.AVSession | undefined = undefined
   @Provide displayWidth: number = 0
   @Provide displayHeight: number = 0
   @Provide sidebarType: number = SideBarContainerType.Overlay
@@ -201,7 +201,7 @@ struct Index {
     }
   }
 
-  convertToLrc(lyrics: StructuredLyric | null): string {
+  convertToLrc(lyrics: StructuredLyric | undefined): string {
     if (!lyrics || !lyrics.line || lyrics.line.length === 0) {
       return "";
     }
@@ -381,7 +381,7 @@ struct Index {
       }
       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
       this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-      if (this.nowPlayingLyrics !== null) {
+      if (this.nowPlayingLyrics !== undefined) {
         this.groupLyrics()
       }
       this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
@@ -395,7 +395,7 @@ struct Index {
       }
       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
       this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-      if (this.nowPlayingLyrics !== null) {
+      if (this.nowPlayingLyrics !== undefined) {
         this.groupLyrics()
       }
       this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
@@ -457,7 +457,7 @@ struct Index {
           this.sleepTime = 0
         }
       }
-      if (this.nowPlayingLyrics !== null && this.nowPlayingLyrics.synced === true) {
+      if (this.nowPlayingLyrics !== undefined && this.nowPlayingLyrics.synced === true) {
         for (let index = 1; index <= this.nowPlayingLyricsByGroup.length; index++) {
           if (index === this.nowPlayingLyricsByGroup.length || this.nowPlayingLyricsByGroup[index][0].start! > time) {
             this.lyricsIndex = index - 1
@@ -506,7 +506,7 @@ struct Index {
           break;
         case 'prepared':
           console.info('播放器就绪。');
-          if (this.session === null) {
+          if (this.session === undefined) {
             this.session = await AVSessionManager.createAVSession(context, 'AUDIO_PLAY', 'audio');
             await this.setSessionCallback()
             await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_INITIAL)
@@ -559,7 +559,7 @@ struct Index {
             }
             this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
             this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-            if (this.nowPlayingLyrics !== null) {
+            if (this.nowPlayingLyrics !== undefined) {
               this.groupLyrics()
             }
             this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
@@ -570,7 +570,7 @@ struct Index {
           this.sleepTime = 0
           this.nowPlayedTime = 0
           await this.session!.destroy()
-          this.session = null
+          this.session = undefined
           await avPlayer.reset();
           break;
         case 'released':
@@ -1345,7 +1345,7 @@ struct Index {
                 this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                 this.nowPlayingLyrics =
                   await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-                if (this.nowPlayingLyrics !== null) {
+                if (this.nowPlayingLyrics !== undefined) {
                   this.groupLyrics()
                 }
                 this.avPlayer!.url =
@@ -1422,7 +1422,7 @@ struct Index {
                 this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                 this.nowPlayingLyrics =
                   await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-                if (this.nowPlayingLyrics !== null) {
+                if (this.nowPlayingLyrics !== undefined) {
                   this.groupLyrics()
                 }
                 this.avPlayer!.url =
