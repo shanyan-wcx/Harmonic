@@ -573,7 +573,7 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.showPlay = false
-        this.artist = this.artist = await getArtist(this.baseURL, this.username, this.password, this.nowPlayingSong!.artistId)
+        this.artist = await getArtist(this.baseURL, this.username, this.password, this.nowPlayingSong!.artistId)
         this.pageStack.replacePathByName('ArtistDetail', undefined);
       })
 
