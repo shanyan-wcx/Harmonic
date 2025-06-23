@@ -113,13 +113,13 @@ struct Index {
     builder: selectPlaylistBuilder(),
     width: 340,
     height: 372,
-    backgroundColor: $r('app.color.content_background')
+    backgroundColor: $r('app.color.start_window_background')
   })
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
     width: 340,
     height: 380,
-    backgroundColor: $r('app.color.content_background'),
+    backgroundColor: $r('app.color.start_window_background'),
   })
   environmentCallback: EnvironmentCallback = {
     async onConfigurationUpdated(newConfig: Configuration) {

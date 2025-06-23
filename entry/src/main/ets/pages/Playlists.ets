@@ -17,7 +17,7 @@ export default struct Playlists {
     builder: createPlaylistBuilder(),
     width: 340,
     height: 310,
-    backgroundColor: $r('app.color.content_background')
+    backgroundColor: $r('app.color.start_window_background')
   })
 
   async aboutToAppear() {

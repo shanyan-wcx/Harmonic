@@ -102,13 +102,13 @@ export default struct Play {
     builder: selectPlaylistBuilder(),
     width: 340,
     height: 372,
-    backgroundColor: $r('app.color.content_background'),
+    backgroundColor: $r('app.color.start_window_background'),
   })
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
     width: 340,
     height: 345,
-    backgroundColor: $r('app.color.content_background'),
+    backgroundColor: $r('app.color.start_window_background'),
   })
 
   private getStatusBarHeight() {
