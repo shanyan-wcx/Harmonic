@@ -89,8 +89,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.recentAlbums!.length === 0 ? Visibility.None :
-        Visibility.Visible)
+        .visibility(this.recentAlbums!.length === 0 ? Visibility.None : Visibility.Visible)
 
         Column() {
           Text("最常播放")
@@ -145,8 +144,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.frequentAlbums!.length === 0 ? Visibility.None :
-        Visibility.Visible)
+        .visibility(this.frequentAlbums!.length === 0 ? Visibility.None : Visibility.Visible)
 
         Column() {
           Text("收藏专辑")
@@ -201,8 +199,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredAlbums!.length === 0 ? Visibility.None :
-        Visibility.Visible)
+        .visibility(this.starredAlbums!.length === 0 ? Visibility.None : Visibility.Visible)
 
         Column() {
           Text("收藏艺术家")
@@ -266,8 +263,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredArtists!.length === 0 ? Visibility.None :
-        Visibility.Visible)
+        .visibility(this.starredArtists!.length === 0 ? Visibility.None : Visibility.Visible)
 
         Column() {
           Text("什么都没有")
