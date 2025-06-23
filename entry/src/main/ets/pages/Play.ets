@@ -296,7 +296,7 @@ export default struct Play {
       }
       .width('80%')
       .height(60)
-      .borderRadius(15)
+      .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(() => {
         this.sleepTime = this.sleepValue * 60
@@ -695,13 +695,18 @@ export default struct Play {
               .backgroundColor($r('app.color.content_background'))
               .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
 
-              AVCastPicker({
-                customPicker: (): void => this.AVCastBuilder()
-              })
-                .width(40)
-                .height(40)
-                .margin({ right: 25 })
-                .backgroundColor('#00000000')
+              Button({ type: ButtonType.Circle }) {
+                AVCastPicker({
+                  customPicker: (): void => this.AVCastBuilder()
+                })
+                  .width('100%')
+                  .height('100%')
+              }
+              .width(40)
+              .height(40)
+              .borderRadius(10)
+              .margin({ right: 25 })
+              .backgroundColor('#00000000')
             }
             .width("100%")
             .justifyContent(FlexAlign.SpaceBetween)
