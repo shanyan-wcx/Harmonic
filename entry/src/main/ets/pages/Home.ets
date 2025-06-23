@@ -24,9 +24,13 @@ export default struct Home {
 
   async aboutToAppear() {
     this.recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password)
+    this.recentAlbums = this.recentAlbums !== undefined ? this.recentAlbums : []
     this.frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password)
+    this.frequentAlbums = this.frequentAlbums !== undefined ? this.frequentAlbums : []
     this.starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password)
+    this.starredAlbums = this.starredAlbums !== undefined ? this.starredAlbums : []
     this.starredArtists = await getStarredArtists(this.baseURL, this.username, this.password)
+    this.starredArtists = this.starredArtists !== undefined ? this.starredArtists : []
   }
 
   build() {
@@ -85,7 +89,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.recentAlbums === undefined || this.recentAlbums!.length === 0 ? Visibility.None :
+        .visibility(this.recentAlbums!.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -141,7 +145,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.frequentAlbums === undefined || this.frequentAlbums!.length === 0 ? Visibility.None :
+        .visibility(this.frequentAlbums!.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -197,7 +201,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredAlbums === undefined || this.starredAlbums!.length === 0 ? Visibility.None :
+        .visibility(this.starredAlbums!.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -262,7 +266,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredArtists === undefined || this.starredArtists!.length === 0 ? Visibility.None :
+        .visibility(this.starredArtists!.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -274,10 +278,9 @@ export default struct Home {
         .height('100%')
         .padding({ bottom: 160 })
         .justifyContent(FlexAlign.Center)
-        .visibility(((this.starredArtists === undefined || this.starredArtists!.length === 0) &&
-          (this.starredAlbums === undefined || this.starredAlbums!.length === 0) &&
-          (this.frequentAlbums === undefined || this.frequentAlbums!.length === 0) &&
-          (this.recentAlbums === undefined || this.recentAlbums!.length === 0)) && this.showProgress === false ? Visibility.Visible : Visibility.None)
+        .visibility(this.starredArtists!.length === 0 && this.starredAlbums!.length === 0 &&
+          this.frequentAlbums!.length === 0 && this.recentAlbums!.length === 0 && this.showProgress === false ?
+        Visibility.Visible : Visibility.None)
       }
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
     }
