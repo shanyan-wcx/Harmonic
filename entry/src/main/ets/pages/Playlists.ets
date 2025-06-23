@@ -39,7 +39,7 @@ export default struct Playlists {
         }
         .width('90%')
         .height(50)
-        .borderRadius(15)
+        .borderRadius(10)
         .backgroundColor($r('app.color.bar_background'))
         .onClick(() => {
           animateTo({
@@ -78,7 +78,7 @@ export default struct Playlists {
             }
             .width('90%')
             .height(80)
-            .borderRadius(15)
+            .borderRadius(10)
             .backgroundColor('#00000000')
             .padding({ left: 20, right: 20 })
             .onClick(() => {
