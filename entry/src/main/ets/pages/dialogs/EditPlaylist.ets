@@ -37,7 +37,7 @@ export default struct editPlaylistBuilder {
           .width("100%")
           .height(40)
           .layoutWeight(1)
-          .borderRadius(15)
+          .borderRadius(10)
           .margin({ left: 15 })
           .caretColor($r('app.color.font_secondary'))
           .fontColor($r('app.color.font'))
@@ -62,7 +62,7 @@ export default struct editPlaylistBuilder {
           .width("100%")
           .height(100)
           .layoutWeight(1)
-          .borderRadius(15)
+          .borderRadius(10)
           .margin({ left: 15 })
           .caretColor($r('app.color.font_secondary'))
           .fontColor($r('app.color.font'))
@@ -84,8 +84,8 @@ export default struct editPlaylistBuilder {
         }
         .width('47%')
         .height(50)
-        .borderRadius(15)
-        .backgroundColor($r('app.color.content_background'))
+        .borderRadius(10)
+        .backgroundColor($r('app.color.bar_background'))
         .onClick(async () => {
           this.editPlaylist.close()
           let success = await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, this.name, this.comment)
@@ -113,7 +113,7 @@ export default struct editPlaylistBuilder {
         }
         .width('47%')
         .height(50)
-        .borderRadius(15)
+        .borderRadius(10)
         .backgroundColor(Color.Red)
         .onClick(async () => {
           this.editPlaylist.close()
@@ -140,7 +140,7 @@ export default struct editPlaylistBuilder {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('app.color.bar_background'))
+    .backgroundColor($r('app.color.start_window_background'))
     .padding({ left: 20, right: 20 })
   }
 }

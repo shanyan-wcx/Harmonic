@@ -101,8 +101,9 @@ export default struct selectPlaylistBuilder {
         }
         .width('90%')
         .height(50)
-        .borderRadius(15)
-        .backgroundColor($r('app.color.content_background'))
+        .borderRadius(10)
+        .margin({ top: 10, bottom: 10 })
+        .backgroundColor($r('app.color.bar_background'))
         .onClick(async () => {
           this.selectPlaylist.close()
           let success: boolean = true
@@ -136,10 +137,11 @@ export default struct selectPlaylistBuilder {
       }
       .width('100%')
       .height(60)
+      .margin({top: 10, bottom: 10})
       .justifyContent(FlexAlign.Center)
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('app.color.bar_background'))
+    .backgroundColor($r('app.color.start_window_background'))
   }
 }
