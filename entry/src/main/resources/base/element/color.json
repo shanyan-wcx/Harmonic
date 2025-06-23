@@ -17,6 +17,10 @@
       "value": "#F8F9FB"
     },
     {
+      "name": "button_selected",
+      "value": "#D5D6D8"
+    },
+    {
       "name": "font",
       "value": "#0F0F0F"
     },
