@@ -94,6 +94,26 @@ export default struct infoBuilder {
       .justifyContent(FlexAlign.SpaceBetween)
 
       Row() {
+        Text("年份")
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+        Text(this.showPlay === true ?
+          (this.nowPlayingSong!.year !== undefined ? this.nowPlayingSong!.year.toString() : '-') :
+          (this.longPressSong!.year !== undefined ? this.longPressSong!.year.toString() : '-'))
+          .fontSize(18)
+          .fontColor($r('app.color.font_secondary'))
+          .width('100%')
+          .layoutWeight(1)
+          .margin({ left: 15 })
+          .textAlign(TextAlign.End)
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+      }
+      .width('100%')
+      .height(35)
+      .justifyContent(FlexAlign.SpaceBetween)
+
+      Row() {
         Text("时长")
           .fontSize(18)
           .fontColor($r('app.color.font'))
@@ -104,7 +124,8 @@ export default struct infoBuilder {
           .width('100%')
           .layoutWeight(1)
           .margin({ left: 15 })
-          .textAlign(TextAlign.End)          .maxLines(1)
+          .textAlign(TextAlign.End)
+          .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
       }
@@ -116,8 +137,8 @@ export default struct infoBuilder {
         Text("大小")
           .fontSize(18)
           .fontColor($r('app.color.font'))
-        Text(this.showPlay === true ? bytesToMB(this.nowPlayingSong!.size)+" MB" :
-        bytesToMB(this.longPressSong!.size)+" MB")
+        Text(this.showPlay === true ? bytesToMB(this.nowPlayingSong!.size) + " MB" :
+          bytesToMB(this.longPressSong!.size) + " MB")
           .fontSize(18)
           .fontColor($r('app.color.font_secondary'))
           .width('100%')
@@ -135,7 +156,8 @@ export default struct infoBuilder {
         Text("格式")
           .fontSize(18)
           .fontColor($r('app.color.font'))
-        Text(this.showPlay === true ? this.nowPlayingSong!.suffix.toUpperCase() : this.longPressSong!.suffix.toUpperCase())
+        Text(this.showPlay === true ? this.nowPlayingSong!.suffix.toUpperCase() :
+        this.longPressSong!.suffix.toUpperCase())
           .fontSize(18)
           .fontColor($r('app.color.font_secondary'))
           .width('100%')
@@ -188,7 +210,7 @@ export default struct infoBuilder {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('app.color.bar_background'))
+    .backgroundColor($r('app.color.start_window_background'))
     .padding({ left: 20, right: 20 })
   }
 }
