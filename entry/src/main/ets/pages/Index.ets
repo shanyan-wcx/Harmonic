@@ -118,7 +118,7 @@ struct Index {
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
     width: 340,
-    height: 345,
+    height: 380,
     backgroundColor: $r('app.color.content_background'),
   })
   environmentCallback: EnvironmentCallback = {
@@ -981,7 +981,7 @@ struct Index {
         Column() {
           Text("Harmonic")
             .width('100%')
-            .height('auto')
+            .height(85)
             .textAlign(TextAlign.Center)
             .fontSize(36)
             .fontColor($r('app.color.font'))
@@ -992,16 +992,20 @@ struct Index {
           Column() {
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
+                Image($r('app.media.home'))
+                  .width(24)
+                  .aspectRatio(1)
+                  .margin({ right: 10 })
                 Text("首页")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
+              .width('50%')
             }
             .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 0 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1016,16 +1020,20 @@ struct Index {
 
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
+                Image($r('app.media.search'))
+                  .width(24)
+                  .aspectRatio(1)
+                  .margin({ right: 10 })
                 Text("搜索")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
+              .width('50%')
             }
             .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 1 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1040,16 +1048,20 @@ struct Index {
 
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
+                Image($r('app.media.album'))
+                  .width(24)
+                  .aspectRatio(1)
+                  .margin({ right: 10 })
                 Text("专辑")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
+              .width('50%')
             }
             .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 2 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1064,16 +1076,20 @@ struct Index {
 
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
+                Image($r('app.media.artist'))
+                  .width(24)
+                  .aspectRatio(1)
+                  .margin({ right: 10 })
                 Text("艺术家")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
+              .width('50%')
             }
             .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 3 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1088,16 +1104,20 @@ struct Index {
 
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
+                Image($r('app.media.playlist'))
+                  .width(24)
+                  .aspectRatio(1)
+                  .margin({ right: 10 })
                 Text("歌单")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
+              .width('50%')
             }
             .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 4 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1112,25 +1132,24 @@ struct Index {
           }
           .width('90%')
           .height('auto')
-          .borderRadius(20)
+          .borderRadius(10)
           .clip(true)
-          .backgroundColor($r('app.color.bar_background'))
+          .backgroundColor($r('app.color.content_background'))
 
           Blank()
 
-          Column() {
+          Row() {
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
-                Text("设置")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
+                Image($r('app.media.setting'))
+                  .width(24)
+                  .height(24)
               }
             }
-            .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .width(50)
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1145,16 +1164,15 @@ struct Index {
 
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image("")
-                Text("关于")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
+                Image($r('app.media.info'))
+                  .width(26)
+                  .height(26)
               }
             }
-            .width('100%')
-            .height(60)
-            .borderRadius(20)
-            .backgroundColor($r('app.color.bar_background'))
+            .width(50)
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               animateTo({
                 duration: 300,
@@ -1169,16 +1187,17 @@ struct Index {
           }
           .width('90%')
           .height('auto')
-          .borderRadius(20)
+          .borderRadius(10)
           .clip(true)
-          .backgroundColor($r('app.color.bar_background'))
+          .backgroundColor($r('app.color.content_background'))
+          .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
         .height('100%')
         .backgroundColor($r('app.color.content_background'))
         .padding({
           top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 12 : this.statusBarHeight + 57,
-          bottom: this.sidebarType === SideBarContainerType.Embed ? 12 : 27
+          bottom: this.sidebarType === SideBarContainerType.Embed ? 14 : 18
         })
         .shadow({
           radius: this.shadowRadius,
