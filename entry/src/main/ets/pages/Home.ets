@@ -7,10 +7,10 @@ export default struct Home {
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
-  @State recentAlbums: Album[] | undefined = []
-  @State frequentAlbums: Album[] | undefined = []
-  @State starredAlbums: Album[] | undefined = []
-  @State starredArtists: Artist[] | undefined = []
+  @State recentAlbums: Album[] | undefined = undefined
+  @State frequentAlbums: Album[] | undefined = undefined
+  @State starredAlbums: Album[] | undefined = undefined
+  @State starredArtists: Artist[] | undefined = undefined
   @Consume album: Album | undefined
   @Consume artist: Artist | undefined
   @Consume pageStack: NavPathStack
@@ -89,7 +89,8 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.recentAlbums!.length === 0 ? Visibility.None : Visibility.Visible)
+        .visibility(this.recentAlbums !== undefined && this.recentAlbums!.length === 0 ? Visibility.None :
+        Visibility.Visible)
 
         Column() {
           Text("最常播放")
@@ -144,7 +145,8 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.frequentAlbums!.length === 0 ? Visibility.None : Visibility.Visible)
+        .visibility(this.frequentAlbums !== undefined && this.frequentAlbums!.length === 0 ? Visibility.None :
+        Visibility.Visible)
 
         Column() {
           Text("收藏专辑")
@@ -199,7 +201,8 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredAlbums!.length === 0 ? Visibility.None : Visibility.Visible)
+        .visibility(this.starredAlbums !== undefined && this.starredAlbums!.length === 0 ? Visibility.None :
+        Visibility.Visible)
 
         Column() {
           Text("收藏艺术家")
@@ -263,7 +266,8 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredArtists!.length === 0 ? Visibility.None : Visibility.Visible)
+        .visibility(this.starredArtists !== undefined && this.starredArtists!.length === 0 ? Visibility.None :
+        Visibility.Visible)
 
         Column() {
           Text("什么都没有")
@@ -274,9 +278,10 @@ export default struct Home {
         .height('100%')
         .padding({ bottom: 160 })
         .justifyContent(FlexAlign.Center)
-        .visibility(this.starredArtists!.length === 0 && this.starredAlbums!.length === 0 &&
-          this.frequentAlbums!.length === 0 && this.recentAlbums!.length === 0 && this.showProgress === false ?
-        Visibility.Visible : Visibility.None)
+        .visibility(this.recentAlbums !== undefined && this.frequentAlbums !== undefined &&
+          this.starredAlbums !== undefined && this.starredArtists !== undefined && this.starredArtists!.length === 0 &&
+          this.starredAlbums!.length === 0 && this.frequentAlbums!.length === 0 && this.recentAlbums!.length === 0 &&
+          this.showProgress === false ? Visibility.Visible : Visibility.None)
       }
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
     }
