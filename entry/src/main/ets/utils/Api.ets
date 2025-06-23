@@ -136,6 +136,21 @@ export async function getAlbum(baseURL: string, username: string, password: stri
   }
 }
 
+export async function getAlbumList(baseURL: string, username: string, password: string, offset: number) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=alphabeticalByName&size=500&offset=${offset}`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.albumList!.album
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined
+  }
+}
+
 export async function getRecentAlbums(baseURL: string, username: string, password: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
@@ -147,7 +162,7 @@ export async function getRecentAlbums(baseURL: string, username: string, passwor
     return subsonicResponse.albumList!.album
   } catch (error) {
     console.error(JSON.stringify(error));
-    return []
+    return undefined
   }
 }
 
@@ -162,7 +177,7 @@ export async function getFrequentAlbums(baseURL: string, username: string, passw
     return subsonicResponse.albumList!.album
   } catch (error) {
     console.error(JSON.stringify(error));
-    return []
+    return undefined
   }
 }
 
@@ -332,10 +347,10 @@ export async function getStarredArtists(baseURL: string, username: string, passw
     if (Object.keys(subsonicResponse.starred!).length !== 0 && subsonicResponse.starred!.artist !== undefined) {
       return subsonicResponse.starred!.artist
     }
-    return []
+    return undefined
   } catch (error) {
     console.error(JSON.stringify(error));
-    return []
+    return undefined
   }
 }
 
@@ -350,10 +365,10 @@ export async function getStarredAlbums(baseURL: string, username: string, passwo
     if (Object.keys(subsonicResponse.starred!).length !== 0 && subsonicResponse.starred!.album !== undefined) {
       return subsonicResponse.starred!.album
     }
-    return []
+    return undefined
   } catch (error) {
     console.error(JSON.stringify(error));
-    return []
+    return undefined
   }
 }
 

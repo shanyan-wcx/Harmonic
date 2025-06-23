@@ -1,6 +1,6 @@
-import { Album, Artist, Song } from '../utils/Interface'
-import { curves } from '@kit.ArkUI'
-import { getArtistAlbum, getIndexes } from '../utils/Api'
+import { Album, Artist, Song } from '../utils/Interface';
+import { curves } from '@kit.ArkUI';
+import { getAlbumList } from '../utils/Api';
 import { i18n, intl } from '@kit.LocalizationKit';
 
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -37,10 +37,18 @@ export default struct Albums {
 
   async aboutToAppear() {
     this.showProgress = true
-    this.artists = await getIndexes(this.baseURL, this.username, this.password)
-    for (const artist of this.artists) {
-      const albums: Album[] = await getArtistAlbum(this.baseURL, this.username, this.password, artist.id)
-      this.albums = this.albums.concat(albums);
+    let offset = 0
+    let size = 500
+    while (true) {
+      let albums = await getAlbumList(this.baseURL, this.username, this.password, offset)
+      if (albums === undefined || albums.length === 0) {
+        break;
+      }
+      this.albums.push(...albums);
+      if (albums.length < size){
+        break;
+      }
+      offset += size;
     }
     this.albums.sort((a, b) => {
       return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
