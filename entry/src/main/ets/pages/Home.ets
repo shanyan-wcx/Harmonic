@@ -1,6 +1,9 @@
 import { getFrequentAlbums, getRecentAlbums, getStarredAlbums, getStarredArtists } from '../utils/Api';
 import { Album, Artist } from '../utils/Interface';
 import { curves } from '@kit.ArkUI';
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @Component
 export default struct Home {
@@ -21,6 +24,11 @@ export default struct Home {
   @State coverSize: number = 320
   @State profileSize: number = 256
   @Consume showProgress: boolean
+  @Consume sidebarType: number
+  private recentAlbumsScroller: Scroller = new Scroller
+  private frequentAlbumsScroller: Scroller = new Scroller
+  private starredAlbumsScroller: Scroller = new Scroller
+  private starredArtistsScroller: Scroller = new Scroller
 
   async aboutToAppear() {
     this.recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password)
@@ -37,15 +45,56 @@ export default struct Home {
     Scroll() {
       Column() {
         Column() {
-          Text("最近添加")
-            .width('100%')
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-            .fontWeight(FontWeight.Bold)
-            .padding({ left: 20, right: 20 })
-            .margin({ top: 15, bottom: 5 })
-            .textAlign(TextAlign.Start)
-          List() {
+          Row() {
+            Text("最近添加")
+              .fontSize(20)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
+              .margin({ top: 15, bottom: 5 })
+              .textAlign(TextAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.left'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .margin({ right: 10 })
+              .onClick(() => {
+                this.recentAlbumsScroller.scrollPage({
+                  next: false,
+                  animation: true
+                })
+              })
+
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.right'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.recentAlbumsScroller.scrollPage({
+                  next: true,
+                  animation: true
+                })
+              })
+            }
+            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
+            Visibility.Visible : Visibility.None)
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          List({ scroller: this.recentAlbumsScroller }) {
             ForEach(this.recentAlbums, (album: Album, index) => {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
@@ -93,15 +142,56 @@ export default struct Home {
         Visibility.Visible)
 
         Column() {
-          Text("最常播放")
-            .width('100%')
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-            .fontWeight(FontWeight.Bold)
-            .padding({ left: 20, right: 20 })
-            .margin({ top: 15, bottom: 5 })
-            .textAlign(TextAlign.Start)
-          List() {
+          Row() {
+            Text("最常播放")
+              .fontSize(20)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
+              .margin({ top: 15, bottom: 5 })
+              .textAlign(TextAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.left'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .margin({ right: 10 })
+              .onClick(() => {
+                this.frequentAlbumsScroller.scrollPage({
+                  next: false,
+                  animation: true
+                })
+              })
+
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.right'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.frequentAlbumsScroller.scrollPage({
+                  next: true,
+                  animation: true
+                })
+              })
+            }
+            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
+            Visibility.Visible : Visibility.None)
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          List({ scroller: this.frequentAlbumsScroller }) {
             ForEach(this.frequentAlbums, (album: Album, index) => {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
@@ -149,15 +239,56 @@ export default struct Home {
         Visibility.Visible)
 
         Column() {
-          Text("收藏专辑")
-            .width('100%')
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-            .fontWeight(FontWeight.Bold)
-            .padding({ left: 20, right: 20 })
-            .margin({ top: 15, bottom: 5 })
-            .textAlign(TextAlign.Start)
-          List() {
+          Row() {
+            Text("收藏专辑")
+              .fontSize(20)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
+              .margin({ top: 15, bottom: 5 })
+              .textAlign(TextAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.left'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .margin({ right: 10 })
+              .onClick(() => {
+                this.starredAlbumsScroller.scrollPage({
+                  next: false,
+                  animation: true
+                })
+              })
+
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.right'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.starredAlbumsScroller.scrollPage({
+                  next: true,
+                  animation: true
+                })
+              })
+            }
+            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
+            Visibility.Visible : Visibility.None)
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          List({ scroller: this.starredAlbumsScroller }) {
             ForEach(this.starredAlbums, (album: Album, index) => {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
@@ -205,15 +336,56 @@ export default struct Home {
         Visibility.Visible)
 
         Column() {
-          Text("收藏艺术家")
-            .width('100%')
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
-            .fontWeight(FontWeight.Bold)
-            .padding({ left: 20, right: 20 })
-            .margin({ top: 15, bottom: 5 })
-            .textAlign(TextAlign.Start)
-          List() {
+          Row() {
+            Text("收藏艺术家")
+              .fontSize(20)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
+              .margin({ top: 15, bottom: 5 })
+              .textAlign(TextAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.left'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .margin({ right: 10 })
+              .onClick(() => {
+                this.starredArtistsScroller.scrollPage({
+                  next: false,
+                  animation: true
+                })
+              })
+
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.right'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor('#00000000')
+              .onClick(() => {
+                this.starredArtistsScroller.scrollPage({
+                  next: true,
+                  animation: true
+                })
+              })
+            }
+            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
+            Visibility.Visible : Visibility.None)
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          List({ scroller: this.starredArtistsScroller }) {
             ForEach(this.starredArtists, (artist: Artist, index) => {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
