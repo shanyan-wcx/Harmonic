@@ -87,8 +87,7 @@ export default struct Home {
                 })
               })
             }
-            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
-            Visibility.Visible : Visibility.None)
+            .visibility(deviceTypeInfo === '2in1' ? Visibility.Visible : Visibility.None)
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
@@ -184,8 +183,7 @@ export default struct Home {
                 })
               })
             }
-            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
-            Visibility.Visible : Visibility.None)
+            .visibility(deviceTypeInfo === '2in1' ? Visibility.Visible : Visibility.None)
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
@@ -281,8 +279,7 @@ export default struct Home {
                 })
               })
             }
-            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
-            Visibility.Visible : Visibility.None)
+            .visibility(deviceTypeInfo === '2in1' ? Visibility.Visible : Visibility.None)
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
@@ -378,8 +375,7 @@ export default struct Home {
                 })
               })
             }
-            .visibility(deviceTypeInfo === '2in1' && this.sidebarType === SideBarContainerType.Embed ?
-            Visibility.Visible : Visibility.None)
+            .visibility(deviceTypeInfo === '2in1' ? Visibility.Visible : Visibility.None)
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
