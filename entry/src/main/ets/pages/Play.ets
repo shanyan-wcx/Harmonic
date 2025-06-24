@@ -107,7 +107,7 @@ export default struct Play {
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
     width: 340,
-    height: 345,
+    height: 380,
     backgroundColor: $r('app.color.start_window_background'),
   })
 
