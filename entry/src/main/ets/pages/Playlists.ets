@@ -42,12 +42,6 @@ export default struct Playlists {
         .borderRadius(10)
         .backgroundColor($r('app.color.bar_background'))
         .onClick(() => {
-          animateTo({
-            duration: 300,
-            curve: Curve.EaseOut,
-          }, () => {
-            this.showSidebar = false
-          })
           this.createPlaylist.open()
         })
       }
@@ -79,15 +73,9 @@ export default struct Playlists {
             .width('90%')
             .height(80)
             .borderRadius(10)
-            .backgroundColor('#00000000')
+            .backgroundColor(Color.Transparent)
             .padding({ left: 20, right: 20 })
             .onClick(() => {
-              animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
               this.playlist = playlist
               this.pageStack.pushPathByName('PlaylistDetail', undefined);
             })

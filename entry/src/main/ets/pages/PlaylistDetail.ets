@@ -33,7 +33,6 @@ export function PlaylistDetailBuilder() {
   PlaylistDetail()
 }
 
-@Entry
 @Component
 export default struct PlaylistDetail {
   @Consume pageStack: NavPathStack
@@ -134,7 +133,7 @@ export default struct PlaylistDetail {
               .width(35)
               .height(35)
               .margin({ left: 5 })
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.editPlaylist.open()
               })
@@ -237,7 +236,7 @@ export default struct PlaylistDetail {
             .width('100%')
             .height(80)
             .borderRadius(10)
-            .backgroundColor('#00000000')
+            .backgroundColor(Color.Transparent)
             .onClick(async () => {
               this.startPlaying = true
               await this.avPlayer!.reset()

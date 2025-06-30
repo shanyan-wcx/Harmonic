@@ -7,7 +7,6 @@ export function ArtistDetailBuilder() {
   ArtistDetail()
 }
 
-@Entry
 @Component
 export default struct ArtistDetail {
   @Consume displayWidth: number
@@ -101,7 +100,7 @@ export default struct ArtistDetail {
                 .width('100%')
                 .aspectRatio(1)
                 .borderRadius(10)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.album = album
                   this.pageStack.replacePathByName('AlbumDetail', undefined);

@@ -31,6 +31,7 @@ export default struct Home {
   private starredArtistsScroller: Scroller = new Scroller
 
   async aboutToAppear() {
+    this.showProgress = true
     this.recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password)
     this.recentAlbums = this.recentAlbums !== undefined ? this.recentAlbums : []
     this.frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password)
@@ -39,6 +40,7 @@ export default struct Home {
     this.starredAlbums = this.starredAlbums !== undefined ? this.starredAlbums : []
     this.starredArtists = await getStarredArtists(this.baseURL, this.username, this.password)
     this.starredArtists = this.starredArtists !== undefined ? this.starredArtists : []
+    this.showProgress = false
   }
 
   build() {
@@ -62,7 +64,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .margin({ right: 10 })
               .onClick(() => {
                 this.recentAlbumsScroller.scrollPage({
@@ -79,7 +81,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.recentAlbumsScroller.scrollPage({
                   next: true,
@@ -114,14 +116,8 @@ export default struct Home {
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  animateTo({
-                    duration: 300,
-                    curve: Curve.EaseOut,
-                  }, () => {
-                    this.showSidebar = false
-                  })
                   this.album = album
                   this.pageStack.pushPathByName('AlbumDetail', undefined);
                 })
@@ -137,7 +133,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.recentAlbums !== undefined && this.recentAlbums!.length === 0 ? Visibility.None :
+        .visibility(this.recentAlbums === undefined|| this.recentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -158,7 +154,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .margin({ right: 10 })
               .onClick(() => {
                 this.frequentAlbumsScroller.scrollPage({
@@ -175,7 +171,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.frequentAlbumsScroller.scrollPage({
                   next: true,
@@ -210,14 +206,8 @@ export default struct Home {
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  animateTo({
-                    duration: 300,
-                    curve: Curve.EaseOut,
-                  }, () => {
-                    this.showSidebar = false
-                  })
                   this.album = album
                   this.pageStack.pushPathByName('AlbumDetail', undefined);
                 })
@@ -233,7 +223,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.frequentAlbums !== undefined && this.frequentAlbums!.length === 0 ? Visibility.None :
+        .visibility(this.frequentAlbums === undefined || this.frequentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -254,7 +244,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .margin({ right: 10 })
               .onClick(() => {
                 this.starredAlbumsScroller.scrollPage({
@@ -271,7 +261,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.starredAlbumsScroller.scrollPage({
                   next: true,
@@ -306,14 +296,8 @@ export default struct Home {
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  animateTo({
-                    duration: 300,
-                    curve: Curve.EaseOut,
-                  }, () => {
-                    this.showSidebar = false
-                  })
                   this.album = album
                   this.pageStack.pushPathByName('AlbumDetail', undefined);
                 })
@@ -329,7 +313,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredAlbums !== undefined && this.starredAlbums!.length === 0 ? Visibility.None :
+        .visibility(this.starredAlbums === undefined || this.starredAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -350,7 +334,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .margin({ right: 10 })
               .onClick(() => {
                 this.starredArtistsScroller.scrollPage({
@@ -367,7 +351,7 @@ export default struct Home {
               .width(30)
               .height(30)
               .borderRadius(5)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.starredArtistsScroller.scrollPage({
                   next: true,
@@ -411,14 +395,8 @@ export default struct Home {
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  animateTo({
-                    duration: 300,
-                    curve: Curve.EaseOut,
-                  }, () => {
-                    this.showSidebar = false
-                  })
                   this.artist = artist
                   this.pageStack.pushPathByName('ArtistDetail', undefined);
                 })
@@ -434,7 +412,7 @@ export default struct Home {
         }
         .width('100%')
         .height('30%')
-        .visibility(this.starredArtists !== undefined && this.starredArtists!.length === 0 ? Visibility.None :
+        .visibility(this.starredArtists === undefined || this.starredArtists?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {

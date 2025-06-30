@@ -14,7 +14,6 @@ import { BusinessError, request } from '@kit.BasicServicesKit';
 import { fileUri, fileIo as fs, picker } from '@kit.CoreFileKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
 
-let context = getContext(this) as common.UIAbilityContext;
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
 function formatDuration(seconds: number): string {
@@ -98,6 +97,8 @@ export default struct Play {
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
   private controller: SwiperController = new SwiperController();
+  uiContext: UIContext | undefined = undefined
+  context: common.UIAbilityContext | undefined = undefined
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 340,
@@ -112,7 +113,7 @@ export default struct Play {
   })
 
   private getStatusBarHeight() {
-    window.getLastWindow(getContext(this), (error, topWindow) => {
+    window.getLastWindow(this.context, (error, topWindow) => {
       if (topWindow) {
         let area = topWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
         this.statusBarHeight = px2vp(area.topRect.height)
@@ -233,6 +234,12 @@ export default struct Play {
   }
 
   async aboutToAppear() {
+    this.uiContext = this.getUIContext();
+    if (!this.uiContext) {
+      console.warn("no uiContext");
+      return;
+    }
+    this.context = this.uiContext.getHostContext() as common.UIAbilityContext;
     this.getStatusBarHeight()
     let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
     if (tmp_song !== undefined && tmp_song.starred !== undefined) {
@@ -467,12 +474,12 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         try {
-          let sanPath = context.filesDir + `/${this.nowPlayingSong!.title}.${this.nowPlayingSong!.suffix}`;
+          let sanPath = this.context!.filesDir + `/${this.nowPlayingSong!.title}.${this.nowPlayingSong!.suffix}`;
           let res = fs.accessSync(sanPath)
           if (res === true) {
             fs.unlinkSync(sanPath);
           }
-          request.downloadFile(context, {
+          request.downloadFile(this.context, {
             url: this.baseURL + '/rest/download' + this.auth + `&id=${this.nowPlayingSong!.id}`,
             filePath: sanPath
           }).then((downloadTask: request.DownloadTask) => {
@@ -541,8 +548,7 @@ export default struct Play {
               this.nowPlayingSong!.id, 128))
           });
           let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
-          let context = getContext(this) as common.UIAbilityContext;
-          controller.show(context, {
+          controller.show(this.context, {
             selectionMode: systemShare.SelectionMode.SINGLE,
             previewMode: systemShare.SharePreviewMode.DEFAULT,
           }).then(() => {
@@ -655,8 +661,8 @@ export default struct Play {
           .backgroundImageSize(ImageSize.FILL)
           .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
           .backgroundBrightness({
-            rate: context.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.2 : 0.5,
-            lightUpDegree: context.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.1 : 0.5
+            rate: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.2 : 0.5,
+            lightUpDegree: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.1 : 0.5
           })
           .width('100%')
           .height('100%')
@@ -670,7 +676,7 @@ export default struct Play {
               }
               .width(40)
               .height(40)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .margin({ left: 25 })
               .onClick(() => {
                 if (this.showPlay === false) {
@@ -706,7 +712,7 @@ export default struct Play {
               .height(40)
               .borderRadius(10)
               .margin({ right: 25 })
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
             }
             .width("100%")
             .justifyContent(FlexAlign.SpaceBetween)
@@ -741,7 +747,7 @@ export default struct Play {
               }
               .width(40)
               .height(40)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(async () => {
                 if (this.nowPlayingSong?.starred !== undefined) {
                   let starStatus = await unstar(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
@@ -935,7 +941,7 @@ export default struct Play {
                 }
                 .width(55)
                 .height(55)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
                   if (this.nowPlayingIndex === 0) {
@@ -960,7 +966,7 @@ export default struct Play {
                 }
                 .width(70)
                 .height(70)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.isPlaying = !this.isPlaying
                   if (this.isPlaying === false) {
@@ -985,7 +991,7 @@ export default struct Play {
                 }
                 .width(55)
                 .height(55)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
                   if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
@@ -1015,7 +1021,7 @@ export default struct Play {
                 }
                 .width(40)
                 .height(40)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
                     this.playMode = AVSessionManager.LoopMode.LOOP_MODE_LIST
@@ -1033,7 +1039,7 @@ export default struct Play {
                 }
                 .width(40)
                 .height(40)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.showSleep = true
                 })
@@ -1055,7 +1061,7 @@ export default struct Play {
                 }
                 .width(40)
                 .height(40)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.showList = true
                 })
@@ -1077,7 +1083,7 @@ export default struct Play {
                 }
                 .width(40)
                 .height(40)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.showMore = true
                 })

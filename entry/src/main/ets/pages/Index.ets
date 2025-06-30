@@ -1,12 +1,5 @@
 import { curves, promptAction, window } from '@kit.ArkUI';
-import {
-  common,
-  Configuration,
-  ConfigurationConstant,
-  EnvironmentCallback,
-  wantAgent,
-  WantAgent
-} from '@kit.AbilityKit';
+import { common, ConfigurationConstant, wantAgent, WantAgent } from '@kit.AbilityKit';
 import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { media } from '@kit.MediaKit';
 import { audio } from '@kit.AudioKit';
@@ -36,9 +29,8 @@ import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 import Search_ from './Search';
 import Home from './Home';
+import firstStartBuilder from './dialogs/FirstStart';
 
-let context = getContext(this) as common.UIAbilityContext;
-let applicationContext = context.getApplicationContext();
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @Entry
@@ -101,14 +93,15 @@ struct Index {
   @State coverSize: number = 64
   @State controlButtonWidth: number = 48
   @State themeIcon: Resource = $r('app.media.auto')
-  @State sidebarIcon: Resource = $r('app.media.sidebar')
   @State sideBarWidth: number = 240
-  @StorageLink('theme') @Watch('changeStatusBar') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
+  @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('firstStart') firstStart: boolean = true
   @StorageLink('downloadDir') downloadDir: string = ''
+  uiContext: UIContext | undefined = undefined
+  context: common.UIAbilityContext | undefined = undefined
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 340,
@@ -121,62 +114,34 @@ struct Index {
     height: 380,
     backgroundColor: $r('app.color.start_window_background'),
   })
-  environmentCallback: EnvironmentCallback = {
-    async onConfigurationUpdated(newConfig: Configuration) {
-      let systemTheme: number | undefined = newConfig.colorMode
-      let mainWindow = await window.getLastWindow(getContext(this))
-      if (systemTheme === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
-        mainWindow.setWindowSystemBarProperties({
-          statusBarContentColor: '#FFFFFF',
-        })
-      } else {
-        mainWindow.setWindowSystemBarProperties({
-          statusBarContentColor: '#000000',
-        })
-      }
-    },
-    onMemoryLevel(level) {
-    }
-  }
+  firstStartTip: CustomDialogController = new CustomDialogController({
+    builder: firstStartBuilder(),
+    width: 340,
+    height: 176,
+    backgroundColor: $r('app.color.start_window_background'),
+  })
 
   private getStatusBarHeight() {
-    window.getLastWindow(getContext(this), (error, topWindow) => {
+    window.getLastWindow(this.context, (error, topWindow) => {
       if (topWindow) {
         let area = topWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-        this.statusBarHeight = px2vp(area.topRect.height)
+        this.statusBarHeight = this.uiContext!.px2vp(area.topRect.height)
       }
     });
   }
 
-  async changeStatusBar() {
-    let mainWindow = await window.getLastWindow(getContext(this))
+  initThemeIcon() {
     if (this.theme === ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT) {
-      mainWindow.setWindowSystemBarProperties({
-        statusBarContentColor: '#000000',
-      })
       this.themeIcon = $r('app.media.light')
     } else if (this.theme === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
-      mainWindow.setWindowSystemBarProperties({
-        statusBarContentColor: '#FFFFFF',
-      })
       this.themeIcon = $r('app.media.dark')
     } else {
       this.themeIcon = $r('app.media.auto')
-      let systemTheme: number | undefined = context.config.colorMode
-      if (systemTheme === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
-        mainWindow.setWindowSystemBarProperties({
-          statusBarContentColor: '#FFFFFF',
-        })
-      } else {
-        mainWindow.setWindowSystemBarProperties({
-          statusBarContentColor: '#000000',
-        })
-      }
     }
   }
 
   createDir() {
-    const documentViewPicker = new picker.DocumentViewPicker(context);
+    const documentViewPicker = new picker.DocumentViewPicker(this.context!);
     const documentSaveOptions = new picker.DocumentSaveOptions();
     documentSaveOptions.pickerMode = picker.DocumentPickerMode.DOWNLOAD;
     documentViewPicker.save(documentSaveOptions).then((documentSaveResult: Array<string>) => {
@@ -230,24 +195,6 @@ struct Index {
     return pixelMap
   }
 
-  claerSongs(array: Song[]): Song[] {
-    const uniqueItems = new Map<string, Song>();
-    array.forEach(item => uniqueItems.set(item.id, item));
-    return Array.from(uniqueItems.values());
-  }
-
-  clearAlbums(array: Album[]): Album[] {
-    const uniqueItems = new Map<string, Album>();
-    array.forEach(item => uniqueItems.set(item.id, item));
-    return Array.from(uniqueItems.values());
-  }
-
-  clearArtists(array: Artist[]): Artist[] {
-    const uniqueItems = new Map<string, Artist>();
-    array.forEach(item => uniqueItems.set(item.id, item));
-    return Array.from(uniqueItems.values());
-  }
-
   fadeIn() {
     let duration = 1000
     let volume = 0;
@@ -296,7 +243,7 @@ struct Index {
       wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
     };
     wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj: WantAgent) => {
-      backgroundTaskManager.startBackgroundRunning(context,
+      backgroundTaskManager.startBackgroundRunning(this.context,
         backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
         console.info(`启动长时任务。`);
       }).catch((err: BusinessError) => {
@@ -306,7 +253,7 @@ struct Index {
   }
 
   async stopContinuousTask() {
-    backgroundTaskManager.stopBackgroundRunning(context).then(() => {
+    backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
       console.info(`停止长时任务。`);
     }).catch((err: BusinessError) => {
       console.error(`停止长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
@@ -507,7 +454,7 @@ struct Index {
         case 'prepared':
           console.info('播放器就绪。');
           if (this.session === undefined) {
-            this.session = await AVSessionManager.createAVSession(context, 'AUDIO_PLAY', 'audio');
+            this.session = await AVSessionManager.createAVSession(this.context!, 'AUDIO_PLAY', 'audio');
             await this.setSessionCallback()
             await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_INITIAL)
           }
@@ -632,14 +579,8 @@ struct Index {
       .width(deviceTypeInfo === '2in1' ? 40 : 48)
       .aspectRatio(1)
       .borderRadius(deviceTypeInfo === '2in1' ? 3 : 8)
-      .backgroundColor('#00000000')
+      .backgroundColor(Color.Transparent)
       .onClick(() => {
-        animateTo({
-          duration: 300,
-          curve: Curve.EaseOut,
-        }, () => {
-          this.showSidebar = false
-        })
         if (this.theme === ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET) {
           this.theme = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT
           this.themeIcon = $r('app.media.light')
@@ -650,7 +591,7 @@ struct Index {
           this.theme = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
           this.themeIcon = $r('app.media.auto')
         }
-        context.getApplicationContext().setColorMode(this.theme)
+        this.context?.getApplicationContext().setColorMode(this.theme)
       })
     }
     .height('100%')
@@ -871,31 +812,27 @@ struct Index {
     .padding({ left: this.sidebarType === SideBarContainerType.Embed ? 20 : 72, top: 1 })
   }
 
-  onDidBuild() {
+  onPageShow() {
     if (this.firstStart !== false || this.baseURL === '') {
-      AlertDialog.show(
-        {
-          title: '首次启动',
-          message: '请先到设置页面配置服务器连接。',
-          autoCancel: false,
-          height: 200,
-          confirm: {
-            value: '确认',
-            fontColor: $r('app.color.font'),
-            action: () => {
-              this.firstStart = false
-            }
-          }
-        }
-      )
+      this.firstStartTip.open()
     }
   }
 
+  onPageHide() {
+    this.firstStartTip.close()
+  }
+
   async aboutToAppear() {
-    context.getApplicationContext().setColorMode(this.theme)
-    this.mainWindow = await window.getLastWindow(getContext(this))
-    this.displayWidth = px2vp(this.mainWindow.getWindowProperties().windowRect.width)
-    this.displayHeight = px2vp(this.mainWindow.getWindowProperties().windowRect.height)
+    this.uiContext = this.getUIContext();
+    if (!this.uiContext) {
+      console.warn("no uiContext");
+      return;
+    }
+    this.context = this.uiContext.getHostContext() as common.UIAbilityContext;
+    this.context.getApplicationContext().setColorMode(this.theme)
+    this.mainWindow = await window.getLastWindow(this.context)
+    this.displayWidth = this.uiContext!.px2vp(this.mainWindow.getWindowProperties().windowRect.width)
+    this.displayHeight = this.uiContext!.px2vp(this.mainWindow.getWindowProperties().windowRect.height)
     if (this.displayHeight < 700) {
       this.showCover = false
     } else {
@@ -912,8 +849,8 @@ struct Index {
       this.sidebarType = SideBarContainerType.Overlay
     }
     this.mainWindow.on('windowSizeChange', (size) => {
-      this.displayWidth = px2vp(size.width)
-      this.displayHeight = px2vp(size.height)
+      this.displayWidth = this.uiContext!.px2vp(size.width)
+      this.displayHeight = this.uiContext!.px2vp(size.height)
       if (this.displayHeight < 700) {
         this.showCover = false
       } else {
@@ -930,8 +867,7 @@ struct Index {
         this.sidebarType = SideBarContainerType.Overlay
       }
     })
-    this.changeStatusBar()
-    applicationContext.on('environment', this.environmentCallback);
+    this.initThemeIcon()
     this.getStatusBarHeight()
     this.registerInterception()
     if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
@@ -955,14 +891,14 @@ struct Index {
         if (this.sidebarType === SideBarContainerType.Overlay) {
           if (typeof to === "string") {
             this.showControlButton = true
-            animateTo({
+            this.uiContext?.animateTo({
               duration: 300,
               curve: Curve.EaseOut,
             }, () => {
               this.controlButtonWidth = 48
             })
           } else {
-            animateTo({
+            this.uiContext?.animateTo({
               duration: 300,
               curve: Curve.EaseOut,
             }, () => {
@@ -1007,7 +943,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 0 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1035,7 +971,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 1 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1063,7 +999,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 2 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1091,7 +1027,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 3 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1119,7 +1055,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 4 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1151,7 +1087,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1174,7 +1110,7 @@ struct Index {
             .borderRadius(10)
             .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
-              animateTo({
+              this.uiContext?.animateTo({
                 duration: 300,
                 curve: Curve.EaseOut,
               }, () => {
@@ -1296,7 +1232,7 @@ struct Index {
             backgroundColor: $r('app.color.content_background'),
           })
           .onClick(() => {
-            animateTo({
+            this.uiContext?.animateTo({
               duration: 300,
               curve: Curve.EaseOut,
             }, () => {
@@ -1347,9 +1283,9 @@ struct Index {
               }
               .width(35)
               .height(35)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(async () => {
-                animateTo({
+                this.uiContext?.animateTo({
                   duration: 300,
                   curve: Curve.EaseOut,
                 }, () => {
@@ -1392,7 +1328,7 @@ struct Index {
                 }
                 .width(45)
                 .height(45)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.isPlaying = !this.isPlaying
                   if (this.isPlaying === false) {
@@ -1408,7 +1344,7 @@ struct Index {
                       this.avPlayer!.play()
                     }
                   }
-                  animateTo({
+                  this.uiContext?.animateTo({
                     duration: 300,
                     curve: Curve.EaseOut,
                   }, () => {
@@ -1424,9 +1360,9 @@ struct Index {
               }
               .width(35)
               .height(35)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(async () => {
-                animateTo({
+                this.uiContext?.animateTo({
                   duration: 300,
                   curve: Curve.EaseOut,
                 }, () => {
@@ -1469,17 +1405,24 @@ struct Index {
           })
           .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
           .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: curves.springMotion(0.6, 1) }))
+
+          Column()
+            .width('100%')
+            .height('100%')
+            .backgroundColor(Color.Transparent)
+            .visibility(this.sidebarType === SideBarContainerType.Overlay && this.showSidebar === true ?
+            Visibility.Visible : Visibility.None)
+            .onTouch(() => {
+              this.uiContext?.animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+            })
         }
         .width("100%")
         .height('100%')
-        .onTouch(() => {
-          animateTo({
-            duration: 300,
-            curve: Curve.EaseOut,
-          }, () => {
-            this.showSidebar = false
-          })
-        })
       }
       .width("100%")
       .height('100%')
@@ -1513,9 +1456,9 @@ struct Index {
       .width(this.controlButtonWidth)
       .height(48)
       .borderRadius(8)
-      .backgroundColor('#00000000')
+      .backgroundColor(Color.Transparent)
       .onClick(async () => {
-        animateTo({
+        this.uiContext?.animateTo({
           duration: 300,
           curve: Curve.EaseOut,
         }, () => {

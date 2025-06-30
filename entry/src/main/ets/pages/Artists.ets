@@ -73,14 +73,8 @@ export default struct Artists {
             .margin({ bottom: this.startPlaying === true && index === this.artists.length - 1 ? 85 : 0 })
             .animation({ curve: curves.springMotion(0.6, 1) })
             .borderRadius(10)
-            .backgroundColor('#00000000')
+            .backgroundColor(Color.Transparent)
             .onClick(() => {
-              animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
               this.artist = artist
               this.pageStack.pushPathByName('ArtistDetail', undefined);
             })

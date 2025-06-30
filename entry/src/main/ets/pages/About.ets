@@ -1,12 +1,23 @@
 import { common, Want } from '@kit.AbilityKit'
 import { bundleManager } from '@kit.AbilityKit';
 
-let context = getContext(this) as common.UIAbilityContext;
 let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT;
 let bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags)
 
 @Component
 export default struct About {
+  uiContext: UIContext | undefined = undefined
+  context: common.UIAbilityContext | undefined = undefined
+
+  aboutToAppear(): void {
+    this.uiContext = this.getUIContext();
+    if (!this.uiContext) {
+      console.warn("no uiContext");
+      return;
+    }
+    this.context = this.uiContext.getHostContext() as common.UIAbilityContext;
+  }
+
   build() {
     Column() {
       Column() {
@@ -43,7 +54,7 @@ export default struct About {
                 entities: ['entity.system.browsable'],
                 uri: 'https://github.com/shanyan-wcx/Harmonic'
               };
-              context.startAbility(want)
+              this.context!.startAbility(want)
             })
         }
         .width('100%')

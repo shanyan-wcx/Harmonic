@@ -208,16 +208,10 @@ export default struct Search_ {
               .width('100%')
               .height(80)
               .borderRadius(10)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .padding({ left: 20, right: 20 })
               .animation({ curve: curves.springMotion(0.6, 1) })
               .onClick(async () => {
-                animateTo({
-                  duration: 300,
-                  curve: Curve.EaseOut,
-                }, () => {
-                  this.showSidebar = false
-                })
                 this.startPlaying = true
                 await this.avPlayer!.reset()
                 this.isPlaying = true
@@ -269,7 +263,7 @@ export default struct Search_ {
                 .width(30)
                 .height(30)
                 .borderRadius(5)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .margin({ right: 10 })
                 .onClick(() => {
                   this.albumsScroller.scrollPage({
@@ -286,7 +280,7 @@ export default struct Search_ {
                 .width(30)
                 .height(30)
                 .borderRadius(5)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.albumsScroller.scrollPage({
                     next: true,
@@ -321,14 +315,8 @@ export default struct Search_ {
                   .margin({ left: index === 0 ? 10 : 0, right: index === this.albums.length - 1 ? 10 : 0 })
                   .animation({ curve: curves.springMotion(0.6, 1) })
                   .borderRadius(10)
-                  .backgroundColor('#00000000')
+                  .backgroundColor(Color.Transparent)
                   .onClick(() => {
-                    animateTo({
-                      duration: 300,
-                      curve: Curve.EaseOut,
-                    }, () => {
-                      this.showSidebar = false
-                    })
                     this.album = album
                     this.pageStack.pushPathByName('AlbumDetail', undefined);
                   })
@@ -363,7 +351,7 @@ export default struct Search_ {
                 .width(30)
                 .height(30)
                 .borderRadius(5)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .margin({ right: 10 })
                 .onClick(() => {
                   this.artistsScroller.scrollPage({
@@ -380,7 +368,7 @@ export default struct Search_ {
                 .width(30)
                 .height(30)
                 .borderRadius(5)
-                .backgroundColor('#00000000')
+                .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.artistsScroller.scrollPage({
                     next: true,
@@ -424,14 +412,8 @@ export default struct Search_ {
                   .margin({ left: index === 0 ? 10 : 0, right: index === this.artists.length - 1 ? 10 : 0 })
                   .animation({ curve: curves.springMotion(0.6, 1) })
                   .borderRadius(10)
-                  .backgroundColor('#00000000')
+                  .backgroundColor(Color.Transparent)
                   .onClick(() => {
-                    animateTo({
-                      duration: 300,
-                      curve: Curve.EaseOut,
-                    }, () => {
-                      this.showSidebar = false
-                    })
                     this.artist = artist
                     this.pageStack.pushPathByName('ArtistDetail', undefined);
                   })

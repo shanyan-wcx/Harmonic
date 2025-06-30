@@ -33,12 +33,6 @@ export default class EntryAbility extends UIAbility {
       PersistentStorage.persistProp('username', '');
       PersistentStorage.persistProp('password', '');
     });
-    // let mainWindow = windowStage.getMainWindowSync();
-    // mainWindow.setWindowSystemBarEnable(["status"]);
-    // mainWindow.setWindowSystemBarProperties({
-    //   statusBarColor: "#00000000"
-    // })
-    // mainWindow.setWindowLayoutFullScreen(true)
 
     windowStage.getMainWindow().then((data: window.Window) => {
       let deviceTypeInfo: string = deviceInfo.deviceType;
@@ -72,5 +66,19 @@ export default class EntryAbility extends UIAbility {
   onBackground(): void {
     // Ability has back to background
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
+  }
+
+  async onConfigurationUpdated(newConfig: Configuration) {
+    let systemTheme: number | undefined = newConfig.colorMode
+    let mainWindow = await window.getLastWindow(this.context)
+    if (systemTheme === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
+      mainWindow.setWindowSystemBarProperties({
+        statusBarContentColor: '#FFFFFF',
+      })
+    } else {
+      mainWindow.setWindowSystemBarProperties({
+        statusBarContentColor: '#000000',
+      })
+    }
   }
 }

@@ -136,7 +136,7 @@ export default struct AlbumDetail {
                   .fontColor($r('app.color.font_secondary'))
               }
               .margin({ top: 5 })
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .stateEffect(false)
               .onClick(async () => {
                 this.artist = await getArtist(this.baseURL, this.username, this.password, this.album.artistId)
@@ -239,7 +239,7 @@ export default struct AlbumDetail {
                   .width('100%')
                   .height(80)
                   .borderRadius(10)
-                  .backgroundColor('#00000000')
+                  .backgroundColor(Color.Transparent)
                   .onClick(async () => {
                     this.startPlaying = true
                     await this.avPlayer!.reset()
@@ -311,7 +311,7 @@ export default struct AlbumDetail {
               .width('100%')
               .height(80)
               .borderRadius(10)
-              .backgroundColor('#00000000')
+              .backgroundColor(Color.Transparent)
               .onClick(async () => {
                 this.startPlaying = true
                 await this.avPlayer!.reset()
