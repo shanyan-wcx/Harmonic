@@ -7,6 +7,7 @@ export default struct Setting {
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('autoPlay') autoPlay: boolean = false
   @StorageLink('collate') collate: boolean = false
+  @Consume startPlaying: boolean
 
   build() {
     Scroll() {
@@ -113,7 +114,7 @@ export default struct Setting {
             .fontColor($r('app.color.font'))
             .fontWeight(FontWeight.Bold)
             .padding({ left: 20, right: 20 })
-            .margin({ top: 20, bottom: 5 })
+            .margin({ top: 20, bottom: 15 })
             .textAlign(TextAlign.Center)
           Row() {
             Text("继续上次播放")
@@ -139,6 +140,7 @@ export default struct Setting {
               .switchPointColor($r('app.color.font'))
           }
           .width('100%')
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
 
           Row() {
@@ -152,12 +154,13 @@ export default struct Setting {
               .switchPointColor($r('app.color.font'))
           }
           .width('100%')
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
         .backgroundColor($r('app.color.bar_background'))
         .borderRadius(10)
-        .padding({ left: 20, right: 20, bottom: 10 })
+        .padding({ left: 20, right: 20, bottom: 20 })
         .margin({ top: 20 })
 
         Column() {
@@ -167,7 +170,7 @@ export default struct Setting {
             .fontColor($r('app.color.font'))
             .fontWeight(FontWeight.Bold)
             .padding({ left: 20, right: 20 })
-            .margin({ top: 20, bottom: 5 })
+            .margin({ top: 20, bottom: 15 })
             .textAlign(TextAlign.Center)
           Row() {
             Text("按【艺术家/专辑】下载")
@@ -185,12 +188,14 @@ export default struct Setting {
         .width('100%')
         .backgroundColor($r('app.color.bar_background'))
         .borderRadius(10)
-        .padding({ left: 20, right: 20, bottom: 10 })
+        .padding({ left: 20, right: 20, bottom: 20 })
         .margin({ top: 20 })
       }
+      .padding({ bottom: this.startPlaying === true ? 105 : 20 })
     }
     .width('100%')
     .height('100%')
+    .scrollBar(BarState.Off)
     .padding({ left: 20, right: 20 })
     .align(Alignment.Top)
   }
