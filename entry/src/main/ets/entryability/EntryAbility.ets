@@ -28,6 +28,7 @@ export default class EntryAbility extends UIAbility {
       PersistentStorage.persistProp('playMode', 1);
       PersistentStorage.persistProp('audioNormalizatio', false);
       PersistentStorage.persistProp('fadeVolume', false);
+      PersistentStorage.persistProp('autoPlay', false);
       PersistentStorage.persistProp('collate', false);
       PersistentStorage.persistProp('baseURL', '');
       PersistentStorage.persistProp('username', '');
