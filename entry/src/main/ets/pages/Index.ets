@@ -18,7 +18,7 @@ import {
   unstar,
   updatePlaylist
 } from '../utils/Api';
-import { Album, Artist, Line, Playlist, Song, StructuredLyric } from '../utils/Interface';
+import { Album, Artist, Line, Playlist, SaveState, Song, StructuredLyric } from '../utils/Interface';
 import Albums from './Albums';
 import Artists from './Artists';
 import Play from './Play';
@@ -30,6 +30,8 @@ import infoBuilder from './dialogs/Info';
 import Search_ from './Search';
 import Home from './Home';
 import firstStartBuilder from './dialogs/FirstStart';
+import { fileIo as fs, ReadOptions } from '@kit.CoreFileKit';
+import { buffer } from '@kit.ArkTS';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -94,10 +96,12 @@ struct Index {
   @State controlButtonWidth: number = 48
   @State themeIcon: Resource = $r('app.media.auto')
   @State sideBarWidth: number = 240
+  @State startPlayTime: number = 0
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
+  @StorageLink('autoPlay') autoPlay: boolean = false
   @StorageLink('firstStart') firstStart: boolean = true
   @StorageLink('downloadDir') downloadDir: string = ''
   uiContext: UIContext | undefined = undefined
@@ -467,6 +471,10 @@ struct Index {
           if (this.audioNormalization === true && this.nowPlayingSong!.replayGain?.trackGain !== undefined) {
             this.avPlayer!.setVolume((100 + this.nowPlayingSong!.replayGain!.trackGain) / 100)
           }
+          if (this.startPlayTime !== 0) {
+            this.avPlayer!.seek(this.startPlayTime * 1000)
+            this.startPlayTime = 0
+          }
           if (this.isPlaying === true) {
             if (this.fadeVolume === true) {
               this.fadeIn()
@@ -822,6 +830,42 @@ struct Index {
     this.firstStartTip.close()
   }
 
+  aboutToDisappear() {
+    let path = this.context!.filesDir + '/saveState.json';
+    if (this.startPlaying === true) {
+      let saveState: SaveState = {
+        nowPlayingSong: this.nowPlayingSong,
+        nowPlayingLyrics: this.nowPlayingLyrics,
+        nowPlayingLyricsByGroup: this.nowPlayingLyricsByGroup,
+        nowPlayingList: this.nowPlayingList,
+        nowPlayingListOriginal: this.nowPlayingListOriginal,
+        nowPlayingIndex: this.nowPlayingIndex,
+        lyricsIndex: this.lyricsIndex,
+        startPlaying: this.startPlaying,
+        isPlaying: this.isPlaying,
+        nowPlayedTime: this.nowPlayedTime,
+      };
+      try {
+        let file = fs.openSync(path, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+        fs.truncateSync(path);
+        fs.writeSync(file.fd, JSON.stringify(saveState));
+        fs.closeSync(file);
+        console.info('写入成功');
+      } catch (err) {
+        console.error('写入失败:', JSON.stringify(err));
+      }
+    } else {
+      if (fs.accessSync(path)) {
+        try {
+          fs.truncateSync(path);
+          console.info('清空成功');
+        } catch (err) {
+          console.error('清空失败:', JSON.stringify(err));
+        }
+      }
+    }
+  }
+
   async aboutToAppear() {
     this.uiContext = this.getUIContext();
     if (!this.uiContext) {
@@ -882,6 +926,42 @@ struct Index {
     }
     this.avPlayer = await media.createAVPlayer();
     this.setAVPlayerCallback(this.avPlayer!);
+    let path = this.context!.filesDir + '/saveState.json';
+    if (fs.accessSync(path)) {
+      let file = fs.openSync(path, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
+      let arrayBuffer = new ArrayBuffer(40960);
+      let readOptions: ReadOptions = {
+        offset: 0,
+        length: arrayBuffer.byteLength
+      };
+      try {
+        let readLen = fs.readSync(file.fd, arrayBuffer, readOptions);
+        if (readLen > 0) {
+          let buf = buffer.from(arrayBuffer, 0, readLen);
+          let saveState: SaveState = JSON.parse(buf.toString())
+          this.nowPlayingSong = saveState.nowPlayingSong
+          this.nowPlayingLyrics = saveState.nowPlayingLyrics
+          this.nowPlayingLyricsByGroup = saveState.nowPlayingLyricsByGroup
+          this.nowPlayingList = saveState.nowPlayingList
+          this.nowPlayingListOriginal = saveState.nowPlayingListOriginal
+          this.nowPlayingIndex = saveState.nowPlayingIndex
+          this.lyricsIndex = saveState.lyricsIndex
+          this.startPlaying = saveState.startPlaying
+          this.startPlayTime = saveState.nowPlayedTime
+          if (this.autoPlay === true) {
+            this.isPlaying = true
+          } else {
+            this.isPlaying = false
+          }
+          console.info("读取成功");
+          await this.avPlayer!.reset()
+          this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
+        }
+      } catch (err) {
+        console.error('读取失败:', JSON.stringify(err));
+      }
+      fs.closeSync(file);
+    }
   }
 
   registerInterception() {

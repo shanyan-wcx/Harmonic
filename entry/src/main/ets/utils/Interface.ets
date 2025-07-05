@@ -203,3 +203,16 @@ export interface SearchResult {
   album?: Album[];
   artist?: Artist[];
 }
+
+export interface SaveState {
+  nowPlayingSong: Song | undefined;
+  nowPlayingLyrics: StructuredLyric | undefined;
+  nowPlayingLyricsByGroup: Line[][];
+  nowPlayingList: Song[];
+  nowPlayingListOriginal: Song[];
+  nowPlayingIndex: number;
+  lyricsIndex: number;
+  startPlaying: boolean;
+  isPlaying: boolean;
+  nowPlayedTime: number;
+}
