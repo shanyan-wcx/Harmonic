@@ -84,6 +84,7 @@ export default struct Play {
   @Consume selectedPlaylists: boolean[]
   @Consume sidebarType: number
   @Consume playlists: Playlist[]
+  @Consume mainWindow: window.Window | undefined
   @Provide selectDeviceHeight: number = 300
   @State showSleep: boolean = false
   @State showList: boolean = false
@@ -241,11 +242,15 @@ export default struct Play {
     }
     this.context = this.uiContext.getHostContext() as common.UIAbilityContext;
     this.getStatusBarHeight()
+    this.mainWindow = await window.getLastWindow(this.context)
+    this.mainWindow.on('windowSizeChange', (size) => {
+      this.scrollLyrics()
+    })
     let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
     if (tmp_song !== undefined && tmp_song.starred !== undefined) {
       this.nowPlayingSong!.starred = tmp_song.starred
     }
-    this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
+    this.scrollLyrics()
   }
 
   @Builder
@@ -808,36 +813,38 @@ export default struct Play {
                           Column() {
                             ForEach(group, (line: Line, index2) => {
                               Text(line.value)
-                                .width('100%')
+                                .width('85%')
                                 .height('auto')
                                 .padding({ left: 20, right: 20 })
-                                .margin({ bottom: index2 === 0 ? 5 : 0 })
-                                .fontSize(this.lyricsIndex === index &&
-                                  this.nowPlayingLyrics?.synced === true ?
-                                  28 :
-                                  23)
+                                .margin({ top: index2 === 0 ? 0 : this.lyricsIndex === index ? 10 : 8 })
+                                .fontSize(this.displayWidth > 1400 ? 28 : 24)
                                 .fontWeight(FontWeight.Bold)
                                 .fontColor(this.lyricsIndex === index &&
                                   this.nowPlayingLyrics?.synced === true ?
                                 $r('app.color.font_lyrics') :
                                 $r('app.color.font_lyrics_secondary'))
                                 .textAlign(TextAlign.Center)
-                                .animation({ duration: 400 })
+                                .scale({ x: this.lyricsIndex === index ? 1.15 : 1, y: this.lyricsIndex === index ? 1.15 : 1 })
+                                .animation({
+                                  duration: 400,
+                                  curve: Curve.EaseInOut
+                                }).id("text")
                             })
                           }
                         }
                         .margin({
-                          top: index === 0 ? 125 : 15,
-                          bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 15
+                          top: index === 0 ? 125 : this.displayWidth > 1400 ? 20 : 15,
+                          bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : this.displayWidth > 1400 ? 20 : 15
                         })
                       })
                     } else {
                       ListItem() {
                         Column() {
                           Text("没有歌词")
-                            .fontSize(28)
+                            .fontSize(this.displayWidth > 1400 ? 28 : 24)
                             .fontWeight(FontWeight.Bold)
                             .fontColor($r('app.color.font_lyrics'))
+                            .scale({ x: 1.15, y: 1.15 })
                         }
                         .width('100%')
                         .height('100%')
@@ -851,6 +858,7 @@ export default struct Play {
                   .aspectRatio(1)
                   .borderRadius(10)
                   .listDirection(Axis.Vertical)
+                  .alignListItem(ListItemAlign.Center)
                   .scrollBar(BarState.Off)
                   .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(50) })
                 }
@@ -1125,36 +1133,38 @@ export default struct Play {
                       Column() {
                         ForEach(group, (line: Line, index2) => {
                           Text(line.value)
-                            .width('100%')
+                            .width('85%')
                             .height('auto')
                             .padding({ left: 20, right: 20 })
-                            .margin({ bottom: index2 === 0 ? 5 : 0 })
-                            .fontSize(this.lyricsIndex === index &&
-                              this.nowPlayingLyrics?.synced === true ?
-                              28 :
-                              23)
+                            .margin({ top: index2 === 0 ? 0 : this.lyricsIndex === index ? 10 : 8 })
+                            .fontSize(this.displayWidth > 1400 ? 28 : 24)
                             .fontWeight(FontWeight.Bold)
                             .fontColor(this.lyricsIndex === index &&
                               this.nowPlayingLyrics?.synced === true ?
                             $r('app.color.font_lyrics') :
                             $r('app.color.font_lyrics_secondary'))
                             .textAlign(TextAlign.Center)
-                            .animation({ duration: 400 })
+                            .scale({ x: this.lyricsIndex === index ? 1.15 : 1, y: this.lyricsIndex === index ? 1.15 : 1 })
+                            .animation({
+                              duration: 400,
+                              curve: Curve.EaseInOut
+                            }).id("text")
                         })
                       }
                     }
                     .margin({
-                      top: index === 0 ? '50%' : 15,
-                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? '50%' : 15
+                      top: index === 0 ? '50%' : this.displayWidth > 1400 ? 20 : 15,
+                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? '50%' : this.displayWidth > 1400 ? 20 : 15
                     })
                   })
                 } else {
                   ListItem() {
                     Column() {
                       Text("没有歌词")
-                        .fontSize(28)
+                        .fontSize(this.displayWidth > 1400 ? 28 : 24)
                         .fontWeight(FontWeight.Bold)
                         .fontColor($r('app.color.font_lyrics'))
+                        .scale({ x: 1.15, y: 1.15 })
                     }
                     .width('100%')
                     .height('100%')
@@ -1168,6 +1178,7 @@ export default struct Play {
               .height('100%')
               .borderRadius(10)
               .listDirection(Axis.Vertical)
+              .alignListItem(ListItemAlign.Center)
               .scrollBar(BarState.Off)
               .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(50) })
             }
