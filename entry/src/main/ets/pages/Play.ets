@@ -833,8 +833,8 @@ export default struct Play {
                           }
                         }
                         .margin({
-                          top: index === 0 ? 125 : this.displayWidth > 1400 ? 20 : 15,
-                          bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : this.displayWidth > 1400 ? 20 : 15
+                          top: index === 0 ? 125 : 20,
+                          bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 20
                         })
                       })
                     } else {
@@ -1153,8 +1153,8 @@ export default struct Play {
                       }
                     }
                     .margin({
-                      top: index === 0 ? '50%' : this.displayWidth > 1400 ? 20 : 15,
-                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? '50%' : this.displayWidth > 1400 ? 20 : 15
+                      top: index === 0 ? '50%' : 20,
+                      bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? '50%' : 20
                     })
                   })
                 } else {
