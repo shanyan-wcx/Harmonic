@@ -117,12 +117,12 @@ export default struct selectPlaylistBuilder {
             }
           }
           if (success === true) {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '添加成功！',
               duration: 500
             });
           } else {
-            promptAction.showToast({
+            this.getUIContext()!.getPromptAction().showToast({
               message: '部分添加失败，请检查网络！',
               duration: 500
             });

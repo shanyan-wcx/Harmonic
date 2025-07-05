@@ -367,16 +367,29 @@ struct Index {
       if (this.nowPlayingSong?.starred !== undefined) {
         let starStatus = await unstar(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
         if (starStatus === true) {
+          this.uiContext!.getPromptAction().showToast({
+            message: '取消收藏成功！',
+            duration: 500
+          });
           this.nowPlayingSong.starred = undefined
           if (this.isPlaying === true) {
             await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
           } else {
             await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
           }
+        } else {
+          this.uiContext!.getPromptAction().showToast({
+            message: '取消收藏失败，请检查网络！',
+            duration: 500
+          });
         }
       } else {
         let starStatus = await star(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
         if (starStatus === true) {
+          this.uiContext!.getPromptAction().showToast({
+            message: '收藏成功！',
+            duration: 500
+          });
           let tmp_song: Song | undefined =
             await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
           if (tmp_song !== undefined && tmp_song.starred !== undefined) {
@@ -387,6 +400,11 @@ struct Index {
           } else {
             await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
           }
+        } else {
+          this.uiContext!.getPromptAction().showToast({
+            message: '收藏失败，请检查网络！',
+            duration: 500
+          });
         }
       }
     });
@@ -432,12 +450,12 @@ struct Index {
       await avPlayer.reset();
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
       if (err.code === 5400106) {
-        promptAction.showToast({
+        this.uiContext!.getPromptAction().showToast({
           message: '播放失败，格式不支持或文件不存在！',
           duration: 500
         });
       } else if (err.code === 5400104) {
-        promptAction.showToast({
+        this.uiContext!.getPromptAction().showToast({
           message: '播放失败，请检查网络连接！',
           duration: 500
         });
@@ -643,12 +661,12 @@ struct Index {
         if (this.nowPlayingList.length !== 0) {
           this.nowPlayingListOriginal.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
           this.nowPlayingList.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
-          promptAction.showToast({
+          this.uiContext!.getPromptAction().showToast({
             message: '添加成功！',
             duration: 500
           });
         } else {
-          promptAction.showToast({
+          this.uiContext!.getPromptAction().showToast({
             message: '播放队列不存在！',
             duration: 500
           });
@@ -671,12 +689,12 @@ struct Index {
         if (this.nowPlayingList.length !== 0) {
           this.nowPlayingListOriginal.push(this.longPressSong!)
           this.nowPlayingList.push(this.longPressSong!)
-          promptAction.showToast({
+          this.uiContext!.getPromptAction().showToast({
             message: '添加成功！',
             duration: 500
           });
         } else {
-          promptAction.showToast({
+          this.uiContext!.getPromptAction().showToast({
             message: '播放队列不存在！',
             duration: 500
           });
@@ -721,7 +739,7 @@ struct Index {
           await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, undefined, undefined,
             undefined, this.longPressIndex)
         if (success === true) {
-          promptAction.showToast({
+          this.uiContext!.getPromptAction().showToast({
             message: '删除成功！',
             duration: 500
           });
@@ -730,7 +748,7 @@ struct Index {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
         } else {
-          promptAction.showToast({
+          this.uiContext!.getPromptAction().showToast({
             message: '删除失败，请检查网络！',
             duration: 500
           });
@@ -753,7 +771,7 @@ struct Index {
         if (this.longPressSong?.starred !== undefined) {
           let starStatus = await unstar(this.baseURL, this.username, this.password, this.longPressSong!.id)
           if (starStatus === true) {
-            promptAction.showToast({
+            this.uiContext!.getPromptAction().showToast({
               message: '取消收藏成功！',
               duration: 500
             });
@@ -765,11 +783,16 @@ struct Index {
                 await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
               }
             }
+          } else {
+            this.uiContext!.getPromptAction().showToast({
+              message: '取消收藏失败，请检查网络！',
+              duration: 500
+            });
           }
         } else {
           let starStatus = await star(this.baseURL, this.username, this.password, this.longPressSong!.id)
           if (starStatus === true) {
-            promptAction.showToast({
+            this.uiContext!.getPromptAction().showToast({
               message: '收藏成功！',
               duration: 500
             });
@@ -785,6 +808,11 @@ struct Index {
                 await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
               }
             }
+          } else {
+            this.uiContext!.getPromptAction().showToast({
+              message: '收藏失败，请检查网络！',
+              duration: 500
+            });
           }
         }
       })

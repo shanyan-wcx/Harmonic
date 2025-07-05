@@ -90,7 +90,7 @@ export default struct editPlaylistBuilder {
           this.editPlaylist.close()
           let success = await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, this.name, this.comment)
           if (success === true) {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '修改成功！',
               duration: 500
             });
@@ -99,7 +99,7 @@ export default struct editPlaylistBuilder {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
           } else {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '修改失败，请检查网络！',
               duration: 500
             });
@@ -119,7 +119,7 @@ export default struct editPlaylistBuilder {
           this.editPlaylist.close()
           let success = await deletePlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
           if (success === true) {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '删除成功！',
               duration: 500
             });
@@ -128,7 +128,7 @@ export default struct editPlaylistBuilder {
             })
             this.pageStack.pop()
           } else {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '删除失败，请检查网络！',
               duration: 500
             });

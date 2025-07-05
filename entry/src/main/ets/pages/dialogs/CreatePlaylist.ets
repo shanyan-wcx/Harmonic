@@ -88,7 +88,7 @@ export default struct createPlaylistBuilder {
           this.createPlaylist.close()
           let success = await createPlaylist(this.baseURL, this.username, this.password, this.name, this.comment)
           if (success === true) {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '新建成功！',
               duration: 500
             });
@@ -96,13 +96,13 @@ export default struct createPlaylistBuilder {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
           } else {
-            promptAction.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: '新建失败，请检查网络！',
               duration: 500
             });
           }
         }else{
-          promptAction.showToast({
+          this.getUIContext().getPromptAction().showToast({
             message: '歌单名称不能为空！',
             duration: 500
           });

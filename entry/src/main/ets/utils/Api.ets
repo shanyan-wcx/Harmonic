@@ -379,17 +379,9 @@ export async function star(baseURL: string, username: string, password: string, 
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/star' + auth + `&id=${id}`, {
         timeout: 10000
       })
-    promptAction.showToast({
-      message: '收藏成功！',
-      duration: 500
-    });
     return true
   } catch (error) {
     console.error(JSON.stringify(error));
-    promptAction.showToast({
-      message: '收藏失败，请检查网络！',
-      duration: 500
-    });
     return false
   }
 }
@@ -401,17 +393,9 @@ export async function unstar(baseURL: string, username: string, password: string
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/unstar' + auth + `&id=${id}`, {
         timeout: 10000
       })
-    promptAction.showToast({
-      message: '取消收藏成功！',
-      duration: 500
-    });
     return true
   } catch (error) {
     console.error(JSON.stringify(error));
-    promptAction.showToast({
-      message: '取消收藏失败，请检查网络！',
-      duration: 500
-    });
     return false
   }
 }
