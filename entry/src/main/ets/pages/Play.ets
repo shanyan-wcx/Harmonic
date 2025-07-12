@@ -925,36 +925,50 @@ export default struct Play {
                 .width('100%')
                 .justifyContent(FlexAlign.SpaceBetween)
 
-                Progress({
-                  value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
-                  total: 100,
-                  type: ProgressType.Linear
-                })
-                  .style({ strokeWidth: 5 })
-                  .width('100%')
-                  .margin({ top: 10, bottom: 15 })
-                  .color($r('app.color.progress'))
-                  .onAreaChange((oldValue: Area, newValue: Area) => {
-                    this.progressWidth = newValue.width as number;
+                Stack() {
+                  Progress({
+                    value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                    total: 100,
+                    type: ProgressType.Linear
                   })
-                  .gesture(
-                    GestureGroup(
-                      GestureMode.Exclusive,
-                      TapGesture({ fingers: 1, count: 1 })
-                        .onAction((event: GestureEvent) => {
-                          let touchProgress = Math.round((event.fingerList[0].localX / this.progressWidth) * 100)
-                          let progress = 0
-                          if (touchProgress < 0) {
-                            progress = 0
-                          } else if (touchProgress >= 100) {
-                            progress = 99
-                          } else {
-                            progress = touchProgress
-                          }
-                          this.avPlayer!.seek(progress * this.nowPlayingSong!.duration * 10)
-                        })
+                    .style({ strokeWidth: 25 })
+                    .width('100%')
+                    .color(Color.Transparent)
+                    .opacity(0)
+                    .onAreaChange((oldValue: Area, newValue: Area) => {
+                      this.progressWidth = newValue.width as number;
+                    })
+                    .gesture(
+                      GestureGroup(
+                        GestureMode.Exclusive,
+                        TapGesture({ fingers: 1, count: 1 })
+                          .onAction((event: GestureEvent) => {
+                            let touchProgress = Math.round((event.fingerList[0].localX / this.progressWidth) * 100)
+                            let progress = 0
+                            if (touchProgress < 0) {
+                              progress = 0
+                            } else if (touchProgress >= 100) {
+                              progress = 99
+                            } else {
+                              progress = touchProgress
+                            }
+                            this.avPlayer!.seek(progress * this.nowPlayingSong!.duration * 10)
+                          })
+                      )
                     )
-                  )
+
+                  Progress({
+                    value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                    total: 100,
+                    type: ProgressType.Linear
+                  })
+                    .style({ strokeWidth: 5 })
+                    .width('100%')
+                    .margin({ top: 10, bottom: 10 })
+                    .color($r('app.color.progress'))
+                    .hitTestBehavior(HitTestMode.Transparent)
+                }
+                .width('100%')
               }
               .width('100%')
               .visibility(this.displayHeight > 300 ? Visibility.Visible : Visibility.None)
