@@ -1,6 +1,5 @@
 import { deletePlaylist, getPlaylist, getPlaylists, updatePlaylist } from '../../utils/Api'
 import { Playlist } from '../../utils/Interface'
-import { promptAction } from '@kit.ArkUI'
 
 @CustomDialog
 export default struct editPlaylistBuilder {

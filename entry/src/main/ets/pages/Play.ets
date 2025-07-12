@@ -1,4 +1,4 @@
-import { LengthMetrics, promptAction, window } from '@kit.ArkUI';
+import { LengthMetrics, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { AVCastPicker, avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { createShare,

@@ -1,7 +1,6 @@
 import axios, { AxiosResponse } from '@ohos/axios'
 import CryptoJS from '@ohos/crypto-js'
 import { ApiResponse, Artist, LyricsList, Playlist, SubsonicResponse } from './Interface'
-import { promptAction } from '@kit.ArkUI'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 

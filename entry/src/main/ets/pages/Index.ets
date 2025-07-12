@@ -1,4 +1,4 @@
-import { curves, promptAction, window } from '@kit.ArkUI';
+import { curves, window } from '@kit.ArkUI';
 import { common, ConfigurationConstant, wantAgent, WantAgent } from '@kit.AbilityKit';
 import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { media } from '@kit.MediaKit';
