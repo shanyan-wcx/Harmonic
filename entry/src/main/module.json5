@@ -26,6 +26,7 @@
         "exported": true,
         "minWindowWidth": 400,
         "minWindowHeight": 400,
+        "recoverable": true,
         "backgroundModes": [
           "audioPlayback"
         ],

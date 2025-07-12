@@ -1,11 +1,22 @@
-import { AbilityConstant, UIAbility, Want, Configuration, ConfigurationConstant } from '@kit.AbilityKit';
+import { AbilityConstant, UIAbility, Want, Configuration, ConfigurationConstant, appRecovery, errorManager } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
 
+let callback: errorManager.ErrorObserver = {
+  onUnhandledException(errMsg) {
+    console.log(errMsg);
+    appRecovery.saveAppState();
+    appRecovery.restartApp();
+  }
+}
+
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    appRecovery.enableAppRecovery(appRecovery.RestartFlag.ALWAYS_RESTART,
+      appRecovery.SaveOccasionFlag.SAVE_WHEN_ERROR | appRecovery.SaveOccasionFlag.SAVE_WHEN_BACKGROUND,
+      appRecovery.SaveModeFlag.SAVE_WITH_FILE);
   }
 
   onDestroy(): void {
@@ -15,6 +26,7 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
+    errorManager.on('error', callback);
 
     windowStage.loadContent('pages/Index', (err) => {
       if (err.code) {
