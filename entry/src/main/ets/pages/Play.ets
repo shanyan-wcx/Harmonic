@@ -303,19 +303,38 @@ export default struct Play {
       .clip(true)
       .backgroundColor($r('app.color.bar_background'))
 
-      Button({ type: ButtonType.Normal }) {
-        Text("设置")
-          .fontSize(20)
-          .fontColor($r('app.color.font'))
+      Row() {
+        Button({ type: ButtonType.Normal }) {
+          Text("设置")
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+        }
+        .width('47%')
+        .height(60)
+        .borderRadius(10)
+        .backgroundColor($r('app.color.bar_background'))
+        .onClick(() => {
+          this.sleepTime = this.sleepValue * 60
+          this.showSleep = false
+        })
+
+        Button({ type: ButtonType.Normal }) {
+          Text("清除")
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+        }
+        .width('47%')
+        .height(60)
+        .borderRadius(10)
+        .backgroundColor($r('app.color.bar_background'))
+        .onClick(() => {
+          this.sleepTime = 0
+          this.sleepValue = 0
+          this.showSleep = false
+        })
       }
-      .width('80%')
-      .height(60)
-      .borderRadius(10)
-      .backgroundColor($r('app.color.bar_background'))
-      .onClick(() => {
-        this.sleepTime = this.sleepValue * 60
-        this.showSleep = false
-      })
+      .width('90%')
+      .justifyContent(FlexAlign.SpaceBetween)
     }
     .margin({ bottom: 25 })
   }
@@ -607,23 +626,6 @@ export default struct Play {
         this.showPlay = false
         this.album = await getAlbum(this.baseURL, this.username, this.password, this.nowPlayingSong!.albumId)
         this.pageStack.replacePathByName('AlbumDetail', undefined);
-      })
-
-      Button({ type: ButtonType.Normal }) {
-        Text("清除睡眠定时")
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .fontSize(18)
-          .fontColor($r('app.color.font'))
-      }
-      .width('100%')
-      .height(60)
-      .borderRadius(10)
-      .padding({ left: 20, right: 20 })
-      .backgroundColor($r('app.color.bar_background'))
-      .onClick(async () => {
-        this.showMore = false
-        this.sleepTime = 0
       })
 
       Button({ type: ButtonType.Normal }) {
