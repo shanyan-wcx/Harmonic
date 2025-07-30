@@ -640,7 +640,6 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
-        this.nowPlayingSong = undefined
         this.nowPlayingList = []
         this.avPlayer!.stop()
         setTimeout(() => {
@@ -943,7 +942,7 @@ export default struct Play {
                   if(mode === SliderChangeMode.Begin){
                     this.sliderMoving = true
                   }
-                  if(mode === SliderChangeMode.End){
+                  if(mode === SliderChangeMode.End && this.sliderMoving === true){
                     this.avPlayer!.seek(value * this.nowPlayingSong!.duration * 10)
                   }
                 })
