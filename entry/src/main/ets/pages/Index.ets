@@ -1349,14 +1349,6 @@ struct Index {
             preferType: SheetType.BOTTOM,
             backgroundColor: $r('app.color.content_background'),
           })
-          .onClick(() => {
-            this.uiContext?.animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.showSidebar = false
-            })
-          })
 
           Row() {
             Row() {
@@ -1403,12 +1395,6 @@ struct Index {
               .height(35)
               .backgroundColor(Color.Transparent)
               .onClick(async () => {
-                this.uiContext?.animateTo({
-                  duration: 300,
-                  curve: Curve.EaseOut,
-                }, () => {
-                  this.showSidebar = false
-                })
                 await this.avPlayer!.reset();
                 if (this.nowPlayingIndex === 0) {
                   this.nowPlayingIndex = this.nowPlayingList.length - 1
@@ -1462,12 +1448,6 @@ struct Index {
                       this.avPlayer!.play()
                     }
                   }
-                  this.uiContext?.animateTo({
-                    duration: 300,
-                    curve: Curve.EaseOut,
-                  }, () => {
-                    this.showSidebar = false
-                  })
                 })
               }
 
@@ -1480,12 +1460,6 @@ struct Index {
               .height(35)
               .backgroundColor(Color.Transparent)
               .onClick(async () => {
-                this.uiContext?.animateTo({
-                  duration: 300,
-                  curve: Curve.EaseOut,
-                }, () => {
-                  this.showSidebar = false
-                })
                 await this.avPlayer!.reset();
                 if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                   this.nowPlayingIndex = 0
