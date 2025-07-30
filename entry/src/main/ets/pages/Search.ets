@@ -85,31 +85,40 @@ export default struct Search_ {
   build() {
     Column() {
       Row() {
-        TextInput({
-          placeholder: '请输入...',
-          text: $$this.searchQuery
-        })
+        Search()
           .width("100%")
           .height(this.displayWidth > 1400 ? 50 : 40)
           .layoutWeight(1)
           .borderRadius(10)
-          .margin({ left: 20, right: 15 })
-          .caretColor($r('app.color.font_secondary'))
-          .fontColor($r('app.color.font'))
-          .fontSize(this.displayWidth > 1400 ? 22 : 20)
+          .margin({ left: 20, right: 20 })
+          .searchIcon({
+            size: 0
+          })
+          .searchButton("搜索", {
+            fontSize: this.displayWidth > 1400 ? 20 : 18,
+            fontColor: $r('app.color.font'),
+            autoDisable: true
+          })
+          .placeholderColor($r('app.color.font_secondary'))
           .placeholderFont({
             size: this.displayWidth > 1400 ? 22 : 20
           })
-          .type(InputType.Normal)
+          .fontColor($r('app.color.font'))
+          .textFont({
+            size: this.displayWidth > 1400 ? 22 : 20
+          })
+          .caretStyle({
+            color: $r('app.color.font_secondary')
+          })
           .enterKeyType(EnterKeyType.Search)
-          .onSubmit(async (enterKey: EnterKeyType, event: SubmitEvent) => {
-            if (this.searchQuery !== "") {
+          .onSubmit(async (searchContent: string, event: SubmitEvent) => {
+            if(searchContent !== "") {
               this.showProgress = true;
               this.songs = [];
               this.albums = [];
               this.artists = [];
               let searchResult: SearchResult | undefined =
-                await search(this.baseURL, this.username, this.password, this.searchQuery)
+                await search(this.baseURL, this.username, this.password, searchContent)
               if (searchResult !== undefined) {
                 if (searchResult.song !== undefined) {
                   this.songs = searchResult.song;
@@ -124,44 +133,8 @@ export default struct Search_ {
               this.showProgress = false;
             }
           })
-
-        Button({ type: ButtonType.Normal }) {
-          Text("搜索")
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-            .fontSize(this.displayWidth > 1400 ? 20 : 18)
-            .fontColor($r('app.color.font'))
-        }
-        .width(this.displayWidth > 1400 ? 100 : 80)
-        .height(this.displayWidth > 1400 ? 50 : 40)
-        .borderRadius(10)
-        .padding({ left: 20, right: 20 })
-        .margin({ right: 20 })
-        .backgroundColor($r('app.color.bar_background'))
-        .onClick(async () => {
-          if (this.searchQuery !== "") {
-            this.showProgress = true;
-            this.songs = [];
-            this.albums = [];
-            this.artists = [];
-            let searchResult: SearchResult | undefined =
-              await search(this.baseURL, this.username, this.password, this.searchQuery)
-            if (searchResult !== undefined) {
-              if (searchResult.song !== undefined) {
-                this.songs = searchResult.song;
-              }
-              if (searchResult.album !== undefined) {
-                this.albums = searchResult.album;
-              }
-              if (searchResult.artist !== undefined) {
-                this.artists = searchResult.artist;
-              }
-            }
-            this.showProgress = false;
-          }
-        })
       }
-      .padding({bottom: 20})
+      .padding({bottom: 15})
 
       Scroll() {
         Column() {
@@ -170,7 +143,7 @@ export default struct Search_ {
               .width('100%')
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .margin({ top: 10, bottom: 10 })
+              .margin({ top: 10, bottom: 5 })
               .padding({ left: 20 })
               .textAlign(TextAlign.Start)
 
@@ -252,7 +225,7 @@ export default struct Search_ {
               Text("专辑")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
-                .margin({ top: 10, bottom: 10 })
+                .margin({ top: 10, bottom: 5 })
                 .textAlign(TextAlign.Start)
 
               Row() {
@@ -341,7 +314,7 @@ export default struct Search_ {
               Text("艺术家")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
-                .margin({ top: 10, bottom: 10 })
+                .margin({ top: 10, bottom: 5 })
                 .textAlign(TextAlign.Start)
 
               Row() {
