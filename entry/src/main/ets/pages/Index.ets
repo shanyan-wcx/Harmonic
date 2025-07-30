@@ -92,6 +92,8 @@ struct Index {
   @Provide displayWidth: number = 0
   @Provide displayHeight: number = 0
   @Provide sidebarType: number = SideBarContainerType.Overlay
+  @Provide sliderValue: number = 0
+  @Provide sliderMoving: boolean = false
   @State coverSize: number = 64
   @State controlButtonWidth: number = 48
   @State themeIcon: Resource = $r('app.media.auto')
@@ -351,7 +353,8 @@ struct Index {
       }
       this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
     });
-    this.session!.on('seek', (time: number) => {
+    this.session!.on('seek', async (time: number) => {
+      await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_BUFFERING)
       this.avPlayer!.seek(time)
     });
     this.session!.on('setLoopMode', async (mode: AVSessionManager.LoopMode) => {
@@ -414,6 +417,9 @@ struct Index {
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('timeUpdate', async (time: number) => {
       this.nowPlayedTime = time / 1000
+      if(this.sliderMoving === false){
+        this.sliderValue = this.nowPlayedTime / this.nowPlayingSong?.duration! * 100
+      }
       if (this.sleepTime > 0 && this.isPlaying === true) {
         this.sleepTime -= 0.1
         if (this.sleepTime <= 0) {
@@ -437,11 +443,13 @@ struct Index {
     })
     avPlayer.on('seekDone', async (seekDoneTime: number) => {
       console.info(`播放器跳转成功，当前时间为 ${seekDoneTime}`);
+      this.nowPlayedTime = seekDoneTime / 1000
       if (this.isPlaying === true) {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
       } else {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
       }
+      this.sliderMoving = false
     })
     avPlayer.on('volumeChange', (vol: number) => {
       console.info('设置播放音量' + vol)
@@ -956,8 +964,10 @@ struct Index {
     this.setAVPlayerCallback(this.avPlayer!);
     let path = this.context!.filesDir + '/saveState.json';
     if (fs.accessSync(path)) {
+      let stat = fs.statSync(path);
+      let fileSize = stat.size;
       let file = fs.openSync(path, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
-      let arrayBuffer = new ArrayBuffer(40960);
+      let arrayBuffer = new ArrayBuffer(fileSize);
       let readOptions: ReadOptions = {
         offset: 0,
         length: arrayBuffer.byteLength

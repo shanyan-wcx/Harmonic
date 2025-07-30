@@ -86,6 +86,8 @@ export default struct Play {
   @Consume playlists: Playlist[]
   @Consume mainWindow: window.Window | undefined
   @Provide selectDeviceHeight: number = 300
+  @Consume sliderValue: number
+  @Consume sliderMoving: boolean
   @State showSleep: boolean = false
   @State showList: boolean = false
   @State showMore: boolean = false
@@ -913,7 +915,7 @@ export default struct Play {
             Column() {
               Column() {
                 Row() {
-                  Text(formatDuration(this.nowPlayedTime))
+                  Text(formatDuration(this.sliderValue * this.nowPlayingSong!.duration / 100))
                     .fontSize(16)
                     .fontColor($r('app.color.font'))
                     .fontWeight(FontWeight.Medium)
@@ -923,52 +925,28 @@ export default struct Play {
                     .fontWeight(FontWeight.Medium)
                 }
                 .width('100%')
+                .height(10)
                 .justifyContent(FlexAlign.SpaceBetween)
 
-                Stack() {
-                  Progress({
-                    value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
-                    total: 100,
-                    type: ProgressType.Linear
-                  })
-                    .style({ strokeWidth: 25 })
-                    .width('100%')
-                    .color(Color.Transparent)
-                    .opacity(0)
-                    .onAreaChange((oldValue: Area, newValue: Area) => {
-                      this.progressWidth = newValue.width as number;
-                    })
-                    .gesture(
-                      GestureGroup(
-                        GestureMode.Exclusive,
-                        TapGesture({ fingers: 1, count: 1 })
-                          .onAction((event: GestureEvent) => {
-                            let touchProgress = Math.round((event.fingerList[0].localX / this.progressWidth) * 100)
-                            let progress = 0
-                            if (touchProgress < 0) {
-                              progress = 0
-                            } else if (touchProgress >= 100) {
-                              progress = 99
-                            } else {
-                              progress = touchProgress
-                            }
-                            this.avPlayer!.seek(progress * this.nowPlayingSong!.duration * 10)
-                          })
-                      )
-                    )
-
-                  Progress({
-                    value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
-                    total: 100,
-                    type: ProgressType.Linear
-                  })
-                    .style({ strokeWidth: 5 })
-                    .width('100%')
-                    .margin({ top: 10, bottom: 10 })
-                    .color($r('app.color.progress'))
-                    .hitTestBehavior(HitTestMode.Transparent)
-                }
+                Slider({
+                  value: $$this.sliderValue,
+                  min: 0,
+                  max: 100,
+                  step: 0.01,
+                  style: SliderStyle.NONE
+                })
                 .width('100%')
+                .trackThickness(5)
+                .selectedColor($r('app.color.progress'))
+                .sliderInteractionMode(SliderInteraction.SLIDE_AND_CLICK_UP)
+                .onChange((value: number, mode: SliderChangeMode) => {
+                  if(mode === SliderChangeMode.Begin){
+                    this.sliderMoving = true
+                  }
+                  if(mode === SliderChangeMode.End){
+                    this.avPlayer!.seek(value * this.nowPlayingSong!.duration * 10)
+                  }
+                })
               }
               .width('100%')
               .visibility(this.displayHeight > 300 ? Visibility.Visible : Visibility.None)
