@@ -115,7 +115,7 @@ export default struct ArtistDetail {
           .columnsGap(0)
           .rowsGap(0)
           .scrollBar(BarState.Off)
-          .edgeEffect(EdgeEffect.Fade)
+          .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
           .padding({ left: 10, right: 10, bottom: 10 })
         }
         .width('100%')

@@ -89,7 +89,7 @@ export default struct Playlists {
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
-      .edgeEffect(EdgeEffect.Fade)
+      .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
       .visibility(this.playlists.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
       Column() {

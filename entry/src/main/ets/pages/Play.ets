@@ -432,7 +432,7 @@ export default struct Play {
       .height('100%')
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
-      .edgeEffect(EdgeEffect.Fade)
+      .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
     }
     .width('90%')
     .height(this.nowPlayingList.length > 7 ? 420 : this.nowPlayingList.length * 60)

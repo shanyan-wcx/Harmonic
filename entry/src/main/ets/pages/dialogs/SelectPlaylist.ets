@@ -73,7 +73,7 @@ export default struct selectPlaylistBuilder {
       .layoutWeight(1)
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
-      .edgeEffect(EdgeEffect.Fade)
+      .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
       .visibility(this.playlists.length > 0 ? Visibility.Visible : Visibility.None)
 
       Column() {

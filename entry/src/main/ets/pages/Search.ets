@@ -161,7 +161,7 @@ export default struct Search_ {
           }
         })
       }
-      .margin({ bottom: 15 })
+      .padding({bottom: 20})
 
       Scroll() {
         Column() {
@@ -244,6 +244,7 @@ export default struct Search_ {
             })
           }
           .width('100%')
+          .padding({ bottom: this.albums.length > 0 ? 0 : 10 })
           .visibility(this.songs.length > 0 ? Visibility.Visible : Visibility.None)
 
           Column() {
@@ -332,6 +333,7 @@ export default struct Search_ {
           }
           .width('100%')
           .height('30%')
+          .padding({ bottom: this.artists.length > 0 ? 0 : 10 })
           .visibility(this.albums.length > 0 ? Visibility.Visible : Visibility.None)
 
           Column() {
@@ -429,6 +431,7 @@ export default struct Search_ {
           }
           .width('100%')
           .height('30%')
+          .padding({ bottom: 10 })
           .visibility(this.artists.length > 0 ? Visibility.Visible : Visibility.None)
 
           Column() {
@@ -438,21 +441,20 @@ export default struct Search_ {
           }
           .width('100%')
           .height('100%')
+          .layoutWeight(1)
           .justifyContent(FlexAlign.Center)
           .padding({ bottom: 160 })
           .visibility(this.songs.length === 0 && this.albums.length === 0 && this.artists.length === 0 &&
             this.showProgress === false ? Visibility.Visible : Visibility.None)
-
-          Column()
-            .height(this.startPlaying === true ? 95 : 10)
         }
       }
       .width('100%')
       .height('100%')
       .layoutWeight(1)
       .scrollBar(BarState.Off)
-      .edgeEffect(EdgeEffect.Fade)
+      .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
       .align(Alignment.Top)
+      .margin({bottom: this.startPlaying === true ? 85 : 0})
     }
     .width('100%')
     .height('100%')
