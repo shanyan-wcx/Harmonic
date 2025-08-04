@@ -15,7 +15,7 @@ export default struct Playlists {
   @Consume showProgress: boolean
   createPlaylist: CustomDialogController = new CustomDialogController({
     builder: createPlaylistBuilder(),
-    width: 340,
+    width: 360,
     height: 310,
     backgroundColor: $r('app.color.start_window_background')
   })
@@ -32,10 +32,9 @@ export default struct Playlists {
     Column() {
       Row() {
         Button({ type: ButtonType.Normal }) {
-          Text("+")
-            .fontSize(40)
+          Text("新建歌单")
+            .fontSize(20)
             .fontColor($r('app.color.font'))
-            .fontWeight(FontWeight.Lighter)
         }
         .width('90%')
         .height(50)
@@ -71,7 +70,7 @@ export default struct Playlists {
               .padding({ left: 20, right: 20 })
             }
             .width('90%')
-            .height(80)
+            .height(60)
             .borderRadius(10)
             .backgroundColor(Color.Transparent)
             .padding({ left: 20, right: 20 })

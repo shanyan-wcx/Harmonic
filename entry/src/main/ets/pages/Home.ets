@@ -25,6 +25,7 @@ export default struct Home {
   @State profileSize: number = 256
   @Consume showProgress: boolean
   @Consume sidebarType: number
+  @Consume displayWidth: number
   private recentAlbumsScroller: Scroller = new Scroller
   private frequentAlbumsScroller: Scroller = new Scroller
   private starredAlbumsScroller: Scroller = new Scroller
@@ -51,7 +52,6 @@ export default struct Home {
             Text("最近添加")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -132,7 +132,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height('30%')
+        .height(this.displayWidth > 1400 ? 260 : 220)
         .visibility(this.recentAlbums === undefined|| this.recentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -141,7 +141,6 @@ export default struct Home {
             Text("最常播放")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -222,7 +221,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height('30%')
+        .height(this.displayWidth > 1400 ? 260 : 220)
         .visibility(this.frequentAlbums === undefined || this.frequentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -231,7 +230,6 @@ export default struct Home {
             Text("收藏专辑")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -312,7 +310,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height('30%')
+        .height(this.displayWidth > 1400 ? 260 : 220)
         .visibility(this.starredAlbums === undefined || this.starredAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -321,7 +319,6 @@ export default struct Home {
             Text("收藏艺术家")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -379,7 +376,7 @@ export default struct Home {
                       .borderRadius(100)
                       .margin(10)
                     Text(artist.name)
-                      .width('auto')
+                      .width('100%')
                       .fontSize(16)
                       .fontColor($r('app.color.font'))
                       .margin({ bottom: 10, left: 10, right: 10 })
@@ -387,10 +384,10 @@ export default struct Home {
                       .textAlign(TextAlign.Center)
                       .textOverflow({ overflow: TextOverflow.Ellipsis })
                   }
-                  .width('auto')
+                  .width('100%')
                   .height('100%')
                 }
-                .width('auto')
+                .width(this.displayWidth > 1400 ? 160 : 124)
                 .height('100%')
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
@@ -411,7 +408,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height('30%')
+        .height(this.displayWidth > 1400 ? 230 : 195)
         .visibility(this.starredArtists === undefined || this.starredArtists?.length === 0 ? Visibility.None :
         Visibility.Visible)
 

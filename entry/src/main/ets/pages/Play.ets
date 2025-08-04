@@ -104,13 +104,13 @@ export default struct Play {
   context: common.UIAbilityContext | undefined = undefined
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
-    width: 340,
+    width: 360,
     height: 372,
     backgroundColor: $r('app.color.start_window_background'),
   })
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
-    width: 340,
+    width: 360,
     height: 380,
     backgroundColor: $r('app.color.start_window_background'),
   })

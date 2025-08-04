@@ -143,7 +143,7 @@ export default struct Search_ {
               .width('100%')
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .margin({ top: 10, bottom: 5 })
+              .margin({ top: 15, bottom: 5 })
               .padding({ left: 20 })
               .textAlign(TextAlign.Start)
 
@@ -225,7 +225,7 @@ export default struct Search_ {
               Text("专辑")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
-                .margin({ top: 10, bottom: 5 })
+                .margin({ top: 15, bottom: 5 })
                 .textAlign(TextAlign.Start)
 
               Row() {
@@ -305,7 +305,7 @@ export default struct Search_ {
             .edgeEffect(EdgeEffect.Spring)
           }
           .width('100%')
-          .height('30%')
+          .height(this.displayWidth > 1400 ? 260 : 220)
           .padding({ bottom: this.artists.length > 0 ? 0 : 10 })
           .visibility(this.albums.length > 0 ? Visibility.Visible : Visibility.None)
 
@@ -314,7 +314,7 @@ export default struct Search_ {
               Text("艺术家")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
-                .margin({ top: 10, bottom: 5 })
+                .margin({ top: 15, bottom: 5 })
                 .textAlign(TextAlign.Start)
 
               Row() {
@@ -371,7 +371,7 @@ export default struct Search_ {
                         .borderRadius(100)
                         .margin(10)
                       Text(artist.name)
-                        .width('auto')
+                        .width('100%')
                         .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ bottom: 10, left: 10, right: 10 })
@@ -379,10 +379,10 @@ export default struct Search_ {
                         .textAlign(TextAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                     }
-                    .width('auto')
+                    .width('100%')
                     .height('100%')
                   }
-                  .width('auto')
+                  .width(this.displayWidth > 1400 ? 160 : 124)
                   .height('100%')
                   .margin({ left: index === 0 ? 10 : 0, right: index === this.artists.length - 1 ? 10 : 0 })
                   .animation({ curve: curves.springMotion(0.6, 1) })
@@ -403,7 +403,7 @@ export default struct Search_ {
             .edgeEffect(EdgeEffect.Spring)
           }
           .width('100%')
-          .height('30%')
+          .height(this.displayWidth > 1400 ? 240 : 205)
           .padding({ bottom: 10 })
           .visibility(this.artists.length > 0 ? Visibility.Visible : Visibility.None)
 
