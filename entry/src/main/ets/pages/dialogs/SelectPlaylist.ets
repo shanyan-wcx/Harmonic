@@ -12,6 +12,7 @@ export default struct selectPlaylistBuilder {
   @Consume showPlay: boolean
   @Consume longPressSong: Song | undefined
   @Consume playlist: Playlist | undefined
+  @State selectedPlaylistsNum: number = 0
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder({})
   })
@@ -54,10 +55,16 @@ export default struct selectPlaylistBuilder {
                 .width(22)
                 .checked(this.selectedPlaylists[index])
                 .radioStyle({
-                  checkedBackgroundColor: $r('app.color.radio')
+                  checkedBackgroundColor: $r('app.color.radio'),
+                  indicatorColor: $r('app.color.start_window_background')
                 })
                 .onClick(() => {
                   this.selectedPlaylists[index] = !this.selectedPlaylists[index]
+                  if (this.selectedPlaylists[index] === true) {
+                    this.selectedPlaylistsNum++;
+                  } else {
+                    this.selectedPlaylistsNum--;
+                  }
                 })
             }
             .width('100%')
@@ -104,6 +111,13 @@ export default struct selectPlaylistBuilder {
         .margin({ top: 10, bottom: 10 })
         .backgroundColor($r('app.color.bar_background'))
         .onClick(async () => {
+          if (this.selectedPlaylistsNum === 0) {
+            this.getUIContext().getPromptAction().showToast({
+              message: '没有选择任何歌单！',
+              duration: 500
+            });
+            return;
+          }
           this.selectPlaylist.close()
           let success: boolean = true
           for (let index = 0; index < this.selectedPlaylists.length; index++) {
