@@ -143,6 +143,7 @@ export default struct Search_ {
               .width('100%')
               .fontSize(20)
               .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .padding({ left: 20 })
               .textAlign(TextAlign.Start)
@@ -225,6 +226,7 @@ export default struct Search_ {
               Text("专辑")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
+                .fontWeight(FontWeight.Bold)
                 .margin({ top: 15, bottom: 5 })
                 .textAlign(TextAlign.Start)
 
@@ -314,6 +316,7 @@ export default struct Search_ {
               Text("艺术家")
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
+                .fontWeight(FontWeight.Bold)
                 .margin({ top: 15, bottom: 5 })
                 .textAlign(TextAlign.Start)
 

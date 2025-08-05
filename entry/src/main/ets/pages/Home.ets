@@ -1,4 +1,4 @@
-import { getFrequentAlbums, getRecentAlbums, getStarredAlbums, getStarredArtists } from '../utils/Api';
+import { getRecentAlbums, getFrequentAlbums, getNewestAlbums, getStarredAlbums, getStarredArtists } from '../utils/Api';
 import { Album, Artist } from '../utils/Interface';
 import { curves } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
@@ -11,6 +11,7 @@ export default struct Home {
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
   @State recentAlbums: Album[] | undefined = undefined
+  @State newestAlbums: Album[] | undefined = undefined
   @State frequentAlbums: Album[] | undefined = undefined
   @State starredAlbums: Album[] | undefined = undefined
   @State starredArtists: Artist[] | undefined = undefined
@@ -27,6 +28,7 @@ export default struct Home {
   @Consume sidebarType: number
   @Consume displayWidth: number
   private recentAlbumsScroller: Scroller = new Scroller
+  private newestAlbumsScroller: Scroller = new Scroller
   private frequentAlbumsScroller: Scroller = new Scroller
   private starredAlbumsScroller: Scroller = new Scroller
   private starredArtistsScroller: Scroller = new Scroller
@@ -35,6 +37,8 @@ export default struct Home {
     this.showProgress = true
     this.recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password)
     this.recentAlbums = this.recentAlbums !== undefined ? this.recentAlbums : []
+    this.newestAlbums = await getNewestAlbums(this.baseURL, this.username, this.password)
+    this.newestAlbums = this.newestAlbums !== undefined ? this.newestAlbums : []
     this.frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password)
     this.frequentAlbums = this.frequentAlbums !== undefined ? this.frequentAlbums : []
     this.starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password)
@@ -49,9 +53,10 @@ export default struct Home {
       Column() {
         Column() {
           Row() {
-            Text("最近添加")
+            Text("最近播放")
               .fontSize(20)
               .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -138,9 +143,100 @@ export default struct Home {
 
         Column() {
           Row() {
+            Text("最近添加")
+              .fontSize(20)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
+              .margin({ top: 15, bottom: 5 })
+              .textAlign(TextAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.left'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor(Color.Transparent)
+              .margin({ right: 10 })
+              .onClick(() => {
+                this.newestAlbumsScroller.scrollPage({
+                  next: false,
+                  animation: true
+                })
+              })
+
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.right'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor(Color.Transparent)
+              .onClick(() => {
+                this.newestAlbumsScroller.scrollPage({
+                  next: true,
+                  animation: true
+                })
+              })
+            }
+            .visibility(deviceTypeInfo === '2in1' ? Visibility.Visible : Visibility.None)
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          List({ scroller: this.newestAlbumsScroller }) {
+            ForEach(this.newestAlbums, (album: Album, index) => {
+              ListItem() {
+                Button({ type: ButtonType.Normal }) {
+                  Column() {
+                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
+                      .alt($rawfile('nocover.png'))
+                      .objectFit(ImageFit.Contain)
+                      .height('100%')
+                      .aspectRatio(1)
+                      .borderRadius(10)
+                      .margin(10)
+                  }
+                  .width('auto')
+                  .height('100%')
+                }
+                .width('auto')
+                .height('100%')
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.newestAlbums!.length - 1 ? 10 : 0 })
+                .animation({ curve: curves.springMotion(0.6, 1) })
+                .borderRadius(10)
+                .backgroundColor(Color.Transparent)
+                .onClick(() => {
+                  this.album = album
+                  this.pageStack.pushPathByName('AlbumDetail', undefined);
+                })
+              }
+            })
+          }
+          .width('100%')
+          .height('100%')
+          .layoutWeight(1)
+          .listDirection(Axis.Horizontal)
+          .scrollBar(BarState.Off)
+          .edgeEffect(EdgeEffect.Spring)
+        }
+        .width('100%')
+        .height(this.displayWidth > 1400 ? 260 : 220)
+        .visibility(this.newestAlbums === undefined|| this.newestAlbums?.length === 0 ? Visibility.None :
+        Visibility.Visible)
+
+        Column() {
+          Row() {
             Text("最常播放")
               .fontSize(20)
               .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -202,7 +298,7 @@ export default struct Home {
                 }
                 .width('auto')
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.frequentAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
@@ -230,6 +326,7 @@ export default struct Home {
             Text("收藏专辑")
               .fontSize(20)
               .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -291,7 +388,7 @@ export default struct Home {
                 }
                 .width('auto')
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.starredAlbums!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
@@ -319,6 +416,7 @@ export default struct Home {
             Text("收藏艺术家")
               .fontSize(20)
               .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Bold)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -389,7 +487,7 @@ export default struct Home {
                 }
                 .width(this.displayWidth > 1400 ? 160 : 124)
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.starredArtists!.length - 1 ? 10 : 0 })
                 .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
@@ -421,10 +519,10 @@ export default struct Home {
         .height('100%')
         .padding({ bottom: 160 })
         .justifyContent(FlexAlign.Center)
-        .visibility(this.recentAlbums !== undefined && this.frequentAlbums !== undefined &&
+        .visibility(this.recentAlbums !== undefined && this.newestAlbums !== undefined && this.frequentAlbums !== undefined &&
           this.starredAlbums !== undefined && this.starredArtists !== undefined && this.starredArtists!.length === 0 &&
-          this.starredAlbums!.length === 0 && this.frequentAlbums!.length === 0 && this.recentAlbums!.length === 0 &&
-          this.showProgress === false ? Visibility.Visible : Visibility.None)
+          this.starredAlbums!.length === 0 && this.frequentAlbums!.length === 0 && this.newestAlbums!.length === 0 &&
+          this.recentAlbums!.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
       }
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
     }
