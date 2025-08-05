@@ -834,7 +834,7 @@ export default struct Play {
                           Column() {
                             ForEach(group, (line: Line, index2) => {
                               Text(line.value)
-                                .width('85%')
+                                .width('86%')
                                 .height('auto')
                                 .padding({ left: 20, right: 20 })
                                 .margin({ top: index2 === 0 ? 0 : this.lyricsIndex === index ? 10 : 8 })
@@ -1144,7 +1144,7 @@ export default struct Play {
                       Column() {
                         ForEach(group, (line: Line, index2) => {
                           Text(line.value)
-                            .width('85%')
+                            .width('86%')
                             .height('auto')
                             .padding({ left: 20, right: 20 })
                             .margin({ top: index2 === 0 ? 0 : this.lyricsIndex === index ? 10 : 8 })
