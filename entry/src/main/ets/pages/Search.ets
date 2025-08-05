@@ -307,7 +307,7 @@ export default struct Search_ {
             .edgeEffect(EdgeEffect.Spring)
           }
           .width('100%')
-          .height(this.displayWidth > 1400 ? 260 : 220)
+          .height(this.displayWidth > 1400 ? 250 : 210)
           .padding({ bottom: this.artists.length > 0 ? 0 : 10 })
           .visibility(this.albums.length > 0 ? Visibility.Visible : Visibility.None)
 

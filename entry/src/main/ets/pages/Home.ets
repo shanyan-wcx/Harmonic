@@ -137,7 +137,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 260 : 220)
+        .height(this.displayWidth > 1400 ? 250 : 210)
         .visibility(this.recentAlbums === undefined|| this.recentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -227,7 +227,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 260 : 220)
+        .height(this.displayWidth > 1400 ? 250 : 210)
         .visibility(this.newestAlbums === undefined|| this.newestAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -317,7 +317,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 260 : 220)
+        .height(this.displayWidth > 1400 ? 250 : 210)
         .visibility(this.frequentAlbums === undefined || this.frequentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -407,7 +407,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 260 : 220)
+        .height(this.displayWidth > 1400 ? 250 : 210)
         .visibility(this.starredAlbums === undefined || this.starredAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
