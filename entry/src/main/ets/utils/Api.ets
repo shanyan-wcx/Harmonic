@@ -154,6 +154,21 @@ export async function getRecentAlbums(baseURL: string, username: string, passwor
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=recent`, {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.albumList!.album
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined
+  }
+}
+
+export async function getNewestAlbums(baseURL: string, username: string, password: string) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=newest`, {
         timeout: 10000
       })
@@ -433,5 +448,19 @@ export async function search(baseURL: string, username: string, password: string
   } catch (error) {
     console.error(JSON.stringify(error));
     return undefined;
+  }
+}
+
+export async function scrobble(baseURL: string, username: string, password: string, id: string, submission: boolean) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/scrobble' + auth + `&id=${id}&submission=${submission}`, {
+        timeout: 10000
+      })
+    return true
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return false
   }
 }

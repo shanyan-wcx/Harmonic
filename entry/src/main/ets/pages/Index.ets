@@ -14,6 +14,7 @@ import {
   getPlaylist,
   getPlaylists,
   getSong,
+  scrobble,
   star,
   unstar,
   updatePlaylist
@@ -475,6 +476,7 @@ struct Index {
           console.info('播放器重置。');
           this.stopContinuousTask()
           this.nowPlayedTime = 0
+          await scrobble(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, true);
           break;
         case 'initialized':
           console.info('播放器初始化。');
@@ -514,6 +516,7 @@ struct Index {
               this.avPlayer!.pause()
             }
           }
+          scrobble(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, false);
           break;
         case 'playing':
           console.info('播放器开始播放。');
@@ -866,7 +869,7 @@ struct Index {
     this.firstStartTip.close()
   }
 
-  aboutToDisappear() {
+  async aboutToDisappear() {
     let path = this.context!.filesDir + '/saveState.json';
     if (this.startPlaying === true) {
       let saveState: SaveState = {
@@ -900,6 +903,7 @@ struct Index {
         }
       }
     }
+    await scrobble(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, true);
   }
 
   async aboutToAppear() {
