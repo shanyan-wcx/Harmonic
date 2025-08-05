@@ -194,8 +194,9 @@ export default struct PlaylistDetail {
           .justifyContent(FlexAlign.SpaceAround)
 
           Divider()
-            .width('90%')
+            .width('100%')
             .height(1)
+            .margin({ left: 20, right: 20 })
             .color($r('app.color.divider'))
 
           ForEach(this.playlist!.entry, (song: Song, index) => {

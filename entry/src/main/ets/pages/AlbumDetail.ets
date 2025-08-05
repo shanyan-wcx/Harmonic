@@ -194,8 +194,9 @@ export default struct AlbumDetail {
           .justifyContent(FlexAlign.SpaceAround)
 
           Divider()
-            .width('90%')
+            .width('100%')
             .height(1)
+            .margin({ left: 20, right: 20 })
             .color($r('app.color.divider'))
 
           if (this.showDiscHeader) {
@@ -272,8 +273,9 @@ export default struct AlbumDetail {
                   )
                 })
                 Divider()
-                  .width('90%')
+                  .width('100%')
                   .height(1)
+                  .margin({ left: 20, right: 20 })
                   .color($r('app.color.divider'))
                   .visibility(index === this.discs.length - 1 ? Visibility.None : Visibility.Visible)
               }
