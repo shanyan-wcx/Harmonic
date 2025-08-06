@@ -111,19 +111,19 @@ struct Index {
   context: common.UIAbilityContext | undefined = undefined
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
-    width: 360,
+    width: 350,
     height: 372,
     backgroundColor: $r('app.color.start_window_background')
   })
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
-    width: 360,
+    width: 350,
     height: 380,
     backgroundColor: $r('app.color.start_window_background'),
   })
   firstStartTip: CustomDialogController = new CustomDialogController({
     builder: firstStartBuilder(),
-    width: 360,
+    width: 350,
     height: 176,
     backgroundColor: $r('app.color.start_window_background'),
   })

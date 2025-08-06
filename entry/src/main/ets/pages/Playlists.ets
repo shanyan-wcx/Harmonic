@@ -15,7 +15,7 @@ export default struct Playlists {
   @Consume showProgress: boolean
   createPlaylist: CustomDialogController = new CustomDialogController({
     builder: createPlaylistBuilder(),
-    width: 360,
+    width: 350,
     height: 310,
     backgroundColor: $r('app.color.start_window_background')
   })

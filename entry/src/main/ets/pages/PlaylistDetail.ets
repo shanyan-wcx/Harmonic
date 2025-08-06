@@ -66,7 +66,7 @@ export default struct PlaylistDetail {
   @State showProgress: boolean = false
   editPlaylist: CustomDialogController = new CustomDialogController({
     builder: editPlaylistBuilder(),
-    width: 360,
+    width: 350,
     height: 310,
     backgroundColor: $r('app.color.start_window_background')
   })
