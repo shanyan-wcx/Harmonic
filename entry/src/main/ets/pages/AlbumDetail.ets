@@ -50,6 +50,7 @@ export default struct AlbumDetail {
   @Consume startPlaying: boolean
   @Consume discs: Song[][]
   @Consume showMenu: boolean
+  @Consume displayWidth: number
   @Consume longPressSong: Song | undefined
   @Consume avPlayer: media.AVPlayer | undefined
   @StorageLink('playMode') playMode: number = 0
@@ -121,7 +122,7 @@ export default struct AlbumDetail {
             Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`)
               .alt($rawfile('nocover.png'))
               .objectFit(ImageFit.Contain)
-              .width(140)
+              .width(this.displayWidth > 1400 ? 200 :140)
               .aspectRatio(1)
               .borderRadius(10)
               .margin({ left: 20 })
