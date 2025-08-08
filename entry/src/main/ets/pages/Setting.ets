@@ -124,7 +124,7 @@ export default struct Setting {
               .textOverflow({ overflow: TextOverflow.Ellipsis })
             Toggle({ type: ToggleType.Switch, isOn: $$this.autoPlay })
               .selectedColor($r('app.color.radio'))
-              .switchPointColor($r('app.color.font'))
+              .switchPointColor($r('app.color.bar_background'))
           }
           .width('100%')
           .justifyContent(FlexAlign.SpaceBetween)
@@ -137,7 +137,7 @@ export default struct Setting {
               .textOverflow({ overflow: TextOverflow.Ellipsis })
             Toggle({ type: ToggleType.Switch, isOn: $$this.audioNormalization })
               .selectedColor($r('app.color.radio'))
-              .switchPointColor($r('app.color.font'))
+              .switchPointColor($r('app.color.bar_background'))
           }
           .width('100%')
           .margin({ top: 10 })
@@ -151,7 +151,7 @@ export default struct Setting {
               .textOverflow({ overflow: TextOverflow.Ellipsis })
             Toggle({ type: ToggleType.Switch, isOn: $$this.fadeVolume })
               .selectedColor($r('app.color.radio'))
-              .switchPointColor($r('app.color.font'))
+              .switchPointColor($r('app.color.bar_background'))
           }
           .width('100%')
           .margin({ top: 10 })
@@ -180,7 +180,7 @@ export default struct Setting {
               .textOverflow({ overflow: TextOverflow.Ellipsis })
             Toggle({ type: ToggleType.Switch, isOn: $$this.collate })
               .selectedColor($r('app.color.radio'))
-              .switchPointColor($r('app.color.font'))
+              .switchPointColor($r('app.color.bar_background'))
           }
           .width('100%')
           .justifyContent(FlexAlign.SpaceBetween)
