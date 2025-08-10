@@ -33,6 +33,7 @@ import Home from './Home';
 import firstStartBuilder from './dialogs/FirstStart';
 import { fileIo as fs, ReadOptions } from '@kit.CoreFileKit';
 import { buffer } from '@kit.ArkTS';
+import { KeyCode } from '@kit.InputKit';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -842,6 +843,24 @@ struct Index {
       Play()
     }
     .transition(TransitionEffect.translate({ y: 1000 }).animation({ curve: curves.springMotion(0.6, 1) }))
+    .onKeyEvent((event?: KeyEvent) => {
+      if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+        this.isPlaying = !this.isPlaying
+        if (this.isPlaying === false) {
+          if (this.fadeVolume === true) {
+            this.fadeOut()
+          } else {
+            this.avPlayer!.pause()
+          }
+        } else {
+          if (this.fadeVolume === true) {
+            this.fadeIn()
+          } else {
+            this.avPlayer!.play()
+          }
+        }
+      }
+    })
   }
 
   @Builder
@@ -1566,5 +1585,23 @@ struct Index {
     }
     .width("100%")
     .height('100%')
+    .onKeyEvent((event?: KeyEvent) => {
+      if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+        this.isPlaying = !this.isPlaying
+        if (this.isPlaying === false) {
+          if (this.fadeVolume === true) {
+            this.fadeOut()
+          } else {
+            this.avPlayer!.pause()
+          }
+        } else {
+          if (this.fadeVolume === true) {
+            this.fadeIn()
+          } else {
+            this.avPlayer!.play()
+          }
+        }
+      }
+    })
   }
 }
