@@ -105,8 +105,10 @@ export default struct PlaylistDetail {
   }
 
   async aboutToAppear() {
+    this.showProgress = true
     this.addOrDelete = false
     this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
+    this.showProgress = false
   }
 
   aboutToDisappear() {
