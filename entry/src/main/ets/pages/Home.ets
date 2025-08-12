@@ -138,7 +138,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.recentAlbums === undefined|| this.recentAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.recentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -228,7 +228,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.newestAlbums === undefined|| this.newestAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.newestAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -318,7 +318,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.frequentAlbums === undefined || this.frequentAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.frequentAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -408,7 +408,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.starredAlbums === undefined || this.starredAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.starredAlbums?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -507,7 +507,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 230 : 195)
-        .visibility(this.starredArtists === undefined || this.starredArtists?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.starredArtists?.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -519,8 +519,7 @@ export default struct Home {
         .height('100%')
         .padding({ bottom: 160 })
         .justifyContent(FlexAlign.Center)
-        .visibility(this.recentAlbums !== undefined && this.newestAlbums !== undefined && this.frequentAlbums !== undefined &&
-          this.starredAlbums !== undefined && this.starredArtists !== undefined && this.starredArtists!.length === 0 &&
+        .visibility(this.showProgress === false  && this.starredArtists!.length === 0 &&
           this.starredAlbums!.length === 0 && this.frequentAlbums!.length === 0 && this.newestAlbums!.length === 0 &&
           this.recentAlbums!.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
       }
