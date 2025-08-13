@@ -17,10 +17,9 @@ export default struct Search_ {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @State songs: Song[] = []
-  @State albums: Album[] = []
-  @State artists: Artist[] = []
-  @State searchQuery: string = ""
+  @Consume searchSongs: Song[]
+  @Consume searchAlbums: Album[]
+  @Consume searchArtists: Artist[]
   @Consume artist: Artist | undefined
   @Consume album: Album
   @Consume nowPlayingSong: Song | undefined
@@ -46,8 +45,10 @@ export default struct Search_ {
   @State profileSize: number = 256
   @Consume displayWidth: number
   @Consume sidebarType: number
-  private albumsScroller: Scroller = new Scroller
-  private artistsScroller: Scroller = new Scroller
+  @Consume musicFolderId: number
+  @Consume showLibrary: boolean
+  private searchAlbumsScroller: Scroller = new Scroller
+  private searchArtistsScroller: Scroller = new Scroller
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -114,20 +115,20 @@ export default struct Search_ {
           .onSubmit(async (searchContent: string, event: SubmitEvent) => {
             if(searchContent !== "") {
               this.showProgress = true;
-              this.songs = [];
-              this.albums = [];
-              this.artists = [];
+              this.searchSongs = [];
+              this.searchAlbums = [];
+              this.searchArtists = [];
               let searchResult: SearchResult | undefined =
-                await search(this.baseURL, this.username, this.password, searchContent)
+                await search(this.baseURL, this.username, this.password, searchContent, this.musicFolderId)
               if (searchResult !== undefined) {
                 if (searchResult.song !== undefined) {
-                  this.songs = searchResult.song;
+                  this.searchSongs = searchResult.song;
                 }
                 if (searchResult.album !== undefined) {
-                  this.albums = searchResult.album;
+                  this.searchAlbums = searchResult.album;
                 }
                 if (searchResult.artist !== undefined) {
-                  this.artists = searchResult.artist;
+                  this.searchArtists = searchResult.artist;
                 }
               }
               this.showProgress = false;
@@ -148,7 +149,7 @@ export default struct Search_ {
               .padding({ left: 20 })
               .textAlign(TextAlign.Start)
 
-            ForEach(this.songs, (song: Song, index) => {
+            ForEach(this.searchSongs, (song: Song, index) => {
               Button({ type: ButtonType.Normal }) {
                 Row() {
                   Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
@@ -194,7 +195,7 @@ export default struct Search_ {
                 if (this.nowPlayingLyrics !== undefined) {
                   this.groupLyrics()
                 }
-                this.nowPlayingListOriginal = this.songs.slice()
+                this.nowPlayingListOriginal = this.searchSongs.slice()
                 if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
                   this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
                 } else {
@@ -218,8 +219,8 @@ export default struct Search_ {
             })
           }
           .width('100%')
-          .padding({ bottom: this.albums.length > 0 ? 0 : 10 })
-          .visibility(this.songs.length > 0 ? Visibility.Visible : Visibility.None)
+          .padding({ bottom: this.searchAlbums.length > 0 ? 0 : 10 })
+          .visibility(this.searchSongs.length > 0 ? Visibility.Visible : Visibility.None)
 
           Column() {
             Row() {
@@ -242,7 +243,7 @@ export default struct Search_ {
                 .backgroundColor(Color.Transparent)
                 .margin({ right: 10 })
                 .onClick(() => {
-                  this.albumsScroller.scrollPage({
+                  this.searchAlbumsScroller.scrollPage({
                     next: false,
                     animation: true
                   })
@@ -258,7 +259,7 @@ export default struct Search_ {
                 .borderRadius(5)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  this.albumsScroller.scrollPage({
+                  this.searchAlbumsScroller.scrollPage({
                     next: true,
                     animation: true
                   })
@@ -270,8 +271,8 @@ export default struct Search_ {
             .padding({ left: 20, right: 20 })
             .justifyContent(FlexAlign.SpaceBetween)
 
-            List({ scroller: this.albumsScroller }) {
-              ForEach(this.albums, (album: Album, index) => {
+            List({ scroller: this.searchAlbumsScroller }) {
+              ForEach(this.searchAlbums, (album: Album, index) => {
                 ListItem() {
                   Button({ type: ButtonType.Normal }) {
                     Column() {
@@ -288,7 +289,7 @@ export default struct Search_ {
                   }
                   .width('auto')
                   .height('100%')
-                  .margin({ left: index === 0 ? 10 : 0, right: index === this.albums.length - 1 ? 10 : 0 })
+                  .margin({ left: index === 0 ? 10 : 0, right: index === this.searchAlbums.length - 1 ? 10 : 0 })
                   .animation({ curve: curves.springMotion(0.6, 1) })
                   .borderRadius(10)
                   .backgroundColor(Color.Transparent)
@@ -308,8 +309,8 @@ export default struct Search_ {
           }
           .width('100%')
           .height(this.displayWidth > 1400 ? 250 : 210)
-          .padding({ bottom: this.artists.length > 0 ? 0 : 10 })
-          .visibility(this.albums.length > 0 ? Visibility.Visible : Visibility.None)
+          .padding({ bottom: this.searchArtists.length > 0 ? 0 : 10 })
+          .visibility(this.searchAlbums.length > 0 ? Visibility.Visible : Visibility.None)
 
           Column() {
             Row() {
@@ -332,7 +333,7 @@ export default struct Search_ {
                 .backgroundColor(Color.Transparent)
                 .margin({ right: 10 })
                 .onClick(() => {
-                  this.artistsScroller.scrollPage({
+                  this.searchArtistsScroller.scrollPage({
                     next: false,
                     animation: true
                   })
@@ -348,7 +349,7 @@ export default struct Search_ {
                 .borderRadius(5)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  this.artistsScroller.scrollPage({
+                  this.searchArtistsScroller.scrollPage({
                     next: true,
                     animation: true
                   })
@@ -360,8 +361,8 @@ export default struct Search_ {
             .padding({ left: 20, right: 20 })
             .justifyContent(FlexAlign.SpaceBetween)
 
-            List({ scroller: this.artistsScroller }) {
-              ForEach(this.artists, (artist: Artist, index) => {
+            List({ scroller: this.searchArtistsScroller }) {
+              ForEach(this.searchArtists, (artist: Artist, index) => {
                 ListItem() {
                   Button({ type: ButtonType.Normal }) {
                     Column() {
@@ -387,7 +388,7 @@ export default struct Search_ {
                   }
                   .width(this.displayWidth > 1400 ? 160 : 124)
                   .height('100%')
-                  .margin({ left: index === 0 ? 10 : 0, right: index === this.artists.length - 1 ? 10 : 0 })
+                  .margin({ left: index === 0 ? 10 : 0, right: index === this.searchArtists.length - 1 ? 10 : 0 })
                   .animation({ curve: curves.springMotion(0.6, 1) })
                   .borderRadius(10)
                   .backgroundColor(Color.Transparent)
@@ -408,7 +409,7 @@ export default struct Search_ {
           .width('100%')
           .height(this.displayWidth > 1400 ? 240 : 205)
           .padding({ bottom: 10 })
-          .visibility(this.artists.length > 0 ? Visibility.Visible : Visibility.None)
+          .visibility(this.searchArtists.length > 0 ? Visibility.Visible : Visibility.None)
 
           Column() {
             Text("没有结果")
@@ -420,7 +421,7 @@ export default struct Search_ {
           .layoutWeight(1)
           .justifyContent(FlexAlign.Center)
           .padding({ bottom: 160 })
-          .visibility(this.songs.length === 0 && this.albums.length === 0 && this.artists.length === 0 &&
+          .visibility(this.searchSongs.length === 0 && this.searchAlbums.length === 0 && this.searchArtists.length === 0 &&
             this.showProgress === false ? Visibility.Visible : Visibility.None)
         }
       }

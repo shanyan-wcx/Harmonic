@@ -13,6 +13,7 @@ export default struct Playlists {
   @Consume playlists: Playlist[]
   @Consume playlist: Playlist | undefined
   @Consume showProgress: boolean
+  @Consume showLibrary: boolean
   createPlaylist: CustomDialogController = new CustomDialogController({
     builder: createPlaylistBuilder(),
     width: 350,

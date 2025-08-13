@@ -59,6 +59,16 @@ export interface SubsonicResponse {
   starred?: Starred;
   shares?: Shares;
   searchResult2?: SearchResult;
+  musicFolders?: MusicFolders;
+}
+
+export interface MusicFolders {
+  musicFolder: MusicFolder[];
+}
+
+export interface MusicFolder {
+  id: number;
+  name: string;
 }
 
 export interface ApiResponse {

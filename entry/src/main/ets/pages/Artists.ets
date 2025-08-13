@@ -1,4 +1,4 @@
-import { Artist } from '../utils/Interface'
+import { Artist, MusicFolder } from '../utils/Interface'
 import { curves } from '@kit.ArkUI'
 import { i18n, intl } from '@kit.LocalizationKit';
 import { getIndexes } from '../utils/Api';
@@ -23,7 +23,7 @@ export default struct Artists {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @State artists: Artist[] = []
+  @Consume artists: Artist[]
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
   @Consume showSidebar: boolean
@@ -31,15 +31,13 @@ export default struct Artists {
   @Consume serverStatus: boolean
   @Consume displayWidth: number
   @Consume showProgress: boolean
+  @Consume musicFolderId: number
+  @Consume needUpdate: boolean
+  @Consume showLibrary: boolean
   @State profileSize: number = 256
 
   async aboutToAppear() {
-    this.showProgress = true
-    this.artists = await getIndexes(this.baseURL, this.username, this.password)
-    this.artists.sort((a, b) => {
-      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-    })
-    this.showProgress = false
+    this.needUpdate = !this.needUpdate
   }
 
   build() {

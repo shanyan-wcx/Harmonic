@@ -6,20 +6,28 @@ import { audio } from '@kit.AudioKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { picker } from '@kit.CoreFileKit';
+import { fileIo as fs, picker, ReadOptions } from '@kit.CoreFileKit';
 import CryptoJS from '@ohos/crypto-js';
 import {
+  getAlbumList,
   getCover,
+  getFrequentAlbums,
+  getIndexes,
   getLyrics,
+  getMusicFolders,
+  getNewestAlbums,
   getPlaylist,
   getPlaylists,
+  getRecentAlbums,
   getSong,
+  getStarredAlbums,
+  getStarredArtists,
   scrobble,
   star,
   unstar,
   updatePlaylist
 } from '../utils/Api';
-import { Album, Artist, Line, Playlist, SaveState, Song, StructuredLyric } from '../utils/Interface';
+import { Album, Artist, Line, MusicFolder, Playlist, SaveState, Song, StructuredLyric } from '../utils/Interface';
 import Albums from './Albums';
 import Artists from './Artists';
 import Play from './Play';
@@ -31,22 +39,35 @@ import infoBuilder from './dialogs/Info';
 import Search_ from './Search';
 import Home from './Home';
 import firstStartBuilder from './dialogs/FirstStart';
-import { fileIo as fs, ReadOptions } from '@kit.CoreFileKit';
 import { buffer } from '@kit.ArkTS';
 import { KeyCode } from '@kit.InputKit';
+import { i18n, intl } from '@kit.LocalizationKit';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
+let transliterator = i18n.Transliterator.getInstance('Any-Latn');
+let options: intl.CollatorOptions = {
+  localeMatcher: "lookup",
+  usage: "sort",
+  sensitivity: "variant",
+  numeric: true
+};
+let locale = new intl.Locale();
+let collator = new intl.Collator(locale.toString(), options);
 
 @Entry
 @Component
 struct Index {
   @Provide mainWindow: window.Window | undefined = undefined
-  @State title: string = '首页';
   @Provide pageStack: NavPathStack = new NavPathStack()
   @State statusBarHeight: number = 0;
   @State shadowRadius: number = 0;
   @Provide showSidebar: boolean = false;
   @Provide showControlButton: boolean = true;
+  @Provide recentAlbums: Album[] = []
+  @Provide newestAlbums: Album[] = []
+  @Provide frequentAlbums: Album[] = []
+  @Provide starredAlbums: Album[] = []
+  @Provide starredArtists: Artist[] = []
   @Provide artists: Artist[] = []
   @Provide albums: Album[] = []
   @Provide songs: Song[] = []
@@ -96,11 +117,21 @@ struct Index {
   @Provide sidebarType: number = SideBarContainerType.Overlay
   @Provide sliderValue: number = 0
   @Provide sliderMoving: boolean = false
+  @Provide musicFolders: MusicFolder[] = []
+  @Provide musicFolderId: number = -1
+  @Provide musicFolderName: string = "全部"
+  @Provide searchSongs: Song[] = []
+  @Provide searchAlbums: Album[] = []
+  @Provide searchArtists: Artist[] = []
+  @Provide showLibrary: boolean = false
+  @Provide @Watch('updatePage') needUpdate: boolean = false
   @State coverSize: number = 64
   @State controlButtonWidth: number = 48
   @State themeIcon: Resource = $r('app.media.auto')
   @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
+  @StorageLink('libraryStates') libraryStatesStr: string = '{}'
+  @State libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
@@ -419,7 +450,7 @@ struct Index {
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('timeUpdate', async (time: number) => {
       this.nowPlayedTime = time / 1000
-      if(this.sliderMoving === false){
+      if (this.sliderMoving === false) {
         this.sliderValue = this.nowPlayedTime / this.nowPlayingSong?.duration! * 100
       }
       if (this.sleepTime > 0 && this.isPlaying === true) {
@@ -603,6 +634,141 @@ struct Index {
         }
       }
     })
+  }
+
+  async updatePage() {
+    this.showProgress = true
+    if (this.musicFolders.length === 0) {
+      this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+      if (this.musicFolders.length === 0) {
+        this.uiContext!.getPromptAction().showToast({
+          message: '获取音乐库失败，请检查网络连接！',
+          duration: 500
+        });
+      } else {
+        const keys = Object.keys(this.libraryStates)
+        const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
+        if (keys.length === 0 || allFalse) {
+          this.libraryStates['1'] = true
+        }
+      }
+    }
+    switch (this.nowPage) {
+      case 0:
+        this.recentAlbums = []
+        this.newestAlbums = []
+        this.frequentAlbums = []
+        this.starredAlbums = []
+        this.starredArtists = []
+        break;
+      case 2:
+        this.albums = []
+        break;
+      case 3:
+        this.artists = []
+        break;
+      default:
+        break;
+    }
+    let keys = Object.keys(this.libraryStates)
+    for (const id of keys) {
+      if (this.libraryStates[id] === true) {
+        if (!this.musicFolders.some(item => item.id === Number(id))) {
+          this.libraryStates[id] = false
+          continue;
+        }
+        switch (this.nowPage) {
+          case 0:
+            let recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password, Number(id))
+            this.recentAlbums.unshift(...recentAlbums)
+            let newestAlbums = await getNewestAlbums(this.baseURL, this.username, this.password, Number(id))
+            this.newestAlbums.unshift(...newestAlbums)
+            let frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password, Number(id))
+            this.frequentAlbums.unshift(...frequentAlbums)
+            let starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password, Number(id))
+            this.starredAlbums.unshift(...starredAlbums)
+            let starredArtists = await getStarredArtists(this.baseURL, this.username, this.password, Number(id))
+            this.starredArtists.unshift(...starredArtists)
+            break;
+          case 1:
+            this.searchSongs = []
+            this.searchAlbums = []
+            this.searchArtists = []
+            break;
+          case 2:
+            let offset = 0
+            let size = 500
+            while (true) {
+              let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id))
+              if (albums === undefined || albums.length === 0) {
+                break;
+              }
+              this.albums.unshift(...albums)
+              if (albums.length < size) {
+                break;
+              }
+              offset += size;
+            }
+            this.albums.sort((a, b) => {
+              return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+            })
+            break;
+          case 3:
+            let artists = await getIndexes(this.baseURL, this.username, this.password, Number(id))
+            this.artists.unshift(...artists)
+            this.artists.sort((a, b) => {
+              return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
+            })
+            console.log(JSON.stringify(this.artists))
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    this.showProgress = false
+  }
+
+  @Builder
+  musicFolderMenu() {
+    Column() {
+      ForEach(this.musicFolders, (musicFolder: MusicFolder, index) => {
+        Button({ type: ButtonType.Normal }) {
+          Row() {
+            Radio({ value: musicFolder.name, group: musicFolder.name, indicatorType: RadioIndicatorType.TICK })
+              .width(18)
+              .margin({ left: 7 })
+              .checked(this.libraryStates[musicFolder.id])
+              .radioStyle({
+                checkedBackgroundColor: $r('app.color.radio'),
+                indicatorColor: $r('app.color.start_window_background')
+              })
+            Text(musicFolder.name)
+              .width('100%')
+              .layoutWeight(1)
+              .fontSize(18)
+              .fontWeight(FontWeight.Medium)
+              .padding({ left: 4, right: 5 })
+              .fontColor($r('app.color.font'))
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+          }
+          .width('100%')
+        }
+        .height(30)
+        .width('100%')
+        .borderRadius(8)
+        .backgroundColor(Color.Transparent)
+        .hitTestBehavior(HitTestMode.Block)
+        .onClick(() => {
+          this.libraryStates[musicFolder.id] = !this.libraryStates[musicFolder.id]
+          this.libraryStatesStr = JSON.stringify(this.libraryStates)
+        })
+      })
+    }
+    .width(128)
+    .height(30 * this.musicFolders.length)
+    .alignItems(HorizontalAlign.Start)
   }
 
   @Builder
@@ -866,16 +1032,52 @@ struct Index {
   @Builder
   titlebar() {
     Row() {
-      Text(this.title)
-        .fontSize(23)
-        .fontColor($r('app.color.font'))
-        .fontWeight(FontWeight.Medium)
+      Button({ type: ButtonType.Normal }) {
+        Text("音乐库")
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+          .fontWeight(FontWeight.Medium)
+      }
+      .padding({
+        left: 10,
+        right: 10,
+        top: 5,
+        bottom: 5
+      })
+      .borderRadius(8)
+      .backgroundColor($r('app.color.button_selected'))
+      .bindContextMenu(this.showLibrary, this.musicFolderMenu, {
+        borderRadius: 10,
+        backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
+        onDisappear: () => {
+          const keys = Object.keys(this.libraryStates)
+          const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
+          if (keys.length === 0 || allFalse) {
+            this.libraryStates['1'] = true
+            this.libraryStatesStr = JSON.stringify(this.libraryStates)
+          }
+          this.needUpdate = !this.needUpdate
+          this.showLibrary = false;
+        }
+      })
+      .onClick(async () => {
+        this.musicFolders = []
+        this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+        if (this.musicFolders.length === 0) {
+          this.uiContext!.getPromptAction().showToast({
+            message: '获取音乐库失败，请检查网络连接！',
+            duration: 500
+          });
+        } else {
+          this.showLibrary = true
+        }
+      })
     }
     .width("100%")
     .height('100%')
     .alignItems(VerticalAlign.Center)
     .justifyContent(FlexAlign.SpaceBetween)
-    .padding({ left: this.sidebarType === SideBarContainerType.Embed ? 20 : 72, top: 1 })
+    .padding({ left: this.sidebarType === SideBarContainerType.Embed ? 20 : 68 })
   }
 
   onPageShow() {
@@ -1092,7 +1294,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 0
-              this.title = '首页'
             })
 
             Button({ type: ButtonType.Normal }) {
@@ -1120,7 +1321,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 1
-              this.title = '搜索'
             })
 
             Button({ type: ButtonType.Normal }) {
@@ -1148,7 +1348,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 2
-              this.title = '专辑'
             })
 
             Button({ type: ButtonType.Normal }) {
@@ -1176,7 +1375,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 3
-              this.title = '艺术家'
             })
 
             Button({ type: ButtonType.Normal }) {
@@ -1204,7 +1402,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 4
-              this.title = '歌单'
             })
           }
           .width('90%')
@@ -1236,7 +1433,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 5
-              this.title = '设置'
             })
 
             Button({ type: ButtonType.Normal }) {
@@ -1259,7 +1455,6 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 6
-              this.title = '关于'
             })
           }
           .width('90%')
@@ -1582,6 +1777,12 @@ struct Index {
       })
       .visibility(this.sidebarType === SideBarContainerType.Overlay && this.showControlButton === true ?
       Visibility.Visible : Visibility.Hidden)
+
+      Column()
+        .width('100%')
+        .height('100%')
+        .backgroundColor(Color.Transparent)
+        .visibility(this.showLibrary === true ? Visibility.Visible : Visibility.None)
     }
     .width("100%")
     .height('100%')

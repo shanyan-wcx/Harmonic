@@ -23,8 +23,7 @@ export default struct Albums {
   @Consume client: string
   @Consume auth: string
   @Consume getCoverUrl: string
-  @State artists: Artist[] = []
-  @State albums: Album[] = []
+  @Consume albums: Album[]
   @Consume album: Album | undefined
   @Consume pageStack: NavPathStack
   @Consume startPlaying: boolean
@@ -33,27 +32,13 @@ export default struct Albums {
   @Consume discs: Song[][]
   @Consume displayWidth: number
   @Consume showProgress: boolean
+  @Consume musicFolderId: number
+  @Consume needUpdate: boolean
+  @Consume showLibrary: boolean
   @State coverSize: number = 320
 
   async aboutToAppear() {
-    this.showProgress = true
-    let offset = 0
-    let size = 500
-    while (true) {
-      let albums = await getAlbumList(this.baseURL, this.username, this.password, offset)
-      if (albums === undefined || albums.length === 0) {
-        break;
-      }
-      this.albums.push(...albums);
-      if (albums.length < size){
-        break;
-      }
-      offset += size;
-    }
-    this.albums.sort((a, b) => {
-      return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-    })
-    this.showProgress = false
+    this.needUpdate = !this.needUpdate
   }
 
   build() {

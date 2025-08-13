@@ -10,11 +10,11 @@ export default struct Home {
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
-  @State recentAlbums: Album[] | undefined = undefined
-  @State newestAlbums: Album[] | undefined = undefined
-  @State frequentAlbums: Album[] | undefined = undefined
-  @State starredAlbums: Album[] | undefined = undefined
-  @State starredArtists: Artist[] | undefined = undefined
+  @Consume recentAlbums: Album[]
+  @Consume newestAlbums: Album[]
+  @Consume frequentAlbums: Album[]
+  @Consume starredAlbums: Album[]
+  @Consume starredArtists: Artist[]
   @Consume album: Album | undefined
   @Consume artist: Artist | undefined
   @Consume pageStack: NavPathStack
@@ -22,11 +22,14 @@ export default struct Home {
   @Consume showSidebar: boolean
   @Consume auth: string
   @Consume getCoverUrl: string
+  @Consume musicFolderId: number
   @State coverSize: number = 320
   @State profileSize: number = 256
   @Consume showProgress: boolean
   @Consume sidebarType: number
   @Consume displayWidth: number
+  @Consume needUpdate: boolean
+  @Consume showLibrary: boolean
   private recentAlbumsScroller: Scroller = new Scroller
   private newestAlbumsScroller: Scroller = new Scroller
   private frequentAlbumsScroller: Scroller = new Scroller
@@ -34,18 +37,7 @@ export default struct Home {
   private starredArtistsScroller: Scroller = new Scroller
 
   async aboutToAppear() {
-    this.showProgress = true
-    this.recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password)
-    this.recentAlbums = this.recentAlbums !== undefined ? this.recentAlbums : []
-    this.newestAlbums = await getNewestAlbums(this.baseURL, this.username, this.password)
-    this.newestAlbums = this.newestAlbums !== undefined ? this.newestAlbums : []
-    this.frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password)
-    this.frequentAlbums = this.frequentAlbums !== undefined ? this.frequentAlbums : []
-    this.starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password)
-    this.starredAlbums = this.starredAlbums !== undefined ? this.starredAlbums : []
-    this.starredArtists = await getStarredArtists(this.baseURL, this.username, this.password)
-    this.starredArtists = this.starredArtists !== undefined ? this.starredArtists : []
-    this.showProgress = false
+    this.needUpdate = !this.needUpdate
   }
 
   build() {
@@ -138,7 +130,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.showProgress === true || this.recentAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.recentAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -228,7 +220,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.showProgress === true || this.newestAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.newestAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -318,7 +310,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.showProgress === true || this.frequentAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.frequentAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -408,7 +400,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
-        .visibility(this.showProgress === true || this.starredAlbums?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.starredAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -507,7 +499,7 @@ export default struct Home {
         }
         .width('100%')
         .height(this.displayWidth > 1400 ? 230 : 195)
-        .visibility(this.showProgress === true || this.starredArtists?.length === 0 ? Visibility.None :
+        .visibility(this.showProgress === true || this.starredArtists.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
@@ -519,16 +511,16 @@ export default struct Home {
         .height('100%')
         .padding({ bottom: 160 })
         .justifyContent(FlexAlign.Center)
-        .visibility(this.showProgress === false  && this.starredArtists!.length === 0 &&
-          this.starredAlbums!.length === 0 && this.frequentAlbums!.length === 0 && this.newestAlbums!.length === 0 &&
-          this.recentAlbums!.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+        .visibility(this.starredArtists.length === 0 && this.starredAlbums.length === 0 &&
+          this.frequentAlbums.length === 0 && this.newestAlbums.length === 0 && this.recentAlbums.length === 0 &&
+          this.showProgress === false ? Visibility.Visible : Visibility.None)
       }
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
     }
     .width('100%')
     .height('100%')
     .scrollBar(BarState.Off)
-    .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
+    .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
     .align(Alignment.Top)
   }
 }
