@@ -128,6 +128,7 @@ struct Index {
   @State themeIcon: Resource = $r('app.media.auto')
   @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
+  @State arrowNum: number = 0
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -733,8 +734,8 @@ struct Index {
         Button({ type: ButtonType.Normal }) {
           Row() {
             Radio({ value: musicFolder.name, group: musicFolder.name, indicatorType: RadioIndicatorType.TICK })
-              .width(18)
-              .margin({ left: 7 })
+              .width(this.displayWidth > 1400 ? 20 : 18)
+              .margin({ left: deviceTypeInfo === '2in1' ? 10 : 7 })
               .checked(this.libraryStates[musicFolder.id])
               .radioStyle({
                 checkedBackgroundColor: $r('app.color.radio'),
@@ -743,16 +744,16 @@ struct Index {
             Text(musicFolder.name)
               .width('100%')
               .layoutWeight(1)
-              .fontSize(18)
+              .fontSize(this.displayWidth > 1400 ? 20 : 18)
               .fontWeight(FontWeight.Medium)
-              .padding({ left: 4, right: 5 })
+              .padding({ left: deviceTypeInfo === '2in1' ? 0 : 4, right: deviceTypeInfo === '2in1' ? 1 : 5 })
               .fontColor($r('app.color.font'))
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
           .width('100%')
         }
-        .height(30)
+        .height(deviceTypeInfo === '2in1' ? (this.displayWidth > 1400 ? 40 : 35) : 30)
         .width('100%')
         .borderRadius(8)
         .backgroundColor(Color.Transparent)
@@ -763,8 +764,8 @@ struct Index {
         })
       })
     }
-    .width(128)
-    .height(30 * this.musicFolders.length)
+    .width(deviceTypeInfo === '2in1' ? 200 : 128)
+    .height(deviceTypeInfo === '2in1' ? (this.displayWidth > 1400 ? 40 * this.musicFolders.length : 35 * this.musicFolders.length) : 30 * this.musicFolders.length)
     .alignItems(HorizontalAlign.Start)
   }
 
@@ -1030,14 +1031,19 @@ struct Index {
   titlebar() {
     Row() {
       Button({ type: ButtonType.Normal }) {
-        Text("音乐库")
-          .fontSize(18)
-          .fontColor($r('app.color.font'))
-          .fontWeight(FontWeight.Medium)
+        Row() {
+          Text("音乐库")
+            .fontSize(this.displayWidth > 1400 ? 20 : 18)
+            .fontColor($r('app.color.font'))
+            .fontWeight(FontWeight.Medium)
+          SymbolGlyph(this.showLibrary ? $r('sys.symbol.arrowtriangle_up_fill') : $r('sys.symbol.arrowtriangle_down_fill'))
+            .margin({ left: this.displayWidth > 1400 ? 10 : 7 })
+            .symbolEffect(new ReplaceSymbolEffect(EffectScope.WHOLE), this.arrowNum)
+        }
       }
       .padding({
-        left: 10,
-        right: 10,
+        left: this.displayWidth > 1400 ? 15 : 12,
+        right: this.displayWidth > 1400 ? 15 : 12,
         top: 5,
         bottom: 5
       })
@@ -1055,6 +1061,7 @@ struct Index {
           }
           this.needUpdate = !this.needUpdate
           this.showLibrary = false;
+          this.arrowNum++
         }
       })
       .onClick(async () => {
@@ -1067,6 +1074,7 @@ struct Index {
           });
         } else {
           this.showLibrary = true
+          this.arrowNum++
         }
       })
     }
