@@ -45,6 +45,7 @@ export default struct Search_ {
   @State profileSize: number = 256
   @Consume displayWidth: number
   @Consume sidebarType: number
+  @Consume needUpdate: boolean
   @Consume showLibrary: boolean
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
@@ -82,6 +83,10 @@ export default struct Search_ {
       array[j] = temp;
     }
     return array;
+  }
+
+  async aboutToAppear() {
+    this.needUpdate = !this.needUpdate
   }
 
   build() {

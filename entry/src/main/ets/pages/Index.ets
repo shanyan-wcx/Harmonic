@@ -659,6 +659,11 @@ struct Index {
         this.starredAlbums = []
         this.starredArtists = []
         break;
+      case 1:
+        this.searchSongs = []
+        this.searchAlbums = []
+        this.searchArtists = []
+        break;
       case 2:
         this.albums = []
         break;
@@ -687,11 +692,6 @@ struct Index {
             this.starredAlbums.unshift(...starredAlbums)
             let starredArtists = await getStarredArtists(this.baseURL, this.username, this.password, Number(id))
             this.starredArtists.unshift(...starredArtists)
-            break;
-          case 1:
-            this.searchSongs = []
-            this.searchAlbums = []
-            this.searchArtists = []
             break;
           case 2:
             let offset = 0
