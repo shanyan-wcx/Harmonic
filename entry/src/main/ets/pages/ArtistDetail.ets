@@ -1,6 +1,6 @@
-import { Album, Artist } from '../utils/Interface';
+import { Album, Artist, MusicFolder } from '../utils/Interface';
 import { curves } from '@kit.ArkUI';
-import { getArtistAlbum, getArtistInfo } from '../utils/Api';
+import { getAlbumList, getArtistInfo } from '../utils/Api';
 
 @Builder
 export function ArtistDetailBuilder() {
@@ -23,6 +23,10 @@ export default struct ArtistDetail {
   @Consume artist: Artist | undefined
   @Consume startPlaying: boolean
   @Consume album: Album
+  @Consume musicFolders: MusicFolder[]
+  @Consume libraryStates: Record<number, boolean>
+  @State tempAlbums: Album[] = []
+  @State tempLibraryAlbums: Album[] = []
   @State albumPerRow: number = 3
   @State profileSize: number = 256
   @State coverSize: number = 256
@@ -31,7 +35,32 @@ export default struct ArtistDetail {
   async aboutToAppear() {
     this.showProgress = true
     this.artist!.biography = await getArtistInfo(this.baseURL, this.username, this.password, this.artist!.id)
-    this.artist!.album = await getArtistAlbum(this.baseURL, this.username, this.password, this.artist!.id)
+    this.tempLibraryAlbums = []
+    let keys = Object.keys(this.libraryStates)
+    for (const id of keys) {
+      if (this.libraryStates[id] === true) {
+        if (!this.musicFolders.some(item => item.id === Number(id))) {
+          this.libraryStates[id] = false
+          continue;
+        }
+        let offset = 0
+        let size = 500
+        while (true) {
+          let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id))
+          if (albums === undefined || albums.length === 0) {
+            break;
+          }
+          this.tempAlbums.push(...albums)
+          if (albums.length < size) {
+            break;
+          }
+          offset += size;
+        }
+        this.tempLibraryAlbums.unshift(...this.tempAlbums.filter(album => album.artistId === this.artist?.id))
+        this.tempAlbums = []
+      }
+    }
+    this.artist!.album = this.tempLibraryAlbums
     this.showProgress = false
   }
 

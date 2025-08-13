@@ -32,7 +32,6 @@ export default struct Albums {
   @Consume discs: Song[][]
   @Consume displayWidth: number
   @Consume showProgress: boolean
-  @Consume musicFolderId: number
   @Consume needUpdate: boolean
   @Consume showLibrary: boolean
   @State coverSize: number = 320

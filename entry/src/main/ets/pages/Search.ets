@@ -1,4 +1,4 @@
-import { Album, Artist, Line, SearchResult, Song, StructuredLyric } from '../utils/Interface';
+import { Album, Artist, Line, MusicFolder, SearchResult, Song, StructuredLyric } from '../utils/Interface';
 import { curves } from '@kit.ArkUI';
 import { getLyrics, getSong, search } from '../utils/Api';
 import { media } from '@kit.MediaKit';
@@ -45,8 +45,9 @@ export default struct Search_ {
   @State profileSize: number = 256
   @Consume displayWidth: number
   @Consume sidebarType: number
-  @Consume musicFolderId: number
   @Consume showLibrary: boolean
+  @Consume musicFolders: MusicFolder[]
+  @Consume libraryStates: Record<number, boolean>
   private searchAlbumsScroller: Scroller = new Scroller
   private searchArtistsScroller: Scroller = new Scroller
 
@@ -118,17 +119,26 @@ export default struct Search_ {
               this.searchSongs = [];
               this.searchAlbums = [];
               this.searchArtists = [];
-              let searchResult: SearchResult | undefined =
-                await search(this.baseURL, this.username, this.password, searchContent, this.musicFolderId)
-              if (searchResult !== undefined) {
-                if (searchResult.song !== undefined) {
-                  this.searchSongs = searchResult.song;
-                }
-                if (searchResult.album !== undefined) {
-                  this.searchAlbums = searchResult.album;
-                }
-                if (searchResult.artist !== undefined) {
-                  this.searchArtists = searchResult.artist;
+              let keys = Object.keys(this.libraryStates)
+              for (const id of keys) {
+                if (this.libraryStates[id] === true) {
+                  if (!this.musicFolders.some(item => item.id === Number(id))) {
+                    this.libraryStates[id] = false
+                    continue;
+                  }
+                  let searchResult: SearchResult | undefined =
+                    await search(this.baseURL, this.username, this.password, searchContent, Number(id))
+                  if (searchResult !== undefined) {
+                    if (searchResult.song !== undefined) {
+                      this.searchSongs.unshift(...searchResult.song);
+                    }
+                    if (searchResult.album !== undefined) {
+                      this.searchAlbums.unshift(...searchResult.album);
+                    }
+                    if (searchResult.artist !== undefined) {
+                      this.searchArtists.unshift(...searchResult.artist);
+                    }
+                  }
                 }
               }
               this.showProgress = false;

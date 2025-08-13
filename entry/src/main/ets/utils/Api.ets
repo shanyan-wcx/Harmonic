@@ -87,20 +87,20 @@ export async function getArtist(baseURL: string, username: string, password: str
   }
 }
 
-export async function getArtistAlbum(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
-  try {
-    const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${id}`, {
-        timeout: 10000
-      })
-    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    return subsonicResponse.artist!.album ?? []
-  } catch (error) {
-    console.error(JSON.stringify(error));
-    return []
-  }
-}
+// export async function getArtistAlbum(baseURL: string, username: string, password: string, id: string) {
+//   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+//   try {
+//     const response: AxiosResponse =
+//       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${id}`, {
+//         timeout: 10000
+//       })
+//     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+//     return subsonicResponse.artist!.album ?? []
+//   } catch (error) {
+//     console.error(JSON.stringify(error));
+//     return []
+//   }
+// }
 
 export async function getArtistInfo(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`

@@ -31,7 +31,6 @@ export default struct Artists {
   @Consume serverStatus: boolean
   @Consume displayWidth: number
   @Consume showProgress: boolean
-  @Consume musicFolderId: number
   @Consume needUpdate: boolean
   @Consume showLibrary: boolean
   @State profileSize: number = 256

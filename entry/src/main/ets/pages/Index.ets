@@ -118,8 +118,6 @@ struct Index {
   @Provide sliderValue: number = 0
   @Provide sliderMoving: boolean = false
   @Provide musicFolders: MusicFolder[] = []
-  @Provide musicFolderId: number = -1
-  @Provide musicFolderName: string = "全部"
   @Provide searchSongs: Song[] = []
   @Provide searchAlbums: Album[] = []
   @Provide searchArtists: Artist[] = []
@@ -131,7 +129,7 @@ struct Index {
   @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
-  @State libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
+  @Provide libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
@@ -719,7 +717,6 @@ struct Index {
             this.artists.sort((a, b) => {
               return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
             })
-            console.log(JSON.stringify(this.artists))
             break;
           default:
             break;

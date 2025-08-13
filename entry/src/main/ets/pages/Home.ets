@@ -22,7 +22,6 @@ export default struct Home {
   @Consume showSidebar: boolean
   @Consume auth: string
   @Consume getCoverUrl: string
-  @Consume musicFolderId: number
   @State coverSize: number = 320
   @State profileSize: number = 256
   @Consume showProgress: boolean
