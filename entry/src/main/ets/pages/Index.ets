@@ -18,6 +18,7 @@ import {
   getNewestAlbums,
   getPlaylist,
   getPlaylists,
+  getRandomAlbums,
   getRecentAlbums,
   getSong,
   getStarredAlbums,
@@ -66,6 +67,7 @@ struct Index {
   @Provide recentAlbums: Album[] = []
   @Provide newestAlbums: Album[] = []
   @Provide frequentAlbums: Album[] = []
+  @Provide randomAlbums: Album[] = []
   @Provide starredAlbums: Album[] = []
   @Provide starredArtists: Artist[] = []
   @Provide artists: Artist[] = []
@@ -656,6 +658,7 @@ struct Index {
         this.recentAlbums = []
         this.newestAlbums = []
         this.frequentAlbums = []
+        this.randomAlbums = []
         this.starredAlbums = []
         this.starredArtists = []
         break;
@@ -688,6 +691,8 @@ struct Index {
             this.newestAlbums.unshift(...newestAlbums)
             let frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password, Number(id))
             this.frequentAlbums.unshift(...frequentAlbums)
+            let randomAlbums = await getRandomAlbums(this.baseURL, this.username, this.password, Number(id))
+            this.randomAlbums.unshift(...randomAlbums)
             let starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password, Number(id))
             this.starredAlbums.unshift(...starredAlbums)
             let starredArtists = await getStarredArtists(this.baseURL, this.username, this.password, Number(id))

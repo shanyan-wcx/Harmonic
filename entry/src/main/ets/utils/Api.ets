@@ -226,6 +226,25 @@ export async function getFrequentAlbums(baseURL: string, username: string, passw
   }
 }
 
+export async function getRandomAlbums(baseURL: string, username: string, password: string, musicFolderId: number) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=random` +
+        (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    if (subsonicResponse.albumList!.album) {
+      return subsonicResponse.albumList!.album
+    }
+    return []
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return []
+  }
+}
+
 export async function getSong(baseURL: string, username: string, password: string, id: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {

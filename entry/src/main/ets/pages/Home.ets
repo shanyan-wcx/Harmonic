@@ -15,6 +15,7 @@ export default struct Home {
   @Consume frequentAlbums: Album[]
   @Consume starredAlbums: Album[]
   @Consume starredArtists: Artist[]
+  @Consume randomAlbums: Album[]
   @Consume album: Album | undefined
   @Consume artist: Artist | undefined
   @Consume pageStack: NavPathStack
@@ -32,6 +33,7 @@ export default struct Home {
   private recentAlbumsScroller: Scroller = new Scroller
   private newestAlbumsScroller: Scroller = new Scroller
   private frequentAlbumsScroller: Scroller = new Scroller
+  private randomAlbumsScroller: Scroller = new Scroller
   private starredAlbumsScroller: Scroller = new Scroller
   private starredArtistsScroller: Scroller = new Scroller
 
@@ -310,6 +312,96 @@ export default struct Home {
         .width('100%')
         .height(this.displayWidth > 1400 ? 250 : 210)
         .visibility(this.showProgress === true || this.frequentAlbums.length === 0 ? Visibility.None :
+        Visibility.Visible)
+
+        Column() {
+          Row() {
+            Text("随机专辑")
+              .fontSize(20)
+              .fontColor($r('app.color.font'))
+              .fontWeight(FontWeight.Medium)
+              .margin({ top: 15, bottom: 5 })
+              .textAlign(TextAlign.Start)
+
+            Row() {
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.left'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor(Color.Transparent)
+              .margin({ right: 10 })
+              .onClick(() => {
+                this.randomAlbumsScroller.scrollPage({
+                  next: false,
+                  animation: true
+                })
+              })
+
+              Button({ type: ButtonType.Normal }) {
+                Image($r('app.media.right'))
+                  .width(18)
+                  .height(18)
+              }
+              .width(30)
+              .height(30)
+              .borderRadius(5)
+              .backgroundColor(Color.Transparent)
+              .onClick(() => {
+                this.randomAlbumsScroller.scrollPage({
+                  next: true,
+                  animation: true
+                })
+              })
+            }
+            .visibility(deviceTypeInfo === '2in1' ? Visibility.Visible : Visibility.None)
+          }
+          .width('100%')
+          .padding({ left: 20, right: 20 })
+          .justifyContent(FlexAlign.SpaceBetween)
+
+          List({ scroller: this.randomAlbumsScroller }) {
+            ForEach(this.randomAlbums, (album: Album, index) => {
+              ListItem() {
+                Button({ type: ButtonType.Normal }) {
+                  Column() {
+                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
+                      .alt($rawfile('nocover.png'))
+                      .objectFit(ImageFit.Contain)
+                      .height('100%')
+                      .aspectRatio(1)
+                      .borderRadius(10)
+                      .margin(10)
+                  }
+                  .width('auto')
+                  .height('100%')
+                }
+                .width('auto')
+                .height('100%')
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.randomAlbums!.length - 1 ? 10 : 0 })
+                .animation({ curve: curves.springMotion(0.6, 1) })
+                .borderRadius(10)
+                .backgroundColor(Color.Transparent)
+                .onClick(() => {
+                  this.album = album
+                  this.pageStack.pushPathByName('AlbumDetail', undefined);
+                })
+              }
+            })
+          }
+          .width('100%')
+          .height('100%')
+          .layoutWeight(1)
+          .listDirection(Axis.Horizontal)
+          .scrollBar(BarState.Off)
+          .edgeEffect(EdgeEffect.Spring)
+        }
+        .width('100%')
+        .height(this.displayWidth > 1400 ? 250 : 210)
+        .visibility(this.showProgress === true || this.randomAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
         Column() {
