@@ -128,7 +128,6 @@ struct Index {
   @State themeIcon: Resource = $r('app.media.auto')
   @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
-  @State arrowNum: number = 0
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -1038,7 +1037,7 @@ struct Index {
             .fontWeight(FontWeight.Medium)
           SymbolGlyph(this.showLibrary ? $r('sys.symbol.arrowtriangle_up_fill') : $r('sys.symbol.arrowtriangle_down_fill'))
             .margin({ left: this.displayWidth > 1400 ? 10 : 7 })
-            .symbolEffect(new ReplaceSymbolEffect(EffectScope.WHOLE), this.arrowNum)
+            .fontColor([$r('app.color.font')])
         }
       }
       .padding({
@@ -1061,7 +1060,6 @@ struct Index {
           }
           this.needUpdate = !this.needUpdate
           this.showLibrary = false;
-          this.arrowNum++
         }
       })
       .onClick(async () => {
@@ -1074,7 +1072,6 @@ struct Index {
           });
         } else {
           this.showLibrary = true
-          this.arrowNum++
         }
       })
     }
