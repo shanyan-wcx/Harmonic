@@ -421,11 +421,15 @@ export async function getStarredAlbums(baseURL: string, username: string, passwo
   }
 }
 
-export async function star(baseURL: string, username: string, password: string, id: string) {
+export async function star(baseURL: string, username: string, password: string, id: string, type?: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  let idType = "id"
+  if (type !== undefined) {
+    idType = type === "album" ? "albumId" : "artistId"
+  }
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/star' + auth + `&id=${id}`, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/star' + auth + `&${idType}=${id}`, {
         timeout: 10000
       })
     return true
@@ -435,11 +439,15 @@ export async function star(baseURL: string, username: string, password: string, 
   }
 }
 
-export async function unstar(baseURL: string, username: string, password: string, id: string) {
+export async function unstar(baseURL: string, username: string, password: string, id: string, type?: string) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  let idType = "id"
+  if (type !== undefined) {
+    idType = type === "album" ? "albumId" : "artistId"
+  }
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/unstar' + auth + `&id=${id}`, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/unstar' + auth + `&${idType}=${id}`, {
         timeout: 10000
       })
     return true

@@ -1,6 +1,6 @@
 import { Album, Artist, MusicFolder } from '../utils/Interface';
-import { curves } from '@kit.ArkUI';
-import { getAlbumList, getArtistInfo } from '../utils/Api';
+import { curves, SymbolGlyphModifier } from '@kit.ArkUI';
+import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 
 @Builder
 export function ArtistDetailBuilder() {
@@ -25,6 +25,8 @@ export default struct ArtistDetail {
   @Consume album: Album
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
+  @Consume needUpdate: boolean
+  @Consume nowPage: number
   @State tempAlbums: Album[] = []
   @State tempLibraryAlbums: Album[] = []
   @State albumPerRow: number = 3
@@ -172,5 +174,50 @@ export default struct ArtistDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
+    .menus([{
+      value: "star",
+      symbolIcon: new SymbolGlyphModifier(this.artist!.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
+      action: async () => {
+        if (this.artist!.starred !== undefined) {
+          let starStatus = await unstar(this.baseURL, this.username, this.password, this.artist!.id, 'artist')
+          if (starStatus === true) {
+            this.getUIContext().getPromptAction().showToast({
+              message: '取消收藏成功！',
+              duration: 500
+            });
+            this.artist!.starred = undefined
+            if (this.nowPage === 0) {
+              this.needUpdate = !this.needUpdate
+            }
+          } else {
+            this.getUIContext().getPromptAction().showToast({
+              message: '取消收藏失败，请检查网络！',
+              duration: 500
+            });
+          }
+        } else {
+          let starStatus = await star(this.baseURL, this.username, this.password, this.artist!.id, 'artist')
+          if (starStatus === true) {
+            this.getUIContext().getPromptAction().showToast({
+              message: '收藏成功！',
+              duration: 500
+            });
+            let tmp_artist: Artist | undefined =
+              await getArtist(this.baseURL, this.username, this.password, this.artist!.id)
+            if (tmp_artist !== undefined && tmp_artist.starred !== undefined) {
+              this.artist!.starred = tmp_artist.starred
+            }
+            if (this.nowPage === 0) {
+              this.needUpdate = !this.needUpdate
+            }
+          } else {
+            this.getUIContext().getPromptAction().showToast({
+              message: '收藏失败，请检查网络！',
+              duration: 500
+            });
+          }
+        }
+      }
+    }])
   }
 }

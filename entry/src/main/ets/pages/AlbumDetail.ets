@@ -1,7 +1,7 @@
-import { curves } from '@kit.ArkUI';
+import { curves, SymbolGlyphModifier } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { getAlbumSong, getArtist, getLyrics, getSong } from '../utils/Api';
+import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 
 function formatDuration(seconds: number): string {
@@ -50,6 +50,8 @@ export default struct AlbumDetail {
   @Consume startPlaying: boolean
   @Consume discs: Song[][]
   @Consume showMenu: boolean
+  @Consume needUpdate: boolean
+  @Consume nowPage: number
   @Consume displayWidth: number
   @Consume longPressSong: Song | undefined
   @Consume avPlayer: media.AVPlayer | undefined
@@ -370,5 +372,50 @@ export default struct AlbumDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
+    .menus([{
+      value: "star",
+      symbolIcon: new SymbolGlyphModifier(this.album.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
+      action: async () => {
+        if (this.album.starred !== undefined) {
+          let starStatus = await unstar(this.baseURL, this.username, this.password, this.album.id, 'album')
+          if (starStatus === true) {
+            this.getUIContext().getPromptAction().showToast({
+              message: '取消收藏成功！',
+              duration: 500
+            });
+            this.album.starred = undefined
+            if (this.nowPage === 0) {
+              this.needUpdate = !this.needUpdate
+            }
+          } else {
+            this.getUIContext().getPromptAction().showToast({
+              message: '取消收藏失败，请检查网络！',
+              duration: 500
+            });
+          }
+        } else {
+          let starStatus = await star(this.baseURL, this.username, this.password, this.album.id, 'album')
+          if (starStatus === true) {
+            this.getUIContext().getPromptAction().showToast({
+              message: '收藏成功！',
+              duration: 500
+            });
+            let tmp_album: Album | undefined =
+              await getAlbum(this.baseURL, this.username, this.password, this.album.id)
+            if (tmp_album !== undefined && tmp_album.starred !== undefined) {
+              this.album.starred = tmp_album.starred
+            }
+            if (this.nowPage === 0) {
+              this.needUpdate = !this.needUpdate
+            }
+          } else {
+            this.getUIContext().getPromptAction().showToast({
+              message: '收藏失败，请检查网络！',
+              duration: 500
+            });
+          }
+        }
+      }
+    }])
   }
 }
