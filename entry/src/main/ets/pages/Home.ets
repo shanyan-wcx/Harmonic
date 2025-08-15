@@ -47,7 +47,7 @@ export default struct Home {
             Text("最近播放")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
+              .fontWeight(FontWeight.Medium)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -137,7 +137,7 @@ export default struct Home {
             Text("最近添加")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
+              .fontWeight(FontWeight.Medium)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -227,7 +227,7 @@ export default struct Home {
             Text("最常播放")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
+              .fontWeight(FontWeight.Medium)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -317,7 +317,7 @@ export default struct Home {
             Text("收藏专辑")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
+              .fontWeight(FontWeight.Medium)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
@@ -407,7 +407,7 @@ export default struct Home {
             Text("收藏艺术家")
               .fontSize(20)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
+              .fontWeight(FontWeight.Medium)
               .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
 
