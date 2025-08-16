@@ -243,14 +243,14 @@ export default struct Search_ {
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Medium)
-                .margin({ top: 15, bottom: 5 })
+                .margin({ bottom: 5 })
                 .textAlign(TextAlign.Start)
 
               Row() {
                 Button({ type: ButtonType.Normal }) {
-                  Image($r('app.media.left'))
-                    .width(18)
-                    .height(18)
+                  SymbolGlyph($r('sys.symbol.chevron_left'))
+                    .fontSize(28)
+                    .fontColor([$r('app.color.font')])
                 }
                 .width(30)
                 .height(30)
@@ -265,9 +265,9 @@ export default struct Search_ {
                 })
 
                 Button({ type: ButtonType.Normal }) {
-                  Image($r('app.media.right'))
-                    .width(18)
-                    .height(18)
+                  SymbolGlyph($r('sys.symbol.chevron_right'))
+                    .fontSize(28)
+                    .fontColor([$r('app.color.font')])
                 }
                 .width(30)
                 .height(30)
@@ -284,7 +284,9 @@ export default struct Search_ {
             }
             .width('100%')
             .padding({ left: 20, right: 20 })
+            .margin({ top: 10 })
             .justifyContent(FlexAlign.SpaceBetween)
+            .alignItems(VerticalAlign.Bottom)
 
             List({ scroller: this.searchAlbumsScroller }) {
               ForEach(this.searchAlbums, (album: Album, index) => {
@@ -333,14 +335,14 @@ export default struct Search_ {
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Medium)
-                .margin({ top: 15, bottom: 5 })
+                .margin({ bottom: 5 })
                 .textAlign(TextAlign.Start)
 
               Row() {
                 Button({ type: ButtonType.Normal }) {
-                  Image($r('app.media.left'))
-                    .width(18)
-                    .height(18)
+                  SymbolGlyph($r('sys.symbol.chevron_left'))
+                    .fontSize(28)
+                    .fontColor([$r('app.color.font')])
                 }
                 .width(30)
                 .height(30)
@@ -355,9 +357,9 @@ export default struct Search_ {
                 })
 
                 Button({ type: ButtonType.Normal }) {
-                  Image($r('app.media.right'))
-                    .width(18)
-                    .height(18)
+                  SymbolGlyph($r('sys.symbol.chevron_right'))
+                    .fontSize(28)
+                    .fontColor([$r('app.color.font')])
                 }
                 .width(30)
                 .height(30)
@@ -374,7 +376,9 @@ export default struct Search_ {
             }
             .width('100%')
             .padding({ left: 20, right: 20 })
+            .margin({ top: 10 })
             .justifyContent(FlexAlign.SpaceBetween)
+            .alignItems(VerticalAlign.Bottom)
 
             List({ scroller: this.searchArtistsScroller }) {
               ForEach(this.searchArtists, (artist: Artist, index) => {

@@ -50,14 +50,14 @@ export default struct Home {
               .fontSize(20)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Medium)
-              .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
+              .margin({ bottom: 5 })
 
             Row() {
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.left'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_left'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -72,9 +72,9 @@ export default struct Home {
               })
 
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.right'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -91,7 +91,9 @@ export default struct Home {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
+          .alignItems(VerticalAlign.Bottom)
 
           List({ scroller: this.recentAlbumsScroller }) {
             ForEach(this.recentAlbums, (album: Album, index) => {
@@ -140,14 +142,14 @@ export default struct Home {
               .fontSize(20)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Medium)
-              .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
+              .margin({ bottom: 5 })
 
             Row() {
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.left'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_left'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -162,9 +164,9 @@ export default struct Home {
               })
 
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.right'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -181,7 +183,9 @@ export default struct Home {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
+          .alignItems(VerticalAlign.Bottom)
 
           List({ scroller: this.newestAlbumsScroller }) {
             ForEach(this.newestAlbums, (album: Album, index) => {
@@ -230,14 +234,14 @@ export default struct Home {
               .fontSize(20)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Medium)
-              .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
+              .margin({ bottom: 5 })
 
             Row() {
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.left'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_left'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -252,9 +256,9 @@ export default struct Home {
               })
 
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.right'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -271,7 +275,9 @@ export default struct Home {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
+          .alignItems(VerticalAlign.Bottom)
 
           List({ scroller: this.frequentAlbumsScroller }) {
             ForEach(this.frequentAlbums, (album: Album, index) => {
@@ -320,14 +326,14 @@ export default struct Home {
               .fontSize(20)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Medium)
-              .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
+              .margin({ bottom: 5 })
 
             Row() {
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.left'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_left'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -342,9 +348,9 @@ export default struct Home {
               })
 
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.right'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -361,7 +367,9 @@ export default struct Home {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
+          .alignItems(VerticalAlign.Bottom)
 
           List({ scroller: this.randomAlbumsScroller }) {
             ForEach(this.randomAlbums, (album: Album, index) => {
@@ -410,14 +418,14 @@ export default struct Home {
               .fontSize(20)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Medium)
-              .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
+              .margin({ bottom: 5 })
 
             Row() {
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.left'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_left'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -432,9 +440,9 @@ export default struct Home {
               })
 
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.right'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -451,7 +459,9 @@ export default struct Home {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
+          .alignItems(VerticalAlign.Bottom)
 
           List({ scroller: this.starredAlbumsScroller }) {
             ForEach(this.starredAlbums, (album: Album, index) => {
@@ -500,14 +510,14 @@ export default struct Home {
               .fontSize(20)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Medium)
-              .margin({ top: 15, bottom: 5 })
               .textAlign(TextAlign.Start)
+              .margin({ bottom: 5 })
 
             Row() {
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.left'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_left'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -522,9 +532,9 @@ export default struct Home {
               })
 
               Button({ type: ButtonType.Normal }) {
-                Image($r('app.media.right'))
-                  .width(18)
-                  .height(18)
+                SymbolGlyph($r('sys.symbol.chevron_right'))
+                  .fontSize(28)
+                  .fontColor([$r('app.color.font')])
               }
               .width(30)
               .height(30)
@@ -541,7 +551,9 @@ export default struct Home {
           }
           .width('100%')
           .padding({ left: 20, right: 20 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.SpaceBetween)
+          .alignItems(VerticalAlign.Bottom)
 
           List({ scroller: this.starredArtistsScroller }) {
             ForEach(this.starredArtists, (artist: Artist, index) => {
