@@ -36,6 +36,7 @@ export function PlaylistDetailBuilder() {
 @Component
 export default struct PlaylistDetail {
   @Consume pageStack: NavPathStack
+  @Consume displayWidth: number
   @Consume showControlButton: boolean
   @Consume playlist: Playlist | undefined
   @Consume nowPlayingSong: Song | undefined
@@ -122,7 +123,7 @@ export default struct PlaylistDetail {
           Column() {
             Flex({ direction: FlexDirection.Row }) {
               Text(this.playlist!.name)
-                .fontSize(28)
+                .fontSize(this.displayWidth > 1400 ? 30 : 28)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
                 .maxLines(1)
@@ -144,7 +145,7 @@ export default struct PlaylistDetail {
             .padding({ left: 40, right: 35 })
 
             Text(this.playlist!.comment)
-              .fontSize(18)
+              .fontSize(this.displayWidth > 1400 ? 20 : 18)
               .fontColor($r('app.color.font_secondary'))
               .margin({ top: 5 })
               .maxLines(2)
@@ -153,10 +154,10 @@ export default struct PlaylistDetail {
               .visibility(this.playlist!.comment !== undefined ? Visibility.Visible : Visibility.None)
             Row() {
               Text(formatDate(this.playlist!.created))
-                .fontSize(15)
+                .fontSize(this.displayWidth > 1400 ? 17 : 15)
                 .fontColor($r('app.color.font_secondary'))
               Text("创建")
-                .fontSize(15)
+                .fontSize(this.displayWidth > 1400 ? 17 : 15)
                 .fontColor($r('app.color.font_secondary'))
             }
             .margin({ top: 5 })

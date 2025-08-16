@@ -1,5 +1,5 @@
 import { Album, Artist, MusicFolder } from '../utils/Interface';
-import { curves, SymbolGlyphModifier } from '@kit.ArkUI';
+import { curves, LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 
 @Builder
@@ -73,18 +73,18 @@ export default struct ArtistDetail {
           Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`)
             .alt($rawfile('noprofile.jpg'))
             .objectFit(ImageFit.Cover)
-            .width(120)
+            .width(this.displayWidth > 1400 ? 180 : 120)
             .aspectRatio(1)
             .borderRadius(10000)
           Column() {
             Text(this.artist!.name)
-              .fontSize(24)
+              .fontSize(this.displayWidth > 1400 ? 30 : 24)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Bold)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
             Text(this.artist!.biography)
-              .fontSize(18)
+              .fontSize(this.displayWidth > 1400 ? 22 : 18)
               .fontColor($r('app.color.font_secondary'))
               .margin({ top: 10 })
               .maxLines(3)
@@ -174,7 +174,13 @@ export default struct ArtistDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
-    .menus([{
+    .title("", {
+      paddingEnd: {
+        value: 210,
+        unit: LengthUnit.PX
+      }
+    })
+    .menus( [{
       value: "star",
       symbolIcon: new SymbolGlyphModifier(this.artist!.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
       action: async () => {

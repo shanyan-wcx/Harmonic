@@ -749,9 +749,9 @@ export default struct Play {
               .alignItems(HorizontalAlign.Start)
 
               Button() {
-                Image(this.nowPlayingSong?.starred !== undefined ? $r('app.media.star') : $r('app.media.unstar'))
-                  .width(30)
-                  .height(30)
+                SymbolGlyph(this.nowPlayingSong?.starred !== undefined ? $r('sys.symbol.heart_fill') : $r('sys.symbol.heart'))
+                  .fontSize(26)
+                  .fontColor([$r('app.color.font')])
               }
               .width(40)
               .height(40)

@@ -1,4 +1,4 @@
-import { curves, SymbolGlyphModifier } from '@kit.ArkUI';
+import { curves, LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } from '../utils/Api';
@@ -124,18 +124,18 @@ export default struct AlbumDetail {
             Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`)
               .alt($rawfile('nocover.png'))
               .objectFit(ImageFit.Contain)
-              .width(this.displayWidth > 1400 ? 200 :140)
+              .width(this.displayWidth > 1400 ? 200 : 140)
               .aspectRatio(1)
               .borderRadius(10)
               .margin({ left: 20 })
             Column() {
               Text(this.album.name)
-                .fontSize(24)
+                .fontSize(this.displayWidth > 1400 ? 30 : 24)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
               Button({ type: ButtonType.Normal }) {
                 Text(this.album.artist)
-                  .fontSize(17)
+                  .fontSize(this.displayWidth > 1400 ? 22 : 17)
                   .fontColor($r('app.color.font_secondary'))
               }
               .margin({ top: 5 })
@@ -147,7 +147,7 @@ export default struct AlbumDetail {
               })
             }
             .margin({ left: 15, right: 15 })
-            .padding({ bottom: 20 })
+            .padding({ bottom: this.displayWidth > 1400 ? 40 : 20 })
             .width('100%')
             .layoutWeight(1)
             .alignItems(HorizontalAlign.Start)
@@ -372,6 +372,12 @@ export default struct AlbumDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
+    .title("", {
+      paddingEnd: {
+        value: 210,
+        unit: LengthUnit.PX
+      }
+    })
     .menus([{
       value: "star",
       symbolIcon: new SymbolGlyphModifier(this.album.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
