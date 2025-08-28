@@ -246,7 +246,7 @@ export default struct Play {
     this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
   }
 
-  closePlayPage() {
+  async closePlayPage() {
     this.swiperController.showPrevious()
     this.getUIContext()?.animateTo({
       duration: 600,
@@ -664,12 +664,10 @@ export default struct Play {
         this.showMore = false
         this.nowPlayingList = []
         this.avPlayer!.stop()
-        setTimeout(() => {
-          this.isPlaying = false
-          this.startPlaying = false
-          this.sleepTime = 0
-          this.closePlayPage()
-        }, 10)
+        this.sleepTime = 0
+        await this.closePlayPage()
+        this.startPlaying = false
+        this.isPlaying = false
       })
     }
     .width('90%')
@@ -902,7 +900,8 @@ export default struct Play {
                 .itemSpace(20)
                 .geometryTransition("cover_overlay")
                 .loop(false)
-                .width('82%')
+                .height(this.displayHeight * 0.66 - 230 > this.displayWidth * 0.84 ? this.displayWidth * 0.84 : this.displayHeight * 0.66 - 230)
+                .aspectRatio(1)
                 .aspectRatio(1)
                 .indicator(this.indicatorController)
 
@@ -926,10 +925,9 @@ export default struct Play {
                   .borderRadius(10)
                   .geometryTransition("cover_embed")
               }
-              .height('45%')
-              .width('90%')
-              .margin({ top: 20 })
-              .padding({ bottom: 60 })
+              .height(this.displayHeight * 0.66 - 200 > this.displayWidth * 0.42 ? this.displayWidth * 0.42 : this.displayHeight * 0.66 - 200)
+              .aspectRatio(1)
+              .margin({ top: 20, bottom: 40})
               .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
             }
 
@@ -1141,18 +1139,16 @@ export default struct Play {
               .justifyContent(FlexAlign.SpaceBetween)
               .visibility(this.displayHeight > 300 ? Visibility.Visible : Visibility.None)
             }
-            .width('80%')
-            .height('100%')
-            .layoutWeight(1)
+            .width('100%')
+            .height(this.showCover || this.displayHeight < 300 ? '34%' : '56%')
             .justifyContent(FlexAlign.SpaceBetween)
-            .padding({ top: this.showCover === true ? 20 : 40, bottom: 20 })
-            .offset({
-              y: -20
+            .position({
+              bottom: 0
             })
+            .padding({ top: 20, bottom: 35, left: '10%', right: '10%' })
           }
-          .width('100%')
+          .width(this.sidebarType === SideBarContainerType.Embed ? '50%' : '100%')
           .height('100%')
-          .layoutWeight(1)
           .alignItems(HorizontalAlign.Center)
 
           if (this.sidebarType === SideBarContainerType.Embed) {
