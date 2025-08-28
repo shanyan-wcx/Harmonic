@@ -37,7 +37,6 @@ export function PlaylistDetailBuilder() {
 export default struct PlaylistDetail {
   @Consume pageStack: NavPathStack
   @Consume displayWidth: number
-  @Consume showControlButton: boolean
   @Consume playlist: Playlist | undefined
   @Consume nowPlayingSong: Song | undefined
   @Consume nowPlayingLyrics: StructuredLyric | undefined
@@ -57,6 +56,8 @@ export default struct PlaylistDetail {
   @Consume auth: string
   @Consume addOrDelete: boolean
   @Consume getCoverUrl: string
+  @Consume showPlay: boolean
+  @Consume closePlay: boolean
   @Consume avPlayer: media.AVPlayer | undefined
   @Consume session: AVSessionManager.AVSession | undefined
   @StorageLink('baseURL') baseURL: string = ''
@@ -295,5 +296,12 @@ export default struct PlaylistDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
+    .onBackPressed(() => {
+      if (this.showPlay) {
+        this.closePlay = !this.closePlay
+        return true
+      }
+      return false
+    })
   }
 }

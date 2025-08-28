@@ -1,4 +1,4 @@
-import { curves, window } from '@kit.ArkUI';
+import { window } from '@kit.ArkUI';
 import { common, ConfigurationConstant, wantAgent, WantAgent } from '@kit.AbilityKit';
 import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { media } from '@kit.MediaKit';
@@ -63,7 +63,6 @@ struct Index {
   @State statusBarHeight: number = 0;
   @State shadowRadius: number = 0;
   @Provide showSidebar: boolean = false;
-  @Provide showControlButton: boolean = true;
   @Provide recentAlbums: Album[] = []
   @Provide newestAlbums: Album[] = []
   @Provide frequentAlbums: Album[] = []
@@ -124,9 +123,9 @@ struct Index {
   @Provide searchAlbums: Album[] = []
   @Provide searchArtists: Artist[] = []
   @Provide showLibrary: boolean = false
+  @Provide closePlay: boolean = false
   @Provide @Watch('updatePage') needUpdate: boolean = false
   @State coverSize: number = 64
-  @State controlButtonWidth: number = 48
   @State themeIcon: Resource = $r('app.media.auto')
   @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
@@ -769,7 +768,9 @@ struct Index {
       })
     }
     .width(deviceTypeInfo === '2in1' ? 200 : 128)
-    .height(deviceTypeInfo === '2in1' ? (this.displayWidth > 1400 ? 40 * this.musicFolders.length : 35 * this.musicFolders.length) : 30 * this.musicFolders.length)
+    .height(deviceTypeInfo === '2in1' ?
+      (this.displayWidth > 1400 ? 40 * this.musicFolders.length : 35 * this.musicFolders.length) :
+      30 * this.musicFolders.length)
     .alignItems(HorizontalAlign.Start)
   }
 
@@ -1006,41 +1007,35 @@ struct Index {
   }
 
   @Builder
-  bindContentCoverBuilder() {
-    Column() {
-      Play()
-    }
-    .transition(TransitionEffect.translate({ y: 1000 }).animation({ curve: curves.springMotion(0.6, 1) }))
-    .onKeyEvent((event?: KeyEvent) => {
-      if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
-        this.isPlaying = !this.isPlaying
-        if (this.isPlaying === false) {
-          if (this.fadeVolume === true) {
-            this.fadeOut()
-          } else {
-            this.avPlayer!.pause()
-          }
-        } else {
-          if (this.fadeVolume === true) {
-            this.fadeIn()
-          } else {
-            this.avPlayer!.play()
-          }
-        }
-      }
-    })
-  }
-
-  @Builder
   titlebar() {
     Row() {
+      Button({ type: ButtonType.Normal }) {
+        Image($r('app.media.sidebar'))
+          .width(24)
+          .aspectRatio(1)
+      }
+      .width(48)
+      .height(48)
+      .borderRadius(8)
+      .backgroundColor(Color.Transparent)
+      .onClick(async () => {
+        this.uiContext?.animateTo({
+          duration: 300,
+          curve: Curve.EaseOut,
+        }, () => {
+          this.showSidebar = !this.showSidebar
+        })
+      })
+      .visibility(this.sidebarType === SideBarContainerType.Overlay ? Visibility.Visible : Visibility.None)
+
       Button({ type: ButtonType.Normal }) {
         Row() {
           Text("音乐库")
             .fontSize(this.displayWidth > 1400 ? 20 : 18)
             .fontColor($r('app.color.font'))
             .fontWeight(FontWeight.Medium)
-          SymbolGlyph(this.showLibrary ? $r('sys.symbol.arrowtriangle_up_fill') : $r('sys.symbol.arrowtriangle_down_fill'))
+          SymbolGlyph(this.showLibrary ? $r('sys.symbol.arrowtriangle_up_fill') :
+          $r('sys.symbol.arrowtriangle_down_fill'))
             .margin({ left: this.displayWidth > 1400 ? 10 : 7 })
             .fontColor([$r('app.color.font')])
         }
@@ -1051,6 +1046,7 @@ struct Index {
         top: 5,
         bottom: 5
       })
+      .margin({ left: 10 })
       .borderRadius(8)
       .backgroundColor($r('app.color.button_selected'))
       .bindContextMenu(this.showLibrary, this.musicFolderMenu, {
@@ -1083,8 +1079,7 @@ struct Index {
     .width("100%")
     .height('100%')
     .alignItems(VerticalAlign.Center)
-    .justifyContent(FlexAlign.SpaceBetween)
-    .padding({ left: this.sidebarType === SideBarContainerType.Embed ? 20 : 68 })
+    .padding({ left: 10 })
   }
 
   onPageShow() {
@@ -1181,7 +1176,6 @@ struct Index {
     })
     this.initThemeIcon()
     this.getStatusBarHeight()
-    this.registerInterception()
     if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
       this.playModeIcon = $r('app.media.single')
     } else if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
@@ -1234,31 +1228,21 @@ struct Index {
     }
   }
 
-  registerInterception() {
-    this.pageStack.setInterception({
-      willShow: (from: NavDestinationContext | "navBar", to: NavDestinationContext | "navBar",
-        operation: NavigationOperation, animated: boolean) => {
-        if (this.sidebarType === SideBarContainerType.Overlay) {
-          if (typeof to === "string") {
-            this.showControlButton = true
-            this.uiContext?.animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.controlButtonWidth = 48
-            })
-          } else {
-            this.uiContext?.animateTo({
-              duration: 300,
-              curve: Curve.EaseOut,
-            }, () => {
-              this.controlButtonWidth = 0
-            })
-            this.showControlButton = false
-          }
-        }
-      }
-    })
+  onBackPress() {
+    if (this.showPlay) {
+      this.closePlay = !this.closePlay
+      return true
+    }
+    if (this.showSidebar) {
+      this.uiContext?.animateTo({
+        duration: 300,
+        curve: Curve.EaseOut,
+      }, () => {
+        this.showSidebar = false
+      })
+      return true
+    }
+    return false
   }
 
   build() {
@@ -1575,153 +1559,210 @@ struct Index {
             backgroundColor: $r('app.color.content_background'),
           })
 
-          Row() {
-            Row() {
-              Image(this.baseURL + this.getCoverUrl + this.auth +
+          if (this.sidebarType === SideBarContainerType.Overlay) {
+            Column()
+              .width(this.displayWidth)
+              .height(this.showPlay ? '100%' : 85)
+              .justifyContent(FlexAlign.Center)
+              .backgroundImage(this.baseURL + this.getCoverUrl + this.auth +
                 `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                .alt($rawfile('nocover.png'))
-                .objectFit(ImageFit.Contain)
-                .width(60)
-                .aspectRatio(1)
-                .borderRadius(5)
-              Column() {
-                Marquee({
-                  start: true,
-                  step: 3,
-                  src: this.nowPlayingSong?.title
-                })
-                  .fontSize(18)
-                  .fontColor($r('app.color.font'))
-                Marquee({
-                  start: true,
-                  step: 3,
-                  src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
-                })
-                  .fontSize(15)
-                  .fontColor($r('app.color.font_secondary'))
-                  .margin({ top: 5 })
-              }
-              .margin({ left: 10, right: 10 })
-              .alignItems(HorizontalAlign.Start)
-              .width('100%')
-              .layoutWeight(1)
-            }
-            .width('100%')
-            .layoutWeight(1)
-            .justifyContent(FlexAlign.Start)
-
-            Row() {
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.prev'))
-                  .width(30)
-                  .height(30)
-              }
-              .width(35)
-              .height(35)
-              .backgroundColor(Color.Transparent)
-              .onClick(async () => {
-                await this.avPlayer!.reset();
-                if (this.nowPlayingIndex === 0) {
-                  this.nowPlayingIndex = this.nowPlayingList.length - 1
-                } else {
-                  this.nowPlayingIndex -= 1
-                }
-                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                this.nowPlayingLyrics =
-                  await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-                if (this.nowPlayingLyrics !== undefined) {
-                  this.groupLyrics()
-                }
-                this.avPlayer!.url =
-                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+              .backgroundImageSize(ImageSize.FILL)
+              .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
+              .backgroundBrightness({
+                rate: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.2 : 0.5,
+                lightUpDegree: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ?
+                  0.1 :
+                  0.5
               })
+              .opacity(this.showPlay ? 1 : 0)
+              .position({
+                bottom: 0,
+                right: 0
+              })
+              .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
+              .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
 
-              Stack() {
-                Progress({
-                  value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
-                  total: 100,
-                  type: ProgressType.Ring
-                })
-                  .width(45)
-                  .height(45)
-                  .color($r('app.color.progress'))
-                  .backgroundColor($r('app.color.progress_background'))
-                  .style({
-                    strokeWidth: 3
-                  })
-
-                Button({ type: ButtonType.Circle }) {
-                  Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
-                    .width(25)
-                    .height(25)
-                }
-                .width(45)
-                .height(45)
-                .backgroundColor(Color.Transparent)
-                .onClick(() => {
-                  this.isPlaying = !this.isPlaying
-                  if (this.isPlaying === false) {
-                    if (this.fadeVolume === true) {
-                      this.fadeOut()
-                    } else {
-                      this.avPlayer!.pause()
+            Column() {
+              if (this.showPlay === false) {
+                Row() {
+                  Row() {
+                    Image(this.baseURL + this.getCoverUrl + this.auth +
+                      `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                      .alt($rawfile('nocover.png'))
+                      .objectFit(ImageFit.Contain)
+                      .width(60)
+                      .aspectRatio(1)
+                      .borderRadius(5)
+                      .geometryTransition("cover_overlay")
+                    Column() {
+                      Marquee({
+                        start: true,
+                        step: 3,
+                        src: this.nowPlayingSong?.title
+                      })
+                        .fontSize(18)
+                        .fontColor($r('app.color.font'))
+                      Marquee({
+                        start: true,
+                        step: 3,
+                        src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
+                      })
+                        .fontSize(15)
+                        .fontColor($r('app.color.font_secondary'))
+                        .margin({ top: 5 })
                     }
-                  } else {
-                    if (this.fadeVolume === true) {
-                      this.fadeIn()
-                    } else {
-                      this.avPlayer!.play()
-                    }
+                    .margin({ left: 10, right: 10 })
+                    .alignItems(HorizontalAlign.Start)
+                    .width('100%')
+                    .layoutWeight(1)
                   }
-                })
-              }
+                  .width('100%')
+                  .layoutWeight(1)
+                  .justifyContent(FlexAlign.Start)
 
-              Button({ type: ButtonType.Circle }) {
-                Image($r('app.media.next'))
-                  .width(30)
-                  .height(30)
+                  Row() {
+                    Button({ type: ButtonType.Circle }) {
+                      Image($r('app.media.prev'))
+                        .width(30)
+                        .height(30)
+                    }
+                    .width(35)
+                    .height(35)
+                    .backgroundColor(Color.Transparent)
+                    .onClick(async () => {
+                      await this.avPlayer!.reset();
+                      if (this.nowPlayingIndex === 0) {
+                        this.nowPlayingIndex = this.nowPlayingList.length - 1
+                      } else {
+                        this.nowPlayingIndex -= 1
+                      }
+                      this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                      this.nowPlayingLyrics =
+                        await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                      if (this.nowPlayingLyrics !== undefined) {
+                        this.groupLyrics()
+                      }
+                      this.avPlayer!.url =
+                        this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                    })
+
+                    Stack() {
+                      Progress({
+                        value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                        total: 100,
+                        type: ProgressType.Ring
+                      })
+                        .width(45)
+                        .height(45)
+                        .color($r('app.color.progress'))
+                        .backgroundColor($r('app.color.progress_background'))
+                        .style({
+                          strokeWidth: 3
+                        })
+
+                      Button({ type: ButtonType.Circle }) {
+                        Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
+                          .width(25)
+                          .height(25)
+                      }
+                      .width(45)
+                      .height(45)
+                      .backgroundColor(Color.Transparent)
+                      .onClick(() => {
+                        this.isPlaying = !this.isPlaying
+                        if (this.isPlaying === false) {
+                          if (this.fadeVolume === true) {
+                            this.fadeOut()
+                          } else {
+                            this.avPlayer!.pause()
+                          }
+                        } else {
+                          if (this.fadeVolume === true) {
+                            this.fadeIn()
+                          } else {
+                            this.avPlayer!.play()
+                          }
+                        }
+                      })
+                    }
+
+                    Button({ type: ButtonType.Circle }) {
+                      Image($r('app.media.next'))
+                        .width(30)
+                        .height(30)
+                    }
+                    .width(35)
+                    .height(35)
+                    .backgroundColor(Color.Transparent)
+                    .onClick(async () => {
+                      await this.avPlayer!.reset();
+                      if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+                        this.nowPlayingIndex = 0
+                      } else {
+                        this.nowPlayingIndex += 1
+                      }
+                      this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                      this.nowPlayingLyrics =
+                        await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                      if (this.nowPlayingLyrics !== undefined) {
+                        this.groupLyrics()
+                      }
+                      this.avPlayer!.url =
+                        this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                    })
+                  }
+                  .width(125)
+                  .justifyContent(FlexAlign.SpaceBetween)
+                }
+                .opacity(this.showPlay ? 0 : 1)
+                .padding({ left: 15, right: 15, bottom: 5 })
+                .onClick(() => {
+                  if (this.showPlay === true) {
+                    this.showPlay = false
+                  }
+                  this.getUIContext()?.animateTo({
+                    duration: 600,
+                    curve: Curve.Friction
+                  }, () => {
+                    this.showPlay = true
+                  })
+                })
+              } else {
+                Column() {
+                  Play()
+                    .onKeyEvent((event?: KeyEvent) => {
+                      if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+                        this.isPlaying = !this.isPlaying
+                        if (this.isPlaying === false) {
+                          if (this.fadeVolume === true) {
+                            this.fadeOut()
+                          } else {
+                            this.avPlayer!.pause()
+                          }
+                        } else {
+                          if (this.fadeVolume === true) {
+                            this.fadeIn()
+                          } else {
+                            this.avPlayer!.play()
+                          }
+                        }
+                      }
+                    })
+                }
+                .opacity(this.showPlay ? 1 : 0)
               }
-              .width(35)
-              .height(35)
-              .backgroundColor(Color.Transparent)
-              .onClick(async () => {
-                await this.avPlayer!.reset();
-                if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
-                  this.nowPlayingIndex = 0
-                } else {
-                  this.nowPlayingIndex += 1
-                }
-                this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                this.nowPlayingLyrics =
-                  await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
-                if (this.nowPlayingLyrics !== undefined) {
-                  this.groupLyrics()
-                }
-                this.avPlayer!.url =
-                  this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
-              })
             }
-            .width(125)
-            .justifyContent(FlexAlign.SpaceBetween)
+            .width(this.displayWidth)
+            .height(this.showPlay ? '100%' : 85)
+            .justifyContent(FlexAlign.Center)
+            .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_THICK)
+            .position({
+              bottom: 0,
+              right: 0
+            })
+            .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
+            .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
           }
-          .width('100%')
-          .height(85)
-          .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
-          .padding({ left: 15, right: 15, bottom: 5 })
-          .position({
-            bottom: 0
-          })
-          .bindContentCover($$this.showPlay, this.bindContentCoverBuilder(), {
-            modalTransition: ModalTransition.NONE,
-          })
-          .onClick(() => {
-            if (this.showPlay === true) {
-              this.showPlay = false
-            }
-            this.showPlay = true
-          })
-          .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
-          .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: curves.springMotion(0.6, 1) }))
 
           Column()
             .width('100%')
@@ -1761,29 +1802,209 @@ struct Index {
         }
       })
 
-      Button({ type: ButtonType.Normal }) {
-        Image($r('app.media.sidebar'))
-          .width(24)
-          .aspectRatio(1)
-      }
-      .position({
-        x: 10,
-        y: this.statusBarHeight + 4
-      })
-      .width(this.controlButtonWidth)
-      .height(48)
-      .borderRadius(8)
-      .backgroundColor(Color.Transparent)
-      .onClick(async () => {
-        this.uiContext?.animateTo({
-          duration: 300,
-          curve: Curve.EaseOut,
-        }, () => {
-          this.showSidebar = !this.showSidebar
+      if (this.sidebarType === SideBarContainerType.Embed) {
+        Column()
+          .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)
+          .height(this.showPlay ? '100%' : 85)
+          .justifyContent(FlexAlign.Center)
+          .backgroundImage(this.baseURL + this.getCoverUrl + this.auth +
+            `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+          .backgroundImageSize(ImageSize.FILL)
+          .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
+          .backgroundBrightness({
+            rate: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.2 : 0.5,
+            lightUpDegree: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.1 :
+              0.5
+          })
+          .opacity(this.showPlay ? 1 : 0)
+          .position({
+            bottom: 0,
+            right: 0
+          })
+          .visibility(this.startPlaying === true && this.sidebarType === SideBarContainerType.Embed ?
+          Visibility.Visible : Visibility.Hidden)
+          .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
+
+        Column() {
+          if (this.showPlay === false) {
+            Row() {
+              Row() {
+                Image(this.baseURL + this.getCoverUrl + this.auth +
+                  `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                  .alt($rawfile('nocover.png'))
+                  .objectFit(ImageFit.Contain)
+                  .width(60)
+                  .aspectRatio(1)
+                  .borderRadius(5)
+                  .geometryTransition("cover_embed")
+                Column() {
+                  Marquee({
+                    start: true,
+                    step: 3,
+                    src: this.nowPlayingSong?.title
+                  })
+                    .fontSize(18)
+                    .fontColor($r('app.color.font'))
+                  Marquee({
+                    start: true,
+                    step: 3,
+                    src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
+                  })
+                    .fontSize(15)
+                    .fontColor($r('app.color.font_secondary'))
+                    .margin({ top: 5 })
+                }
+                .margin({ left: 10, right: 10 })
+                .alignItems(HorizontalAlign.Start)
+                .width('100%')
+                .layoutWeight(1)
+              }
+              .width('100%')
+              .layoutWeight(1)
+              .justifyContent(FlexAlign.Start)
+
+              Row() {
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.prev'))
+                    .width(30)
+                    .height(30)
+                }
+                .width(35)
+                .height(35)
+                .backgroundColor(Color.Transparent)
+                .onClick(async () => {
+                  await this.avPlayer!.reset();
+                  if (this.nowPlayingIndex === 0) {
+                    this.nowPlayingIndex = this.nowPlayingList.length - 1
+                  } else {
+                    this.nowPlayingIndex -= 1
+                  }
+                  this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                  this.nowPlayingLyrics =
+                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                  if (this.nowPlayingLyrics !== undefined) {
+                    this.groupLyrics()
+                  }
+                  this.avPlayer!.url =
+                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                })
+
+                Stack() {
+                  Progress({
+                    value: this.nowPlayedTime / this.nowPlayingSong?.duration! * 100,
+                    total: 100,
+                    type: ProgressType.Ring
+                  })
+                    .width(45)
+                    .height(45)
+                    .color($r('app.color.progress'))
+                    .backgroundColor($r('app.color.progress_background'))
+                    .style({
+                      strokeWidth: 3
+                    })
+
+                  Button({ type: ButtonType.Circle }) {
+                    Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
+                      .width(25)
+                      .height(25)
+                  }
+                  .width(45)
+                  .height(45)
+                  .backgroundColor(Color.Transparent)
+                  .onClick(() => {
+                    this.isPlaying = !this.isPlaying
+                    if (this.isPlaying === false) {
+                      if (this.fadeVolume === true) {
+                        this.fadeOut()
+                      } else {
+                        this.avPlayer!.pause()
+                      }
+                    } else {
+                      if (this.fadeVolume === true) {
+                        this.fadeIn()
+                      } else {
+                        this.avPlayer!.play()
+                      }
+                    }
+                  })
+                }
+
+                Button({ type: ButtonType.Circle }) {
+                  Image($r('app.media.next'))
+                    .width(30)
+                    .height(30)
+                }
+                .width(35)
+                .height(35)
+                .backgroundColor(Color.Transparent)
+                .onClick(async () => {
+                  await this.avPlayer!.reset();
+                  if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+                    this.nowPlayingIndex = 0
+                  } else {
+                    this.nowPlayingIndex += 1
+                  }
+                  this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                  this.nowPlayingLyrics =
+                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                  if (this.nowPlayingLyrics !== undefined) {
+                    this.groupLyrics()
+                  }
+                  this.avPlayer!.url =
+                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                })
+              }
+              .width(125)
+              .justifyContent(FlexAlign.SpaceBetween)
+            }
+            .padding({ left: 15, right: 15, bottom: 5 })
+            .onClick(() => {
+              if (this.showPlay === true) {
+                this.showPlay = false
+              }
+              this.getUIContext()?.animateTo({
+                duration: 600,
+                curve: Curve.Friction
+              }, () => {
+                this.showPlay = true
+              })
+            })
+          } else {
+            Column() {
+              Play()
+                .onKeyEvent((event?: KeyEvent) => {
+                  if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+                    this.isPlaying = !this.isPlaying
+                    if (this.isPlaying === false) {
+                      if (this.fadeVolume === true) {
+                        this.fadeOut()
+                      } else {
+                        this.avPlayer!.pause()
+                      }
+                    } else {
+                      if (this.fadeVolume === true) {
+                        this.fadeIn()
+                      } else {
+                        this.avPlayer!.play()
+                      }
+                    }
+                  }
+                })
+            }
+          }
+        }
+        .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)
+        .height(this.showPlay ? '100%' : 85)
+        .justifyContent(FlexAlign.Center)
+        .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_THICK)
+        .position({
+          bottom: 0,
+          right: 0
         })
-      })
-      .visibility(this.sidebarType === SideBarContainerType.Overlay && this.showControlButton === true ?
-      Visibility.Visible : Visibility.Hidden)
+        .visibility(this.startPlaying === true && this.sidebarType === SideBarContainerType.Embed ? Visibility.Visible :
+        Visibility.Hidden)
+        .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
+      }
 
       Column()
         .width('100%')

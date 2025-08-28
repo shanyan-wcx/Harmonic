@@ -1,6 +1,9 @@
 import { Album, Artist, MusicFolder } from '../utils/Interface';
 import { curves, LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @Builder
 export function ArtistDetailBuilder() {
@@ -11,7 +14,6 @@ export function ArtistDetailBuilder() {
 export default struct ArtistDetail {
   @Consume displayWidth: number
   @Consume pageStack: NavPathStack
-  @Consume showControlButton: boolean
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
@@ -26,7 +28,10 @@ export default struct ArtistDetail {
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
   @Consume needUpdate: boolean
+  @Consume closePlay: boolean
   @Consume nowPage: number
+  @Consume showPlay: boolean
+  @Consume sidebarType: number
   @State tempAlbums: Album[] = []
   @State tempLibraryAlbums: Album[] = []
   @State albumPerRow: number = 3
@@ -174,10 +179,17 @@ export default struct ArtistDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
+    .onBackPressed(() => {
+      if (this.showPlay) {
+        this.closePlay = !this.closePlay
+        return true
+      }
+      return false
+    })
     .title("", {
       paddingEnd: {
-        value: 210,
-        unit: LengthUnit.PX
+        value: deviceTypeInfo === '2in1' ? (this.sidebarType === SideBarContainerType.Embed ? 165 : 0) : 15,
+        unit: LengthUnit.VP
       }
     })
     .menus( [{

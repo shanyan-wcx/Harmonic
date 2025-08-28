@@ -1,9 +1,17 @@
 import { LengthMetrics, window } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { AVCastPicker, avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { createShare,
+import {
+  createShare,
   getAlbum,
-  getArtist, getCover, getLyrics, getPlaylists, getSong, star, unstar } from '../utils/Api';
+  getArtist,
+  getCover,
+  getLyrics,
+  getPlaylists,
+  getSong,
+  star,
+  unstar
+} from '../utils/Api';
 import { Album, Artist, Line, Playlist, Song, StructuredLyric } from '../utils/Interface';
 import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
@@ -67,6 +75,7 @@ export default struct Play {
   @Consume nowPlayingIndex: number
   @Consume starredSongs: Song[]
   @Consume @Watch('scrollLyrics') lyricsIndex: number
+  @Consume @Watch('closePlayPage') closePlay: boolean
   @Consume nowPlayedTime: number
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
@@ -99,7 +108,8 @@ export default struct Play {
   @StorageLink('downloadDir') downloadDir: string = ''
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
-  private controller: SwiperController = new SwiperController();
+  private swiperController: SwiperController = new SwiperController()
+  private indicatorController: IndicatorComponentController = new IndicatorComponentController()
   uiContext: UIContext | undefined = undefined
   context: common.UIAbilityContext | undefined = undefined
   selectPlaylist: CustomDialogController = new CustomDialogController({
@@ -234,6 +244,16 @@ export default struct Play {
 
   scrollLyrics() {
     this.lyricsScroller.scrollToIndex(this.lyricsIndex, true, ScrollAlign.CENTER)
+  }
+
+  closePlayPage() {
+    this.swiperController.showPrevious()
+    this.getUIContext()?.animateTo({
+      duration: 600,
+      curve: Curve.Friction
+    }, () => {
+      this.showPlay = false
+    })
   }
 
   async aboutToAppear() {
@@ -432,7 +452,7 @@ export default struct Play {
       .height('100%')
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
-      .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
+      .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
     }
     .width('90%')
     .height(this.nowPlayingList.length > 7 ? 420 : this.nowPlayingList.length * 60)
@@ -604,7 +624,7 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
-        this.showPlay = false
+        this.closePlayPage()
         this.artist = await getArtist(this.baseURL, this.username, this.password, this.nowPlayingSong!.artistId)
         this.pageStack.replacePathByName('ArtistDetail', undefined);
       })
@@ -623,7 +643,7 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
-        this.showPlay = false
+        this.closePlayPage()
         this.album = await getAlbum(this.baseURL, this.username, this.password, this.nowPlayingSong!.albumId)
         this.pageStack.replacePathByName('AlbumDetail', undefined);
       })
@@ -647,8 +667,8 @@ export default struct Play {
         setTimeout(() => {
           this.isPlaying = false
           this.startPlaying = false
-          this.showPlay = false
           this.sleepTime = 0
+          this.closePlayPage()
         }, 10)
       })
     }
@@ -663,17 +683,6 @@ export default struct Play {
   build() {
     Column() {
       Stack() {
-        Column()
-          .backgroundImage(this.baseURL + this.getCoverUrl + this.auth +
-            `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-          .backgroundImageSize(ImageSize.FILL)
-          .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
-          .backgroundBrightness({
-            rate: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.2 : 0.5,
-            lightUpDegree: this.context!.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK ? 0.1 : 0.5
-          })
-          .width('100%')
-          .height('100%')
         Row() {
           Column() {
             Row() {
@@ -690,7 +699,7 @@ export default struct Play {
                 if (this.showPlay === false) {
                   this.showPlay = true
                 }
-                this.showPlay = false
+                this.closePlayPage()
               })
 
               Row() {
@@ -749,7 +758,8 @@ export default struct Play {
               .alignItems(HorizontalAlign.Start)
 
               Button() {
-                SymbolGlyph(this.nowPlayingSong?.starred !== undefined ? $r('sys.symbol.heart_fill') : $r('sys.symbol.heart'))
+                SymbolGlyph(this.nowPlayingSong?.starred !== undefined ? $r('sys.symbol.heart_fill') :
+                $r('sys.symbol.heart'))
                   .fontSize(26)
                   .fontColor([$r('app.color.font')])
               }
@@ -807,93 +817,102 @@ export default struct Play {
             .padding({ top: 20, bottom: 20 })
 
             if (this.sidebarType === SideBarContainerType.Overlay) {
-              Swiper(this.controller) {
-                Column() {
-                  Image(this.baseURL + this.getCoverUrl + this.auth +
-                    `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                    .alt($rawfile('nocover.png'))
-                    .objectFit(ImageFit.Contain)
-                    .height('100%')
-                    .aspectRatio(1)
-                    .borderRadius(10)
-                }
-                .width('100%')
-                .height('100%')
-                .margin({ bottom: 40 })
-                .onTouch((event?: TouchEvent) => {
-                  if (event?.type === TouchType.Move) {
-                    this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
+              Column() {
+                Swiper(this.swiperController) {
+                  Column() {
+                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+                      .alt($rawfile('nocover.png'))
+                      .objectFit(ImageFit.Contain)
+                      .height('100%')
+                      .aspectRatio(1)
+                      .borderRadius(10)
                   }
-                })
+                  .width('100%')
+                  .height('100%')
+                  .onTouch((event?: TouchEvent) => {
+                    if (event?.type === TouchType.Move) {
+                      this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
+                    }
+                  })
 
-                Column() {
-                  List({ scroller: this.lyricsScroller }) {
-                    if (this.nowPlayingLyrics !== undefined && this.nowPlayingLyricsByGroup.length > 0) {
-                      ForEach(this.nowPlayingLyricsByGroup, (group: Line[], index) => {
+                  Column() {
+                    List({ scroller: this.lyricsScroller }) {
+                      if (this.nowPlayingLyrics !== undefined && this.nowPlayingLyricsByGroup.length > 0) {
+                        ForEach(this.nowPlayingLyricsByGroup, (group: Line[], index) => {
+                          ListItem() {
+                            Column() {
+                              ForEach(group, (line: Line, index2) => {
+                                Text(line.value)
+                                  .width('86%')
+                                  .height('auto')
+                                  .padding({ left: 20, right: 20 })
+                                  .margin({ top: index2 === 0 ? 0 : this.lyricsIndex === index ? 10 : 8 })
+                                  .fontSize(this.displayWidth > 1400 ? 28 : 24)
+                                  .fontWeight(FontWeight.Bold)
+                                  .fontColor(this.lyricsIndex === index &&
+                                    this.nowPlayingLyrics?.synced === true ?
+                                  $r('app.color.font_lyrics') :
+                                  $r('app.color.font_lyrics_secondary'))
+                                  .textAlign(TextAlign.Center)
+                                  .scale({
+                                    x: this.lyricsIndex === index ? 1.15 : 1,
+                                    y: this.lyricsIndex === index ? 1.15 : 1
+                                  })
+                                  .animation({
+                                    duration: 400,
+                                    curve: Curve.EaseInOut
+                                  })
+                                  .id("text")
+                              })
+                            }
+                          }
+                          .margin({
+                            top: index === 0 ? 125 : 20,
+                            bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 20
+                          })
+                        })
+                      } else {
                         ListItem() {
                           Column() {
-                            ForEach(group, (line: Line, index2) => {
-                              Text(line.value)
-                                .width('86%')
-                                .height('auto')
-                                .padding({ left: 20, right: 20 })
-                                .margin({ top: index2 === 0 ? 0 : this.lyricsIndex === index ? 10 : 8 })
-                                .fontSize(this.displayWidth > 1400 ? 28 : 24)
-                                .fontWeight(FontWeight.Bold)
-                                .fontColor(this.lyricsIndex === index &&
-                                  this.nowPlayingLyrics?.synced === true ?
-                                $r('app.color.font_lyrics') :
-                                $r('app.color.font_lyrics_secondary'))
-                                .textAlign(TextAlign.Center)
-                                .scale({ x: this.lyricsIndex === index ? 1.15 : 1, y: this.lyricsIndex === index ? 1.15 : 1 })
-                                .animation({
-                                  duration: 400,
-                                  curve: Curve.EaseInOut
-                                }).id("text")
-                            })
+                            Text("没有歌词")
+                              .fontSize(this.displayWidth > 1400 ? 28 : 24)
+                              .fontWeight(FontWeight.Bold)
+                              .fontColor($r('app.color.font_lyrics'))
+                              .scale({ x: 1.15, y: 1.15 })
                           }
-                        }
-                        .margin({
-                          top: index === 0 ? 125 : 20,
-                          bottom: index === this.nowPlayingLyricsByGroup.length - 1 ? 125 : 20
-                        })
-                      })
-                    } else {
-                      ListItem() {
-                        Column() {
-                          Text("没有歌词")
-                            .fontSize(this.displayWidth > 1400 ? 28 : 24)
-                            .fontWeight(FontWeight.Bold)
-                            .fontColor($r('app.color.font_lyrics'))
-                            .scale({ x: 1.15, y: 1.15 })
+                          .width('100%')
+                          .height('100%')
+                          .justifyContent(FlexAlign.Center)
                         }
                         .width('100%')
                         .height('100%')
-                        .justifyContent(FlexAlign.Center)
                       }
-                      .width('100%')
-                      .height('100%')
                     }
+                    .height('100%')
+                    .aspectRatio(1)
+                    .borderRadius(10)
+                    .listDirection(Axis.Vertical)
+                    .alignListItem(ListItemAlign.Center)
+                    .scrollBar(BarState.Off)
+                    .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(50) })
                   }
+                  .width('100%')
                   .height('100%')
-                  .aspectRatio(1)
-                  .borderRadius(10)
-                  .listDirection(Axis.Vertical)
-                  .alignListItem(ListItemAlign.Center)
-                  .scrollBar(BarState.Off)
-                  .fadingEdge(true, { fadingEdgeLength: LengthMetrics.vp(50) })
                 }
-                .width('100%')
-                .height('100%')
-                .margin({ bottom: 40 })
+                .itemSpace(20)
+                .geometryTransition("cover_overlay")
+                .loop(false)
+                .width('82%')
+                .aspectRatio(1)
+                .indicator(this.indicatorController)
+
+                IndicatorComponent(this.indicatorController)
+                  .style(
+                    new DotIndicator()
+                      .selectedColor($r('app.color.indicator'))
+                  )
+                  .margin({ top: 10 })
               }
-              .loop(false)
-              .indicator(
-                Indicator.dot()
-                  .selectedColor($r('app.color.indicator'))
-              )
-              .height('45%')
-              .width('90%')
               .margin({ top: 20 })
               .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
             } else {
@@ -905,18 +924,19 @@ export default struct Play {
                   .height('100%')
                   .aspectRatio(1)
                   .borderRadius(10)
+                  .geometryTransition("cover_embed")
               }
               .height('45%')
               .width('90%')
               .margin({ top: 20 })
-              .padding({ bottom: 40 })
+              .padding({ bottom: 60 })
               .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
             }
 
             Column() {
               Column() {
                 Row() {
-                  Text(formatDuration(this.sliderValue * this.nowPlayingSong!.duration / 100))
+                  Text(this.nowPlayingSong ? formatDuration(this.sliderValue * this.nowPlayingSong.duration / 100) : "")
                     .fontSize(16)
                     .fontColor($r('app.color.font'))
                     .fontWeight(FontWeight.Medium)
@@ -936,18 +956,18 @@ export default struct Play {
                   step: 0.01,
                   style: SliderStyle.NONE
                 })
-                .width('100%')
-                .trackThickness(5)
-                .selectedColor($r('app.color.progress'))
-                .sliderInteractionMode(SliderInteraction.SLIDE_AND_CLICK_UP)
-                .onChange((value: number, mode: SliderChangeMode) => {
-                  if(mode === SliderChangeMode.Begin){
-                    this.sliderMoving = true
-                  }
-                  if(mode === SliderChangeMode.End && this.sliderMoving === true){
-                    this.avPlayer!.seek(value * this.nowPlayingSong!.duration * 10)
-                  }
-                })
+                  .width('100%')
+                  .trackThickness(5)
+                  .selectedColor($r('app.color.progress'))
+                  .sliderInteractionMode(SliderInteraction.SLIDE_AND_CLICK_UP)
+                  .onChange((value: number, mode: SliderChangeMode) => {
+                    if (mode === SliderChangeMode.Begin) {
+                      this.sliderMoving = true
+                    }
+                    if (mode === SliderChangeMode.End && this.sliderMoving === true) {
+                      this.avPlayer!.seek(value * this.nowPlayingSong!.duration * 10)
+                    }
+                  })
               }
               .width('100%')
               .visibility(this.displayHeight > 300 ? Visibility.Visible : Visibility.None)
@@ -1155,11 +1175,15 @@ export default struct Play {
                             $r('app.color.font_lyrics') :
                             $r('app.color.font_lyrics_secondary'))
                             .textAlign(TextAlign.Center)
-                            .scale({ x: this.lyricsIndex === index ? 1.15 : 1, y: this.lyricsIndex === index ? 1.15 : 1 })
+                            .scale({
+                              x: this.lyricsIndex === index ? 1.15 : 1,
+                              y: this.lyricsIndex === index ? 1.15 : 1
+                            })
                             .animation({
                               duration: 400,
                               curve: Curve.EaseInOut
-                            }).id("text")
+                            })
+                            .id("text")
                         })
                       }
                     }

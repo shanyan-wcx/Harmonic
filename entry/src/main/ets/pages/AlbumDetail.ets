@@ -3,6 +3,9 @@ import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -28,7 +31,6 @@ export function AlbumDetailBuilder() {
 export default struct AlbumDetail {
   @Consume album: Album
   @Consume pageStack: NavPathStack
-  @Consume showControlButton: boolean
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
@@ -51,8 +53,11 @@ export default struct AlbumDetail {
   @Consume discs: Song[][]
   @Consume showMenu: boolean
   @Consume needUpdate: boolean
+  @Consume closePlay: boolean
   @Consume nowPage: number
+  @Consume showPlay: boolean
   @Consume displayWidth: number
+  @Consume sidebarType: number
   @Consume longPressSong: Song | undefined
   @Consume avPlayer: media.AVPlayer | undefined
   @StorageLink('playMode') playMode: number = 0
@@ -372,10 +377,17 @@ export default struct AlbumDetail {
       .visibility(this.showProgress === true ? Visibility.Visible : Visibility.None)
     }
     .backgroundColor($r('app.color.content_background'))
+    .onBackPressed(() => {
+      if (this.showPlay) {
+        this.closePlay = !this.closePlay
+        return true
+      }
+      return false
+    })
     .title("", {
       paddingEnd: {
-        value: 210,
-        unit: LengthUnit.PX
+        value: deviceTypeInfo === '2in1' ? (this.sidebarType === SideBarContainerType.Embed ? 165 : 0) : 15,
+        unit: LengthUnit.VP
       }
     })
     .menus([{
