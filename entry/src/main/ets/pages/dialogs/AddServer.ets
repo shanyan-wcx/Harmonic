@@ -145,22 +145,29 @@ export default struct addServerBuilder {
       .borderRadius(10)
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
-        this.tmpBaseurl = this.urlHead[this.urlHeadIdx] + this.tmpUrl
-        let status = await ping(this.tmpBaseurl, this.tmpUsername, this.tmpPassword)
-        if(status === 'ok'){
-          this.baseurls.push(this.tmpBaseurl)
-          this.usernames.push( this.tmpUsername)
-          this.passwords.push(this.tmpPassword)
-          this.createAddServer.close()
+        if (this.tmpUrl === "") {
           this.getUIContext().getPromptAction().showToast({
-            message: '添加服务器成功！',
+            message: '服务器地址不能为空！',
             duration: 500
           });
         } else {
-          this.getUIContext().getPromptAction().showToast({
-            message: '连接服务器失败！',
-            duration: 500
-          });
+          this.tmpBaseurl = this.urlHead[this.urlHeadIdx] + this.tmpUrl
+          let status = await ping(this.tmpBaseurl, this.tmpUsername, this.tmpPassword)
+          if(status === 'ok'){
+            this.baseurls.push(this.tmpBaseurl)
+            this.usernames.push( this.tmpUsername)
+            this.passwords.push(this.tmpPassword)
+            this.createAddServer.close()
+            this.getUIContext().getPromptAction().showToast({
+              message: '添加服务器成功！',
+              duration: 500
+            });
+          } else {
+            this.getUIContext().getPromptAction().showToast({
+              message: '连接服务器失败！',
+              duration: 500
+            });
+          }
         }
       })
     }
