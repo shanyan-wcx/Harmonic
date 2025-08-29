@@ -63,6 +63,7 @@ export default struct Setting {
                     .margin({ left: 5 })
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
+                    .wordBreak(WordBreak.BREAK_ALL)
                 }
                 .width('100%')
               }
