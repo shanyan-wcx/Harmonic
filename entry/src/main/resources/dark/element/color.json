@@ -63,6 +63,10 @@
     {
       "name": "sidebarShadow",
       "value": "#95FFFFFF"
+    },
+    {
+      "name": "textInput",
+      "value": "#343435"
     }
   ]
 }

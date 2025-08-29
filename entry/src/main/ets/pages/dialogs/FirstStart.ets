@@ -15,7 +15,7 @@ export default struct firstStartBuilder {
         .fontWeight(FontWeight.Bold)
         .margin({ top: 20, bottom: 20 })
 
-      Text("请先到设置页面配置服务器连接。")
+      Text("请先到设置页面添加服务器。")
         .width('100%')
         .fontSize(20)
         .fontColor($r('app.color.font'))
