@@ -1275,9 +1275,14 @@ struct Index {
               .fontWeight(FontWeight.Bold)
               .textAlign(TextAlign.End)
               .margin({ top: 5 })
-              .visibility(this.verse !== undefined ? Visibility.Visible : Visibility.None)
           }
-          .margin({ bottom: 20 })
+          .margin({ bottom: 10 })
+
+          Divider()
+            .width('90%')
+            .height(1)
+            .margin({ top: 5, bottom: 5})
+            .color($r('app.color.divider'))
 
           Column() {
             Button({ type: ButtonType.Normal }) {
@@ -1479,7 +1484,7 @@ struct Index {
         .height('100%')
         .backgroundColor($r('app.color.content_background'))
         .padding({
-          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 15,
+          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 16,
           bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 : this.sideBarWidth * 0.05 + 5
         })
         .shadow({
