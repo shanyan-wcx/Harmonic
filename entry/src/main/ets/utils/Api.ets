@@ -529,3 +529,17 @@ export async function scrobble(baseURL: string, username: string, password: stri
     return false
   }
 }
+
+export async function getVerse() {
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>("https://v1.hitokoto.cn/?c=i&encode=json&max_length=12")
+    if (response.status === 200) {
+      return response.data
+    }
+    return undefined
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined
+  }
+}

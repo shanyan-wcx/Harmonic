@@ -23,12 +23,14 @@ import {
   getSong,
   getStarredAlbums,
   getStarredArtists,
+  getVerse,
   scrobble,
   star,
   unstar,
   updatePlaylist
 } from '../utils/Api';
-import { Album, Artist, Line, MusicFolder, Playlist, SaveState, Song, StructuredLyric } from '../utils/Interface';
+import { Album, Artist, Line, MusicFolder, Playlist, SaveState, Song, StructuredLyric,
+  Verse } from '../utils/Interface';
 import Albums from './Albums';
 import Artists from './Artists';
 import Play from './Play';
@@ -129,6 +131,7 @@ struct Index {
   @State themeIcon: Resource = $r('app.media.auto')
   @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
+  @State verse: Verse | undefined = undefined
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -1019,6 +1022,9 @@ struct Index {
       .borderRadius(8)
       .backgroundColor(Color.Transparent)
       .onClick(async () => {
+        getVerse().then((verse: Verse) => {
+          this.verse = verse
+        })
         this.uiContext?.animateTo({
           duration: 300,
           curve: Curve.EaseOut,
@@ -1130,6 +1136,9 @@ struct Index {
   }
 
   async aboutToAppear() {
+    getVerse().then((verse: Verse) => {
+      this.verse = verse
+    })
     this.uiContext = this.getUIContext();
     if (!this.uiContext) {
       console.warn("no uiContext");
@@ -1249,15 +1258,26 @@ struct Index {
     Stack() {
       SideBarContainer(this.sidebarType) {
         Column() {
-          Text("Harmonic")
-            .width('100%')
-            .height(85)
-            .textAlign(TextAlign.Center)
-            .fontSize(36)
-            .fontColor($r('app.color.font'))
-            .fontWeight(FontWeight.Bold)
-            .margin({ bottom: 12 })
-            .visibility(this.sidebarType === SideBarContainerType.Embed ? Visibility.Visible : Visibility.None)
+          Column(){
+            Text(this.verse !== undefined ? "「" + this.verse.hitokoto.replace(/[。！？!?,，]$/, '') + "」" : "「" + "正在加载中..." + "」")
+              .width('87%')
+              .fontSize(this.displayWidth > 1400 ? 18 : 16)
+              .fontColor($r('app.color.font_secondary'))
+              .fontWeight(FontWeight.Bold)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .wordBreak(WordBreak.BREAK_ALL)
+
+            Text(this.verse !== undefined ? "—— " + this.verse.from_who : "")
+              .width('87%')
+              .fontSize(this.displayWidth > 1400 ? 18 : 16)
+              .fontColor($r('app.color.font_secondary'))
+              .fontWeight(FontWeight.Bold)
+              .textAlign(TextAlign.End)
+              .margin({ top: 5 })
+              .visibility(this.verse !== undefined ? Visibility.Visible : Visibility.None)
+          }
+          .margin({ bottom: 20 })
 
           Column() {
             Button({ type: ButtonType.Normal }) {
@@ -1459,8 +1479,8 @@ struct Index {
         .height('100%')
         .backgroundColor($r('app.color.content_background'))
         .padding({
-          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 12 : this.statusBarHeight + 57,
-          bottom: this.sidebarType === SideBarContainerType.Embed ? 14 : 18
+          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 15,
+          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 : this.sideBarWidth * 0.05 + 5
         })
         .shadow({
           radius: this.shadowRadius,
@@ -1786,6 +1806,8 @@ struct Index {
       .height('100%')
       .backgroundColor($r('app.color.content_background'))
       .sideBarWidth(this.sideBarWidth)
+      .minSideBarWidth(this.sideBarWidth)
+      .maxSideBarWidth(this.sideBarWidth)
       .showSideBar(this.sidebarType === SideBarContainerType.Embed ? true : this.showSidebar)
       .showControlButton(false)
       .autoHide(this.sidebarType === SideBarContainerType.Embed ? false : true)
