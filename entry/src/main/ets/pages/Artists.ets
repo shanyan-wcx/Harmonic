@@ -1,17 +1,5 @@
-import { Artist, MusicFolder } from '../utils/Interface'
+import { Artist } from '../utils/Interface'
 import { curves } from '@kit.ArkUI'
-import { i18n, intl } from '@kit.LocalizationKit';
-import { getIndexes } from '../utils/Api';
-
-let transliterator = i18n.Transliterator.getInstance('Any-Latn');
-let options: intl.CollatorOptions = {
-  localeMatcher: "lookup",
-  usage: "sort",
-  sensitivity: "variant",
-  numeric: true
-};
-let locale = new intl.Locale();
-let collator = new intl.Collator(locale.toString(), options);
 
 @Component
 export default struct Artists {

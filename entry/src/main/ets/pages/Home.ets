@@ -1,4 +1,3 @@
-import { getRecentAlbums, getFrequentAlbums, getNewestAlbums, getStarredAlbums, getStarredArtists } from '../utils/Api';
 import { Album, Artist } from '../utils/Interface';
 import { curves } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
