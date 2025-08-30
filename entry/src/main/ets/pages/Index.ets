@@ -41,7 +41,6 @@ import selectPlaylistBuilder from './dialogs/SelectPlaylist';
 import infoBuilder from './dialogs/Info';
 import Search_ from './Search';
 import Home from './Home';
-import firstStartBuilder from './dialogs/FirstStart';
 import { buffer } from '@kit.ArkTS';
 import { KeyCode } from '@kit.InputKit';
 import { i18n, intl } from '@kit.LocalizationKit';
@@ -139,7 +138,7 @@ struct Index {
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('autoPlay') autoPlay: boolean = false
-  @StorageLink('firstStart') firstStart: boolean = true
+  @StorageLink('showStepper') showStepper: boolean = false
   @StorageLink('downloadDir') downloadDir: string = ''
   uiContext: UIContext | undefined = undefined
   context: common.UIAbilityContext | undefined = undefined
@@ -153,12 +152,6 @@ struct Index {
     builder: infoBuilder(),
     width: 350,
     height: 380,
-    backgroundColor: $r('app.color.start_window_background'),
-  })
-  firstStartTip: CustomDialogController = new CustomDialogController({
-    builder: firstStartBuilder(),
-    width: 350,
-    height: 176,
     backgroundColor: $r('app.color.start_window_background'),
   })
 
@@ -639,25 +632,6 @@ struct Index {
   }
 
   async updatePage() {
-    if (this.baseURL.length === 0) {
-      return
-    }
-    this.showProgress = true
-    if (this.musicFolders.length === 0) {
-      this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
-      if (this.musicFolders.length === 0) {
-        this.uiContext!.getPromptAction().showToast({
-          message: '获取音乐库失败，请检查网络连接！',
-          duration: 500
-        });
-      } else {
-        const keys = Object.keys(this.libraryStates)
-        const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
-        if (keys.length === 0 || allFalse) {
-          this.libraryStates['1'] = true
-        }
-      }
-    }
     switch (this.nowPage) {
       case 0:
         this.recentAlbums = []
@@ -680,6 +654,25 @@ struct Index {
         break;
       default:
         break;
+    }
+    if (this.baseURL.length === 0) {
+      return
+    }
+    this.showProgress = true
+    if (this.musicFolders.length === 0) {
+      this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+      if (this.musicFolders.length === 0) {
+        this.uiContext!.getPromptAction().showToast({
+          message: '获取音乐库失败，请检查网络连接！',
+          duration: 500
+        });
+      } else {
+        const keys = Object.keys(this.libraryStates)
+        const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
+        if (keys.length === 0 || allFalse) {
+          this.libraryStates['1'] = true
+        }
+      }
     }
     let keys = Object.keys(this.libraryStates)
     for (const id of keys) {
@@ -734,6 +727,40 @@ struct Index {
       }
     }
     this.showProgress = false
+  }
+
+  @Builder
+  stepperBuilder() {
+    Stepper() {
+      StepperItem() {
+        Column() {
+          Image($rawfile('initialize.gif'))
+            .height('100%')
+            .layoutWeight(1)
+            .borderRadius(14)
+            .margin({ bottom: 20 })
+
+          Text("　　开始使用前，请先到侧边栏\u2192设置\u2192服务器设置中添加服务器。")
+            .fontSize(18)
+            .fontColor($r('app.color.font'))
+        }
+        .width('100%')
+        .height('100%')
+        .borderRadius(20)
+        .padding(20)
+        .justifyContent(FlexAlign.SpaceBetween)
+        .backgroundColor($r('app.color.bar_background'))
+      }
+      .width('100%')
+      .height('100%')
+      .padding({ top: deviceTypeInfo === '2in1' ? 55 : this.statusBarHeight + 15, left: 20, right: 20})
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor($r('app.color.content_background'))
+    .onFinish(() => {
+      this.showStepper = false
+    })
   }
 
   @Builder
@@ -1096,16 +1123,6 @@ struct Index {
     .height('100%')
     .alignItems(VerticalAlign.Center)
     .padding({ left: 10 })
-  }
-
-  onPageShow() {
-    if (this.firstStart !== false || this.baseURL === '') {
-      this.firstStartTip.open()
-    }
-  }
-
-  onPageHide() {
-    this.firstStartTip.close()
   }
 
   async aboutToDisappear() {
@@ -2053,6 +2070,7 @@ struct Index {
     }
     .width("100%")
     .height('100%')
+    .bindContentCover($$this.showStepper, this.stepperBuilder())
     .onKeyEvent((event?: KeyEvent) => {
       if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
         this.isPlaying = !this.isPlaying

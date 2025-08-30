@@ -6,6 +6,7 @@ let bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags)
 
 @Component
 export default struct About {
+  @StorageLink('showStepper') showStepper: boolean = false
   uiContext: UIContext | undefined = undefined
   context: common.UIAbilityContext | undefined = undefined
 
@@ -66,6 +67,29 @@ export default struct About {
       .borderRadius(10)
       .margin({ top: 10 })
       .padding(20)
+
+      Button({ type: ButtonType.Normal }) {
+        Row() {
+          Text("查看引导")
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+          Text(">")
+            .fontSize(20)
+            .fontColor($r('app.color.font'))
+        }
+        .width('100%')
+        .height('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
+      }
+      .width('100%')
+      .height(60)
+      .backgroundColor($r('app.color.bar_background'))
+      .borderRadius(10)
+      .margin({ top: 20 })
+      .padding({ left: 20, right: 20 })
+      .onClick(async () => {
+        this.showStepper = true
+      })
     }
     .width('100%')
     .height('100%')

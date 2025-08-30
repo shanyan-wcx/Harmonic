@@ -34,7 +34,7 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
-      PersistentStorage.persistProp('firstStart', true);
+      PersistentStorage.persistProp('showStepper', true);
       PersistentStorage.persistProp('downloadDir', '');
       PersistentStorage.persistProp('theme', ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
       PersistentStorage.persistProp('playMode', 1);
