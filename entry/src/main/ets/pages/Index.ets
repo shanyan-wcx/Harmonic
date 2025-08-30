@@ -1271,7 +1271,7 @@ struct Index {
       SideBarContainer(this.sidebarType) {
         Column() {
           Column(){
-            Text(this.verse !== undefined ? "「" + this.verse.hitokoto.replace(/[。！？!?,，]$/, '') + "」" : "「" + "正在加载中..." + "」")
+            Text(this.verse !== undefined && this.verse.hitokoto !== undefined ? "「" + this.verse.hitokoto.replace(/[。！？!?,，]$/, '') + "」" : "「" + "正在加载中..." + "」")
               .width('87%')
               .fontSize(this.displayWidth > 1400 ? 18 : 16)
               .fontColor($r('app.color.font_secondary'))
@@ -1280,7 +1280,7 @@ struct Index {
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .wordBreak(WordBreak.BREAK_ALL)
 
-            Text(this.verse !== undefined ? "—— " + this.verse.from_who : "")
+            Text(this.verse !== undefined && this.verse.from_who !== undefined ? "—— " + this.verse.from_who : "")
               .width('87%')
               .fontSize(this.displayWidth > 1400 ? 18 : 16)
               .fontColor($r('app.color.font_secondary'))
