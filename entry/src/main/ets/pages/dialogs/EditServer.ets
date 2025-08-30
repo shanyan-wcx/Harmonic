@@ -56,7 +56,7 @@ export default struct editServerBuilder {
           .backgroundColor($r('app.color.textInput'))
         TextInput({
           placeholder: 'myserver.com',
-          text: this.baseurls.length > 0 ? this.baseurls[this.editServerIdx].replace(/^https?:\/\//, "") : ""
+          text: this.baseurls.length > 0 && this.editServerIdx !== -1 ? this.baseurls[this.editServerIdx].replace(/^https?:\/\//, "") : ""
         })
           .width("100%")
           .height(40)
@@ -193,9 +193,14 @@ export default struct editServerBuilder {
               duration: 500
             });
           } else {
-            this.baseurls.splice(this.editServerIdx, 1)
-            this.usernames.splice(this.editServerIdx, 1)
-            this.passwords.splice(this.editServerIdx, 1)
+            let index = this.editServerIdx
+            this.editServerIdx = -1
+            this.baseurls.splice(index, 1)
+            this.usernames.splice(index, 1)
+            this.passwords.splice(index, 1)
+            if (index < this.serverIdx) {
+              this.serverIdx--
+            }
             this.createEditServer.close()
             this.getUIContext().getPromptAction().showToast({
               message: '删除服务器成功！',
