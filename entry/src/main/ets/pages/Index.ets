@@ -1,4 +1,4 @@
-import { window } from '@kit.ArkUI';
+import { SideBarContainerModifier, window } from '@kit.ArkUI';
 import { common, ConfigurationConstant, wantAgent, WantAgent } from '@kit.AbilityKit';
 import { backgroundTaskManager } from '@kit.BackgroundTasksKit';
 import { media } from '@kit.MediaKit';
@@ -1139,9 +1139,11 @@ struct Index {
   }
 
   async aboutToAppear() {
-    getVerse().then((verse: Verse) => {
-      this.verse = verse
-    })
+    if (this.sidebarType === SideBarContainerType.Embed) {
+      getVerse().then((verse: Verse) => {
+        this.verse = verse
+      })
+    }
     this.uiContext = this.getUIContext();
     if (!this.uiContext) {
       console.warn("no uiContext");
