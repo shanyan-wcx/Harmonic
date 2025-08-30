@@ -639,6 +639,9 @@ struct Index {
   }
 
   async updatePage() {
+    if (this.baseURL.length === 0) {
+      return
+    }
     this.showProgress = true
     if (this.musicFolders.length === 0) {
       this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
