@@ -1073,15 +1073,22 @@ struct Index {
         }
       })
       .onClick(async () => {
-        this.musicFolders = []
-        this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
-        if (this.musicFolders.length === 0) {
+        if (this.baseURL.length === 0) {
           this.uiContext!.getPromptAction().showToast({
-            message: '获取音乐库失败，请检查网络连接！',
+            message: '服务器为空！',
             duration: 500
           });
         } else {
-          this.showLibrary = true
+          this.musicFolders = []
+          this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+          if (this.musicFolders.length === 0) {
+            this.uiContext!.getPromptAction().showToast({
+              message: '获取音乐库失败，请检查网络连接！',
+              duration: 500
+            });
+          } else {
+            this.showLibrary = true
+          }
         }
       })
     }
