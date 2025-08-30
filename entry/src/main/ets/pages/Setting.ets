@@ -27,7 +27,13 @@ export default struct Setting {
     builder: editServerBuilder(),
     width: 350,
     height: 314,
-    backgroundColor: $r('app.color.start_window_background')
+    backgroundColor: $r('app.color.start_window_background'),
+    onWillDismiss:(dismissDialogAction: DismissDialogAction)=> {
+      dismissDialogAction.dismiss();
+      setTimeout(() => {
+        this.editServerIdx = -1
+      }, 150)
+    }
   })
 
   build() {
