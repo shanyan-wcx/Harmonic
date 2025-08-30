@@ -1485,7 +1485,7 @@ struct Index {
         .backgroundColor($r('app.color.content_background'))
         .padding({
           top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 16,
-          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 : this.sideBarWidth * 0.05 + 5
+          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 : this.sideBarWidth * 0.05 + 10
         })
         .shadow({
           radius: this.shadowRadius,
