@@ -1166,11 +1166,6 @@ struct Index {
   }
 
   async aboutToAppear() {
-    if (this.sidebarType === SideBarContainerType.Embed) {
-      getVerse().then((verse: Verse) => {
-        this.verse = verse
-      })
-    }
     this.uiContext = this.getUIContext();
     if (!this.uiContext) {
       console.warn("no uiContext");
@@ -1266,6 +1261,11 @@ struct Index {
         console.error('读取失败:', JSON.stringify(err));
       }
       fs.closeSync(file);
+    }
+    if (this.sidebarType === SideBarContainerType.Embed) {
+      getVerse().then((verse: Verse) => {
+        this.verse = verse
+      })
     }
   }
 
