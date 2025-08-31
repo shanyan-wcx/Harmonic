@@ -77,13 +77,12 @@ struct Index {
   @Provide selectedPlaylists: boolean[] = []
   @Provide showProgress: boolean = false
   @StorageLink('baseURL') baseURL: string = ''
-  @StorageLink('username') username: string = ''
-  @StorageLink('password') password: string = ''
+  @StorageLink('username') @Watch('getAuth') username: string = ''
+  @StorageLink('password') @Watch('getAuth') password: string = ''
   @Provide salt: string = 'abcdef'
   @Provide version: string = '1.16.1'
   @Provide client: string = 'Harmonic'
-  @Provide auth: string = `?u=${this.username}&t=${CryptoJS.MD5(this.password +
-  this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
+  @Provide auth: string = `?u=${this.username}&t=${CryptoJS.MD5(this.password + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
   @Provide getCoverUrl: string = '/rest/getCoverArt'
   @Provide nowPage: number = 0
   @Provide serverStatus: boolean = true
@@ -184,6 +183,10 @@ struct Index {
     }).catch((err: BusinessError) => {
       console.error(`下载目录创建失败, code is ${err.code}, message is ${err.message}`);
     })
+  }
+
+  getAuth() {
+    this.auth = `?u=${this.username}&t=${CryptoJS.MD5(this.password + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
   }
 
   groupLyrics() {
