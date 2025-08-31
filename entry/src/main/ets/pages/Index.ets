@@ -1300,7 +1300,7 @@ struct Index {
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .wordBreak(WordBreak.BREAK_ALL)
 
-            Text(this.verse !== undefined && this.verse.from_who !== undefined ? "—— " + this.verse.from_who : "—— ")
+            Text(this.verse !== undefined && this.verse.from_who !== undefined ? "—— " + (this.verse.from_who !== 'null' ? this.verse.from_who : "佚名") : "—— ")
               .width('87%')
               .fontSize(this.displayWidth > 1400 ? 18 : 16)
               .fontColor($r('app.color.font_secondary'))
