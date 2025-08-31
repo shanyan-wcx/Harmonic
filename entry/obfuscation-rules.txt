@@ -5,7 +5,7 @@
 #   https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/source-obfuscation-V5
 
 # Obfuscation options:
-# -disable-obfuscation: disable all obfuscations
+-disable-obfuscation: disable all obfuscations
 # -enable-property-obfuscation: obfuscate the property names
 # -enable-toplevel-obfuscation: obfuscate the names in the global scope
 # -compact: remove unnecessary blank spaces and all line feeds
@@ -16,7 +16,7 @@
 # Keep options:
 # -keep-property-name: specifies property names that you want to keep
 # -keep-global-name: specifies names that you want to keep in the global scope
--enable-property-obfuscation
--enable-toplevel-obfuscation
--enable-filename-obfuscation
--enable-export-obfuscation
+# -enable-property-obfuscation
+# -enable-toplevel-obfuscation
+# -enable-filename-obfuscation
+# -enable-export-obfuscation
