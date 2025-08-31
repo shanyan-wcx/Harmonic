@@ -109,7 +109,6 @@ export default struct Setting {
               }
               .height(40)
               .width(40)
-              .margin({ left: 10 })
               .borderRadius(10)
               .backgroundColor(Color.Transparent)
               .onClick(() => {
