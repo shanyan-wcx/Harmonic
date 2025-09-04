@@ -48,4 +48,12 @@ Navidrome的鸿蒙Next客户端，适配手机、平板、车机。
 
 ## 安装方式
 
+### 邀请测试
+
+将以下链接复制到华为浏览器打开：
+
+https://appgallery.huawei.com/link/invite-test-wap?taskId=b8174c57215b53eb36cc5ee755168cca&invitationCode=8zFudi1B5YT
+
+### 自行侧载
+
 推荐使用[auto-installer](https://github.com/likuai2010/auto-installer)进行安装。
