@@ -700,22 +700,16 @@ struct Index {
             this.starredArtists.unshift(...starredArtists)
             break;
           case 2:
-            let offset = 0
-            let size = 500
-            while (true) {
-              let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id))
-              if (albums === undefined || albums.length === 0) {
-                break;
-              }
-              this.albums.unshift(...albums)
-              if (albums.length < size) {
-                break;
-              }
-              offset += size;
+            // clear albums
+            this.albums = [];
+            let offset = this.albums.length;
+            let size = 50
+            let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id), size)
+            if (albums === undefined || albums.length === 0) {
+              console.log("==get albums failed")
+              break;
             }
-            this.albums.sort((a, b) => {
-              return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-            })
+            this.albums.push(...albums)
             break;
           case 3:
             let artists = await getIndexes(this.baseURL, this.username, this.password, Number(id))

@@ -1,4 +1,5 @@
-import { Album, Song } from '../utils/Interface';
+import { Album, Song, MusicFolder} from '../utils/Interface';
+import {getAlbumList} from '../utils/Api';
 import { curves } from '@kit.ArkUI';
 
 @Component
@@ -23,6 +24,8 @@ export default struct Albums {
   @Consume needUpdate: boolean
   @Consume showLibrary: boolean
   @State coverSize: number = 320
+  @Consume libraryStates: Record<number, boolean>
+  @Consume musicFolders: MusicFolder[]
 
   async aboutToAppear() {
     this.needUpdate = !this.needUpdate
@@ -42,6 +45,7 @@ export default struct Albums {
                   .aspectRatio(1)
                   .borderRadius(10)
                   .margin(10)
+                Text(album.title)
               }
               .width('100%')
               .height('auto')
@@ -70,6 +74,29 @@ export default struct Albums {
       .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
       .padding({ left: 10, right: 10, bottom: 10 })
       .visibility(this.albums.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+      .onReachEnd(async ()=>{
+        // get more data
+        this.showProgress = true;
+        let keys = Object.keys(this.libraryStates)
+        for (const id of keys) {
+          if (this.libraryStates[id] === true) {
+            if (!this.musicFolders.some(item => item.id === Number(id))) {
+              this.libraryStates[id] = false
+              continue;
+            }
+            let offset = this.albums.length;
+            let size = 50
+            let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id), size)
+            if (albums === undefined || albums.length === 0) {
+              console.log("==get albums failed")
+              break;
+            }
+            this.albums.push(...albums)
+            console.log(`old_size: ${offset}, new_size: ${this.albums.length}}`)
+          }
+        }
+        this.showProgress = false;
+      })
 
       Column() {
         Text("没有专辑")

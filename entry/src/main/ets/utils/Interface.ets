@@ -208,6 +208,15 @@ export interface Shares {
   share: Share[];
 }
 
+export interface SearchOption {
+  artistCount?: number
+  artistOffset?: number
+  albumCount?: number
+  albumOffset?: number
+  songCount?: number
+  songOffset?: number
+}
+
 export interface SearchResult {
   song?: Song[];
   album?: Album[];

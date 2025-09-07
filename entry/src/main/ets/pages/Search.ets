@@ -4,6 +4,7 @@ import { getLyrics, getSong, search } from '../utils/Api';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { PromptAction } from '@kit.ArkUI';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -51,6 +52,8 @@ export default struct Search_ {
   @Consume libraryStates: Record<number, boolean>
   private searchAlbumsScroller: Scroller = new Scroller
   private searchArtistsScroller: Scroller = new Scroller
+  private  promptAction: PromptAction | null = null;
+  @State searchContent: string = ""
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -87,6 +90,7 @@ export default struct Search_ {
 
   async aboutToAppear() {
     this.needUpdate = !this.needUpdate
+    this.promptAction = this.getUIContext().getPromptAction();
   }
 
   build() {
@@ -120,6 +124,7 @@ export default struct Search_ {
           .enterKeyType(EnterKeyType.Search)
           .onSubmit(async (searchContent: string, event: SubmitEvent) => {
             if(searchContent !== "") {
+              this.searchContent = searchContent;
               this.showProgress = true;
               this.searchSongs = [];
               this.searchAlbums = [];
@@ -135,13 +140,13 @@ export default struct Search_ {
                     await search(this.baseURL, this.username, this.password, searchContent, Number(id))
                   if (searchResult !== undefined) {
                     if (searchResult.song !== undefined) {
-                      this.searchSongs.unshift(...searchResult.song);
+                      this.searchSongs.push(...searchResult.song);
                     }
                     if (searchResult.album !== undefined) {
-                      this.searchAlbums.unshift(...searchResult.album);
+                      this.searchAlbums.push(...searchResult.album);
                     }
                     if (searchResult.artist !== undefined) {
-                      this.searchArtists.unshift(...searchResult.artist);
+                      this.searchArtists.push(...searchResult.artist);
                     }
                   }
                 }
@@ -232,6 +237,53 @@ export default struct Search_ {
                   })
               )
             })
+            Row(){
+              Blank()
+              Button("显示更多")
+                .align(Alignment.End)
+                .onClick(async ()=>{
+                  if (this.searchContent.length === 0) {
+                    return;
+                  }
+                  this.showProgress = true;
+                  let keys = Object.keys(this.libraryStates)
+                  for (const id of keys) {
+                    if (this.libraryStates[id] === true) {
+                      if (!this.musicFolders.some(item => item.id === Number(id))) {
+                        this.libraryStates[id] = false
+                        continue;
+                      }
+                      let searchResult: SearchResult | undefined = await search(
+                        this.baseURL,
+                        this.username,
+                        this.password,
+                        this.searchContent,
+                        Number(id),
+                        {songOffset: this.searchSongs.length, albumCount: 0, artistCount: 0}
+
+                      )
+                      // console.info(`search result: ${JSON.stringify(searchResult)}`)
+                      let hasData = false;
+                      if (searchResult !== undefined) {
+                        if (searchResult.song !== undefined) {
+                          if (searchResult.song.length > 0) {
+                            hasData = true;
+                            this.searchSongs.push(...searchResult.song);
+                          }
+                        }
+                      }
+                      if (!hasData) {
+                        try {
+                          this.promptAction?.showToast({message: "没有更多歌曲了"});
+                        } catch (e) {
+                          console.error(`showToast error: ${e}}`)
+                        }
+                      }
+                    }
+                  }
+                  this.showProgress = false;
+                })
+            }.width("100%")
           }
           .width('100%')
           .padding({ bottom: this.searchAlbums.length > 0 ? 0 : 10 })
@@ -323,6 +375,37 @@ export default struct Search_ {
             .listDirection(Axis.Horizontal)
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring)
+            .onReachEnd(async()=>{
+              if (this.searchContent.length === 0) {
+                return;
+              }
+              this.showProgress = true;
+              let keys = Object.keys(this.libraryStates)
+              for (const id of keys) {
+                if (this.libraryStates[id] === true) {
+                  if (!this.musicFolders.some(item => item.id === Number(id))) {
+                    this.libraryStates[id] = false
+                    continue;
+                  }
+                  let searchResult: SearchResult | undefined = await search(
+                    this.baseURL,
+                    this.username,
+                    this.password,
+                    this.searchContent,
+                    Number(id),
+                    {albumOffset: this.searchAlbums.length, songCount: 0, artistCount: 0}
+                  )
+                  if (searchResult !== undefined) {
+                    if (searchResult.album !== undefined) {
+                      if (searchResult.album.length > 0) {
+                        this.searchAlbums.push(...searchResult.album);
+                      }
+                    }
+                  }
+                }
+              }
+              this.showProgress = false;
+            })
           }
           .width('100%')
           .height(this.displayWidth > 1400 ? 250 : 210)
@@ -424,6 +507,37 @@ export default struct Search_ {
             .listDirection(Axis.Horizontal)
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Spring)
+            .onReachEnd(async ()=>{
+              if (this.searchContent.length === 0) {
+                return;
+              }
+              this.showProgress = true;
+              let keys = Object.keys(this.libraryStates)
+              for (const id of keys) {
+                if (this.libraryStates[id] === true) {
+                  if (!this.musicFolders.some(item => item.id === Number(id))) {
+                    this.libraryStates[id] = false
+                    continue;
+                  }
+                  let searchResult: SearchResult | undefined = await search(
+                    this.baseURL,
+                    this.username,
+                    this.password,
+                    this.searchContent,
+                    Number(id),
+                    {artistOffset: this.searchArtists.length, songCount: 0, albumCount: 0}
+                  )
+                  if (searchResult !== undefined) {
+                    if (searchResult.artist !== undefined) {
+                      if (searchResult.artist.length > 0) {
+                        this.searchArtists.push(...searchResult.artist)
+                      }
+                    }
+                  }
+                }
+              }
+              this.showProgress = false;
+            })
           }
           .width('100%')
           .height(this.displayWidth > 1400 ? 240 : 205)

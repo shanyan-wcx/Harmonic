@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from '@ohos/axios'
 import CryptoJS from '@ohos/crypto-js'
-import { ApiResponse, Artist, LyricsList, Playlist, SubsonicResponse } from './Interface'
+import { ApiResponse, Artist, LyricsList, Playlist, SubsonicResponse, SearchOption } from './Interface'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 
@@ -54,7 +54,7 @@ export async function getIndexes(baseURL: string, username: string, password: st
     })
     return artists
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getIndexes/ error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -131,7 +131,7 @@ export async function getAlbumSong(baseURL: string, username: string, password: 
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.album!.song
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`getAlbumSong error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -146,25 +146,31 @@ export async function getAlbum(baseURL: string, username: string, password: stri
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.album
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getAlbum/ error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
 
-export async function getAlbumList(baseURL: string, username: string, password: string, offset: number,
-  musicFolderId: number) {
+export async function getAlbumList(
+  baseURL: string,
+  username: string,
+  password: string,
+  offset: number,
+  musicFolderId: number,
+  size=500,
+) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth +
-        `&type=alphabeticalByName&size=500&offset=${offset}` +
+        `&type=alphabeticalByName&size=${size}&offset=${offset}` +
         (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
         timeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.albumList!.album
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getAlbumList/, error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
@@ -183,7 +189,7 @@ export async function getRecentAlbums(baseURL: string, username: string, passwor
     }
     return []
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getRecentAlbums/ error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -202,7 +208,7 @@ export async function getNewestAlbums(baseURL: string, username: string, passwor
     }
     return []
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getNewestAlbums/ error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -221,7 +227,7 @@ export async function getFrequentAlbums(baseURL: string, username: string, passw
     }
     return []
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getFrequentAlbums/ error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -240,7 +246,7 @@ export async function getRandomAlbums(baseURL: string, username: string, passwor
     }
     return []
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getRandomAlbums/ error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -255,7 +261,7 @@ export async function getSong(baseURL: string, username: string, password: strin
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.song
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getSong/ error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
@@ -279,7 +285,7 @@ export async function getPlaylists(baseURL: string, username: string, password: 
     }
     return playlists
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getPlaylists/ error: ${JSON.stringify(error)}`);
     return []
   }
 }
@@ -294,7 +300,7 @@ export async function getPlaylist(baseURL: string, username: string, password: s
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"];
     return subsonicResponse.playlist!
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getPlaylist/ error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
@@ -313,7 +319,7 @@ export async function getLyrics(baseURL: string, username: string, password: str
     }
     return undefined
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getLyrics/ error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
@@ -327,7 +333,7 @@ export async function getCover(baseURL: string, username: string, password: stri
       })
     return response.data
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getCover/ error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
@@ -498,19 +504,34 @@ export async function createShare(baseURL: string, username: string, password: s
   }
 }
 
-export async function search(baseURL: string, username: string, password: string, query: string,
-  musicFolderId: number) {
+export async function search(
+  baseURL: string,
+  username: string,
+  password: string,
+  query: string,
+  musicFolderId: number,
+  options?: SearchOption,
+) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  let artistCount: number = options?.artistCount ?? 20;
+  let artistOffset: number = options?.artistOffset ?? 0;
+  let albumCount: number = options?.albumCount ?? 20;
+  let albumOffset: number = options?.artistOffset ?? 0;
+  let songCount: number = options?.songCount ?? 20;
+  let songOffset: number = options?.songOffset ?? 0;
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}` +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}`
+        + `&artistCount=${artistCount}` + `&artistOffset=${artistOffset}`
+        + `&albumCount=${albumCount}` + `&albumOffset=${albumOffset}`
+        + `&songCount=${songCount}` + `&songOffset=${songOffset}` +
         (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
         timeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2;
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==search/ error: ${JSON.stringify(error)}`);
     return undefined;
   }
 }
@@ -525,7 +546,7 @@ export async function scrobble(baseURL: string, username: string, password: stri
       })
     return true
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==scrobble/ error: ${JSON.stringify(error)}`);
     return false
   }
 }
@@ -539,7 +560,7 @@ export async function getVerse() {
     }
     return undefined
   } catch (error) {
-    console.error(JSON.stringify(error));
+    console.error(`/==getVerse/ error: ${JSON.stringify(error)}`);
     return undefined
   }
 }
