@@ -4,6 +4,7 @@ import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getPlaylist, getSong } from '../utils/Api';
 import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
 import editPlaylistBuilder from './dialogs/EditPlaylist';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -211,9 +212,14 @@ export default struct PlaylistDetail {
                   .fontColor($r('app.color.font_secondary'))
                   .width(70)
                   .textAlign(TextAlign.Center)
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
+                ImageKnifeComponent({
+                  imageKnifeOption: {
+                    loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                    placeholderSrc: $rawfile('nocover.png'),
+                    errorholderSrc:$rawfile('nocover.png') ,
+                    objectFit: ImageFit.Contain
+                  }
+                })
                   .width(60)
                   .aspectRatio(1)
                   .borderRadius(5)

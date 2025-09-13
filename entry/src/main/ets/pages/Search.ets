@@ -5,6 +5,7 @@ import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { PromptAction } from '@kit.ArkUI';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -172,9 +173,14 @@ export default struct Search_ {
             ForEach(this.searchSongs, (song: Song, index) => {
               Button({ type: ButtonType.Normal }) {
                 Row() {
-                  Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                    .alt($rawfile('nocover.png'))
-                    .objectFit(ImageFit.Contain)
+                  ImageKnifeComponent({
+                    imageKnifeOption: {
+                      loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                      placeholderSrc: $rawfile('nocover.png'),
+                      errorholderSrc:$rawfile('nocover.png') ,
+                      objectFit: ImageFit.Contain
+                    }
+                  })
                     .width(60)
                     .aspectRatio(1)
                     .borderRadius(5)
@@ -345,9 +351,14 @@ export default struct Search_ {
                 ListItem() {
                   Button({ type: ButtonType.Normal }) {
                     Column() {
-                      Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                        .alt($rawfile('nocover.png'))
-                        .objectFit(ImageFit.Contain)
+                      ImageKnifeComponent({
+                        imageKnifeOption: {
+                          loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                          placeholderSrc: $rawfile('nocover.png'),
+                          errorholderSrc:$rawfile('nocover.png') ,
+                          objectFit: ImageFit.Contain
+                        }
+                      })
                         .height('100%')
                         .aspectRatio(1)
                         .borderRadius(10)
@@ -468,9 +479,14 @@ export default struct Search_ {
                 ListItem() {
                   Button({ type: ButtonType.Normal }) {
                     Column() {
-                      Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                        .alt($rawfile('noprofile.jpg'))
-                        .objectFit(ImageFit.Cover)
+                      ImageKnifeComponent({
+                        imageKnifeOption: {
+                          loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`,
+                          placeholderSrc: $rawfile('noprofile.jpg'),
+                          errorholderSrc:$rawfile('noprofile.jpg') ,
+                          objectFit: ImageFit.Cover
+                        }
+                      })
                         .height('100%')
                         .layoutWeight(1)
                         .aspectRatio(1)

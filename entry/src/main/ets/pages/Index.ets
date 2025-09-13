@@ -44,6 +44,7 @@ import Home from './Home';
 import { buffer } from '@kit.ArkTS';
 import { KeyCode } from '@kit.InputKit';
 import { i18n, intl } from '@kit.LocalizationKit';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -1615,8 +1616,7 @@ struct Index {
               .width(this.displayWidth)
               .height(this.showPlay ? '100%' : 85)
               .justifyContent(FlexAlign.Center)
-              .backgroundImage(this.baseURL + this.getCoverUrl + this.auth +
-                `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
+              .backgroundImage(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
               .backgroundImageSize(ImageSize.FILL)
               .backgroundBlurStyle(BlurStyle.BACKGROUND_ULTRA_THICK)
               .backgroundBrightness({
@@ -1637,10 +1637,14 @@ struct Index {
               if (this.showPlay === false) {
                 Row() {
                   Row() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth +
-                      `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
+                    ImageKnifeComponent({
+                      imageKnifeOption: {
+                        loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                        placeholderSrc: $rawfile('nocover.png'),
+                        errorholderSrc:$rawfile('nocover.png') ,
+                        objectFit: ImageFit.Contain
+                      }
+                    })
                       .width(60)
                       .aspectRatio(1)
                       .borderRadius(5)
@@ -1882,10 +1886,14 @@ struct Index {
           if (this.showPlay === false) {
             Row() {
               Row() {
-                Image(this.baseURL + this.getCoverUrl + this.auth +
-                  `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
+                ImageKnifeComponent({
+                  imageKnifeOption: {
+                    loadSrc: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                    placeholderSrc: $rawfile('nocover.png'),
+                    errorholderSrc:$rawfile('nocover.png') ,
+                    objectFit: ImageFit.Contain
+                  }
+                })
                   .width(60)
                   .aspectRatio(1)
                   .borderRadius(5)

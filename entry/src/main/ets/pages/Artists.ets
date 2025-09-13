@@ -1,5 +1,6 @@
 import { Artist } from '../utils/Interface'
 import { curves } from '@kit.ArkUI'
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 @Component
 export default struct Artists {
@@ -34,9 +35,14 @@ export default struct Artists {
           GridItem() {
             Button({ type: ButtonType.Normal }) {
               Column() {
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                  .alt($rawfile('noprofile.jpg'))
-                  .objectFit(ImageFit.Cover)
+                ImageKnifeComponent({
+                  imageKnifeOption: {
+                    loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`,
+                    placeholderSrc: $rawfile('noprofile.jpg'),
+                    errorholderSrc:$rawfile('noprofile.jpg') ,
+                    objectFit: ImageFit.Cover
+                  }
+                })
                   .width('100%')
                   .aspectRatio(1)
                   .borderRadius(10000)

@@ -4,6 +4,7 @@ import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -126,9 +127,14 @@ export default struct AlbumDetail {
       Scroll() {
         Column() {
           Row() {
-            Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`)
-              .alt($rawfile('nocover.png'))
-              .objectFit(ImageFit.Contain)
+            ImageKnifeComponent({
+              imageKnifeOption: {
+                loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`,
+                placeholderSrc: $rawfile('nocover.png'),
+                errorholderSrc:$rawfile('nocover.png') ,
+                objectFit: ImageFit.Contain
+              }
+            })
               .width(this.displayWidth > 1400 ? 200 : 140)
               .aspectRatio(1)
               .borderRadius(10)

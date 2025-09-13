@@ -2,6 +2,7 @@ import { Album, Artist, MusicFolder } from '../utils/Interface';
 import { curves, LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -75,9 +76,14 @@ export default struct ArtistDetail {
     NavDestination() {
       Scroll() {
         Column() {
-          Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`)
-            .alt($rawfile('noprofile.jpg'))
-            .objectFit(ImageFit.Cover)
+          ImageKnifeComponent({
+            imageKnifeOption: {
+              loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`,
+              placeholderSrc: $rawfile('noprofile.jpg'),
+              errorholderSrc:$rawfile('noprofile.jpg') ,
+              objectFit: ImageFit.Cover
+            }
+          })
             .width(this.displayWidth > 1400 ? 180 : 120)
             .aspectRatio(1)
             .borderRadius(10000)
@@ -123,9 +129,14 @@ export default struct ArtistDetail {
               GridItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
+                    ImageKnifeComponent({
+                      imageKnifeOption: {
+                        loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        placeholderSrc: $rawfile('nocover.png'),
+                        errorholderSrc:$rawfile('nocover.png') ,
+                        objectFit: ImageFit.Contain
+                      }
+                    })
                       .width('100%')
                       .aspectRatio(1)
                       .borderRadius(10)

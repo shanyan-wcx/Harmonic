@@ -21,6 +21,7 @@ import { common } from '@kit.AbilityKit';
 import { BusinessError, request } from '@kit.BasicServicesKit';
 import { fileUri, fileIo as fs, picker } from '@kit.CoreFileKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -393,9 +394,14 @@ export default struct Play {
           ListItem() {
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
+                ImageKnifeComponent({
+                  imageKnifeOption: {
+                    loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                    placeholderSrc: $rawfile('nocover.png'),
+                    errorholderSrc:$rawfile('nocover.png') ,
+                    objectFit: ImageFit.Contain
+                  }
+                })
                   .width(45)
                   .aspectRatio(1)
                   .borderRadius(5)
@@ -818,9 +824,14 @@ export default struct Play {
               Column() {
                 Swiper(this.swiperController) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
+                    ImageKnifeComponent({
+                      imageKnifeOption: {
+                        loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                        placeholderSrc: $rawfile('nocover.png'),
+                        errorholderSrc:$rawfile('nocover.png') ,
+                        objectFit: ImageFit.Contain
+                      }
+                    })
                       .height('100%')
                       .aspectRatio(1)
                       .borderRadius(10)
@@ -916,10 +927,14 @@ export default struct Play {
               .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
             } else {
               Column() {
-                Image(this.baseURL + this.getCoverUrl + this.auth +
-                  `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
+                ImageKnifeComponent({
+                  imageKnifeOption: {
+                    loadSrc: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                    placeholderSrc: $rawfile('nocover.png'),
+                    errorholderSrc:$rawfile('nocover.png') ,
+                    objectFit: ImageFit.Contain
+                  }
+                })
                   .height('100%')
                   .aspectRatio(1)
                   .borderRadius(10)

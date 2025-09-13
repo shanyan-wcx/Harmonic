@@ -1,6 +1,7 @@
 import { Album, Song, MusicFolder} from '../utils/Interface';
 import {getAlbumList} from '../utils/Api';
 import { curves } from '@kit.ArkUI';
+import { ImageKnifeComponent } from '@ohos/imageknife'
 
 @Component
 export default struct Albums {
@@ -38,9 +39,14 @@ export default struct Albums {
           GridItem() {
             Button({ type: ButtonType.Normal }) {
               Column() {
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
+                ImageKnifeComponent({
+                  imageKnifeOption: {
+                    loadSrc:this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                    placeholderSrc: $rawfile('nocover.png'),
+                    errorholderSrc:$rawfile('nocover.png') ,
+                    objectFit: ImageFit.Contain
+                  }
+                })
                   .width('100%')
                   .aspectRatio(1)
                   .borderRadius(10)

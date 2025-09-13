@@ -2,6 +2,7 @@ import { AbilityConstant, UIAbility, Want, Configuration, ConfigurationConstant,
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import {ImageKnife} from '@ohos/imageknife'
 
 let callback: errorManager.ErrorObserver = {
   onUnhandledException(errMsg) {
@@ -12,11 +13,12 @@ let callback: errorManager.ErrorObserver = {
 }
 
 export default class EntryAbility extends UIAbility {
-  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+  async onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
     appRecovery.enableAppRecovery(appRecovery.RestartFlag.ALWAYS_RESTART,
       appRecovery.SaveOccasionFlag.SAVE_WHEN_ERROR | appRecovery.SaveOccasionFlag.SAVE_WHEN_BACKGROUND,
       appRecovery.SaveModeFlag.SAVE_WITH_FILE);
+    await ImageKnife.getInstance().initFileCache(this.context, 1024, 512 * 1024 * 1024);
   }
 
   onDestroy(): void {

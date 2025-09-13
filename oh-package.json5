@@ -3,7 +3,8 @@
   "description": "Please describe the basic information.",
   "dependencies": {
     "@ohos/axios": "^2.2.6",
-    "@ohos/crypto-js": "^2.0.4"
+    "@ohos/crypto-js": "^2.0.4",
+    "@ohos/imageknife": "^3.2.7"
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.18",
