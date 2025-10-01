@@ -78,6 +78,8 @@ struct Index {
   @Provide playlists: Playlist[] = []
   @Provide selectedPlaylists: boolean[] = []
   @Provide songsPage: number = 0
+  @Provide albumsPage: number = 0
+  @Provide artistsPage: number = 0
   @Provide showProgress: boolean = false
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') @Watch('getAuth') username: string = ''
@@ -706,22 +708,13 @@ struct Index {
             this.starredArtists.unshift(...starredArtists)
             break;
           case 2:
-            let offset = 0
-            let size = 500
-            while (true) {
-              let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id))
-              if (albums === undefined || albums.length === 0) {
-                break;
-              }
-              this.albums.unshift(...albums)
-              if (albums.length < size) {
-                break;
-              }
-              offset += size;
+            let pageAlbums = await getAlbumList(this.baseURL, this.username, this.password, 0, Number(id))
+            if (pageAlbums === undefined || pageAlbums.length === 0) {
+              this.albumsPage = 0
+              return;
             }
-            this.albums.sort((a, b) => {
-              return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
-            })
+            this.albums = pageAlbums
+            this.albumsPage = 1
             break;
           case 3:
             let artists = await getIndexes(this.baseURL, this.username, this.password, Number(id))
@@ -1563,7 +1556,7 @@ struct Index {
         })
         .shadow({
           radius: this.shadowRadius,
-          color: $r('app.color.sidebarShadow'),
+          color: $r('app.color.shadow'),
           offsetX: 0,
           offsetY: 0
         })
@@ -1904,10 +1897,8 @@ struct Index {
           this.shadowRadius = 100
           this.showSidebar = true
         } else {
-          setTimeout(() => {
-            this.shadowRadius = 0
-            this.showSidebar = false
-          }, 300)
+          this.showSidebar = false
+          this.shadowRadius = 0
         }
       })
 

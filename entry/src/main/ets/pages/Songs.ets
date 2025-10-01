@@ -36,7 +36,6 @@ export default struct Songs {
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
   @State isLoading: boolean = false;
-  @State refreshing: boolean = false;
   private songsScroller: Scroller = new Scroller
 
   shuffleList<T>(array: T[]): T[] {
@@ -204,15 +203,19 @@ export default struct Songs {
           .aspectRatio(1)
       }
       .position({
-        right: 20,
-        bottom: this.startPlaying ? 105 : 20
+        right: 15,
+        bottom: this.startPlaying ? 100 : 15
       })
       .animation({ duration: 510, curve: Curve.EaseInOut })
       .width(48)
       .height(48)
       .borderRadius(8)
-      .backgroundColor($r('app.color.bar_background'))
+      .backgroundColor(Color.Transparent)
       .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
+      .shadow({
+        radius: 20,
+        color: $r('app.color.shadow'),
+      })
       .onClick(async () => {
         this.songsScroller.scrollEdge(Edge.Top)
       })

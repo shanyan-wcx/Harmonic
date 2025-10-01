@@ -22,73 +22,101 @@ export default struct Artists {
   @Consume needUpdate: boolean
   @Consume showLibrary: boolean
   @State profileSize: number = 256
+  private artistsScroller: Scroller = new Scroller();
 
   async aboutToAppear() {
     this.needUpdate = !this.needUpdate
   }
 
   build() {
-    Column() {
-      Grid() {
-        ForEach(this.artists, (artist: Artist, index) => {
-          GridItem() {
-            Button({ type: ButtonType.Normal }) {
-              Column() {
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                  .alt($rawfile('noprofile.jpg'))
-                  .objectFit(ImageFit.Cover)
-                  .width('100%')
-                  .aspectRatio(1)
-                  .borderRadius(10000)
-                  .margin({ top: 10, left: 10, right: 10 })
-                Text(artist.name)
-                  .width('100%')
-                  .fontSize(16)
-                  .fontColor($r('app.color.font'))
-                  .margin(10)
-                  .maxLines(1)
-                  .textAlign(TextAlign.Center)
-                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+    Stack() {
+      Column() {
+        Grid(this.artistsScroller) {
+          ForEach(this.artists, (artist: Artist, index) => {
+            GridItem() {
+              Button({ type: ButtonType.Normal }) {
+                Column() {
+                  Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
+                    .alt($rawfile('noprofile.jpg'))
+                    .objectFit(ImageFit.Cover)
+                    .width('100%')
+                    .aspectRatio(1)
+                    .borderRadius(10000)
+                    .margin({ top: 10, left: 10, right: 10 })
+                  Text(artist.name)
+                    .width('100%')
+                    .fontSize(16)
+                    .fontColor($r('app.color.font'))
+                    .margin(10)
+                    .maxLines(1)
+                    .textAlign(TextAlign.Center)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                }
+                .width('100%')
+                .height('auto')
               }
               .width('100%')
               .height('auto')
+              .margin({ bottom: this.startPlaying === true && index === this.artists.length - 1 ? 85 : 0 })
+              .animation({ curve: curves.springMotion(0.6, 1) })
+              .borderRadius(10)
+              .backgroundColor(Color.Transparent)
+              .onClick(() => {
+                this.artist = artist
+                this.pageStack.pushPathByName('ArtistDetail', undefined);
+              })
             }
-            .width('100%')
-            .height('auto')
-            .margin({ bottom: this.startPlaying === true && index === this.artists.length - 1 ? 85 : 0 })
-            .animation({ curve: curves.springMotion(0.6, 1) })
-            .borderRadius(10)
-            .backgroundColor(Color.Transparent)
-            .onClick(() => {
-              this.artist = artist
-              this.pageStack.pushPathByName('ArtistDetail', undefined);
-            })
-          }
-        })
-      }
-      .width('100%')
-      .height('100%')
-      .columnsTemplate(this.displayWidth > 1400 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
-        (this.displayWidth > 1200 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
-          (this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr 1fr" : (this.displayWidth > 800 ? "1fr 1fr 1fr 1fr 1fr" :
-            (this.displayWidth > 400 ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")))))
-      .columnsGap(0)
-      .rowsGap(0)
-      .scrollBar(BarState.Off)
-      .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
-      .padding({ left: 10, right: 10, bottom: 10 })
-      .visibility(this.artists.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+          })
+        }
+        .width('100%')
+        .height('100%')
+        .columnsTemplate(this.displayWidth > 1400 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
+          (this.displayWidth > 1200 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
+            (this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr 1fr" : (this.displayWidth > 800 ? "1fr 1fr 1fr 1fr 1fr" :
+              (this.displayWidth > 400 ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr")))))
+        .columnsGap(0)
+        .rowsGap(0)
+        .scrollBar(BarState.Off)
+        .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
+        .padding({ left: 10, right: 10, bottom: 10 })
+        .visibility(this.artists.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
-      Column() {
-        Text("没有艺术家")
-          .fontSize(32)
-          .fontColor($r('app.color.font'))
+        Column() {
+          Text("没有艺术家")
+            .fontSize(32)
+            .fontColor($r('app.color.font'))
+        }
+        .width('100%')
+        .height('100%')
+        .padding({ bottom: 160 })
+        .justifyContent(FlexAlign.Center)
+        .visibility(this.artists.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
       }
       .width('100%')
       .height('100%')
-      .padding({ bottom: 160 })
-      .justifyContent(FlexAlign.Center)
-      .visibility(this.artists.length === 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
+
+      Button({ type: ButtonType.Normal }) {
+        Image($r('app.media.totop'))
+          .width(26)
+          .aspectRatio(1)
+      }
+      .position({
+        right: 15,
+        bottom: this.startPlaying ? 100 : 15
+      })
+      .animation({ duration: 510, curve: Curve.EaseInOut })
+      .width(48)
+      .height(48)
+      .borderRadius(8)
+      .backgroundColor(Color.Transparent)
+      .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
+      .shadow({
+        radius: 20,
+        color: $r('app.color.shadow'),
+      })
+      .onClick(async () => {
+        this.artistsScroller.scrollEdge(Edge.Top)
+      })
     }
     .width('100%')
     .height('100%')
