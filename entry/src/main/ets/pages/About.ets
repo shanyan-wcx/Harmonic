@@ -90,6 +90,17 @@ export default struct About {
       .onClick(async () => {
         this.showStepper = true
       })
+
+      Column() {
+        Text("浙ICP备2020037771号-4A")
+          .fontSize(16)
+          .fontColor($r('app.color.font_secondary'))
+      }
+      .width('100%')
+      .position({
+        left: 0,
+        bottom: 25
+      })
     }
     .width('100%')
     .height('100%')
