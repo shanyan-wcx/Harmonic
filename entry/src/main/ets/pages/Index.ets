@@ -10,6 +10,7 @@ import { fileIo as fs, picker, ReadOptions } from '@kit.CoreFileKit';
 import CryptoJS from '@ohos/crypto-js';
 import {
   getAlbumList,
+  getAllSongs,
   getCover,
   getFrequentAlbums,
   getIndexes,
@@ -44,6 +45,7 @@ import Home from './Home';
 import { buffer } from '@kit.ArkTS';
 import { KeyCode } from '@kit.InputKit';
 import { i18n, intl } from '@kit.LocalizationKit';
+import Songs from './Songs';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -75,6 +77,7 @@ struct Index {
   @Provide songs: Song[] = []
   @Provide playlists: Playlist[] = []
   @Provide selectedPlaylists: boolean[] = []
+  @Provide songsPage: number = 0
   @Provide showProgress: boolean = false
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') @Watch('getAuth') username: string = ''
@@ -299,7 +302,7 @@ struct Index {
 
   async setSessionInfo() {
     let metadata: AVSessionManager.AVMetadata = {
-      assetId: '0',
+      assetId: this.nowPlayingSong!.id,
       title: this.nowPlayingSong!.title,
       mediaImage: this.getPixelMap(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id,
         512)),
@@ -655,6 +658,9 @@ struct Index {
       case 3:
         this.artists = []
         break;
+      case 4:
+        this.songs = []
+        break;
       default:
         break;
     }
@@ -723,6 +729,15 @@ struct Index {
             this.artists.sort((a, b) => {
               return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
             })
+            break;
+          case 4:
+            let pageSongs = await getAllSongs(this.baseURL, this.username, this.password, 0, Number(id))
+            if (pageSongs === undefined || pageSongs.length === 0) {
+              this.songsPage = 0
+              return;
+            }
+            this.songs = pageSongs
+            this.songsPage = 1
             break;
           default:
             break;
@@ -1427,11 +1442,11 @@ struct Index {
 
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image($r('app.media.playlist'))
+                Image($r('app.media.song'))
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
-                Text("歌单")
+                Text("歌曲")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
               }
@@ -1450,6 +1465,33 @@ struct Index {
               })
               this.pageStack.clear()
               this.nowPage = 4
+            })
+
+            Button({ type: ButtonType.Normal }) {
+              Row() {
+                Image($r('app.media.playlist'))
+                  .width(24)
+                  .aspectRatio(1)
+                  .margin({ right: 10 })
+                Text("歌单")
+                  .fontSize(20)
+                  .fontColor($r('app.color.font'))
+              }
+              .width('50%')
+            }
+            .width('100%')
+            .height(50)
+            .borderRadius(10)
+            .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .onClick(() => {
+              this.uiContext?.animateTo({
+                duration: 300,
+                curve: Curve.EaseOut,
+              }, () => {
+                this.showSidebar = false
+              })
+              this.pageStack.clear()
+              this.nowPage = 5
             })
           }
           .width('90%')
@@ -1471,7 +1513,7 @@ struct Index {
             .width(50)
             .height(50)
             .borderRadius(10)
-            .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1480,7 +1522,7 @@ struct Index {
                 this.showSidebar = false
               })
               this.pageStack.clear()
-              this.nowPage = 5
+              this.nowPage = 6
             })
 
             Button({ type: ButtonType.Normal }) {
@@ -1493,7 +1535,7 @@ struct Index {
             .width(50)
             .height(50)
             .borderRadius(10)
-            .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .backgroundColor(this.nowPage === 7 ? $r('app.color.button_selected') : $r('app.color.content_background'))
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1502,7 +1544,7 @@ struct Index {
                 this.showSidebar = false
               })
               this.pageStack.clear()
-              this.nowPage = 6
+              this.nowPage = 7
             })
           }
           .width('90%')
@@ -1564,7 +1606,7 @@ struct Index {
 
                 if (this.nowPage === 4) {
                   Column() {
-                    Playlists()
+                    Songs()
                   }
                   .height('100%')
                   .width('100%')
@@ -1572,13 +1614,21 @@ struct Index {
 
                 if (this.nowPage === 5) {
                   Column() {
-                    Setting()
+                    Playlists()
                   }
                   .height('100%')
                   .width('100%')
                 }
 
                 if (this.nowPage === 6) {
+                  Column() {
+                    Setting()
+                  }
+                  .height('100%')
+                  .width('100%')
+                }
+
+                if (this.nowPage === 7) {
                   Column() {
                     About()
                   }

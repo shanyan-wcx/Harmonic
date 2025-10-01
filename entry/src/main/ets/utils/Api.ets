@@ -515,6 +515,22 @@ export async function search(baseURL: string, username: string, password: string
   }
 }
 
+export async function getAllSongs(baseURL: string, username: string, password: string, songOffset: number, musicFolderId: number) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&artistCount=0&albumCount=0&songCount=500&songOffset=${songOffset}` +
+        (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.searchResult2!.song;
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined;
+  }
+}
+
 export async function scrobble(baseURL: string, username: string, password: string, id: string, submission: boolean) {
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
