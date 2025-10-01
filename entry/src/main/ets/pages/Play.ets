@@ -1109,7 +1109,7 @@ export default struct Play {
                   preferType: SheetType.BOTTOM,
                   backgroundColor: $r('app.color.content_background'),
                   title: {
-                    title: '播放队列'
+                    title: '播放队列 (' + `${this.nowPlayingList.length}` + ')'
                   }
                 })
 
