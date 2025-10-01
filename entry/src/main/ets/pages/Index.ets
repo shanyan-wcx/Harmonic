@@ -46,6 +46,7 @@ import { buffer } from '@kit.ArkTS';
 import { KeyCode } from '@kit.InputKit';
 import { i18n, intl } from '@kit.LocalizationKit';
 import Songs from './Songs';
+import app from '@system.app';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -1174,6 +1175,8 @@ struct Index {
   }
 
   async aboutToAppear() {
+    app.setImageCacheCount(512);
+    app.setImageRawDataCacheSize(100 * 1024 * 1024);
     this.uiContext = this.getUIContext();
     if (!this.uiContext) {
       console.warn("no uiContext");
