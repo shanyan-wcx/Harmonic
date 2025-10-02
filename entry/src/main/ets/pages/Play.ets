@@ -460,7 +460,7 @@ export default struct Play {
     .margin({ bottom: 25 })
     .clip(true)
     .backgroundColor($r('app.color.bar_background'))
-    .onAppear(() => {
+    .onAttach(() => {
       this.listScroller.scrollToIndex(this.nowPlayingIndex, false, ScrollAlign.CENTER)
     })
   }
