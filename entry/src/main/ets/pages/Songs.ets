@@ -35,7 +35,6 @@ export default struct Songs {
   @Consume songsPage: number
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
-  @State isLoading: boolean = false;
   private songsScroller: Scroller = new Scroller
 
   shuffleList<T>(array: T[]): T[] {
@@ -161,7 +160,6 @@ export default struct Songs {
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
         .onReachEnd(async () => {
-          this.isLoading = true;
           let size = 500
           let keys = Object.keys(this.libraryStates)
           for (const id of keys) {
@@ -179,7 +177,6 @@ export default struct Songs {
             }
           }
           this.songsPage++
-          this.isLoading = false;
         })
         .visibility(this.songs.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
