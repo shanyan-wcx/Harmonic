@@ -503,12 +503,60 @@ export async function search(baseURL: string, username: string, password: string
   let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}` +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songCount=500&albumCount=500&artistCount=500` +
         (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
         timeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2;
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined;
+  }
+}
+
+export async function searchSongs(baseURL: string, username: string, password: string, query: string, songOffset:number, musicFolderId: number) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songOffset=${songOffset}&songCount=500&albumCount=0&artistCount=0` +
+        (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.searchResult2?.song;
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined;
+  }
+}
+
+export async function searchAlbums(baseURL: string, username: string, password: string, query: string, albumOffset:number, musicFolderId: number) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songCount=0&albumOffset=${albumOffset}&albumCount=500&artistCount=0` +
+        (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.searchResult2?.album;
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined;
+  }
+}
+
+export async function searchArtists(baseURL: string, username: string, password: string, query: string, artistOffset:number, musicFolderId: number) {
+  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songCount=0&albumCount=0&artistOffset=${artistOffset}&artistCount=500` +
+        (musicFolderId !== -1 ? `&musicFolderId=${musicFolderId}` : ""), {
+        timeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.searchResult2?.artist;
   } catch (error) {
     console.error(JSON.stringify(error));
     return undefined;

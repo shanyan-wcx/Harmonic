@@ -130,10 +130,15 @@ struct Index {
   @Provide searchArtists: Artist[] = []
   @Provide showLibrary: boolean = false
   @Provide closePlay: boolean = false
+  @Provide searched: boolean = false
+  @Provide searchTabIndex: number = 0
+  @Provide searchSongsPage: number = 0
+  @Provide searchAlbumsPage: number = 0
+  @Provide searchArtistsPage: number = 0
+  @Provide sideBarWidth: number = 240
   @Provide @Watch('updatePage') needUpdate: boolean = false
   @State coverSize: number = 64
   @State themeIcon: Resource = $r('app.media.auto')
-  @State sideBarWidth: number = 240
   @State startPlayTime: number = 0
   @State verse: Verse | undefined = undefined
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
@@ -654,6 +659,11 @@ struct Index {
         this.searchSongs = []
         this.searchAlbums = []
         this.searchArtists = []
+        this.searched = false
+        this.searchTabIndex = 0
+        this.searchSongsPage = 0
+        this.searchAlbumsPage = 0
+        this.searchArtistsPage = 0
         break;
       case 2:
         this.albums = []
@@ -1126,6 +1136,12 @@ struct Index {
               duration: 500
             });
           } else {
+            const keys = Object.keys(this.libraryStates)
+            const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
+            if (keys.length === 0 || allFalse) {
+              this.libraryStates['1'] = true
+              this.libraryStatesStr = JSON.stringify(this.libraryStates)
+            }
             this.showLibrary = true
           }
         }
