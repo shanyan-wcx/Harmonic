@@ -2,10 +2,12 @@ import { ping } from "../../utils/Api"
 
 @CustomDialog
 export default struct editServerBuilder {
+  @StorageLink('servernames') servernames: string[] = []
   @StorageLink('baseurls') baseurls: string[] = []
   @StorageLink('usernames') usernames: string[] = []
   @StorageLink('passwords') passwords: string[] = []
   @StorageLink('server') serverIdx: number = -1
+  @State tmpServername: string = ""
   @State tmpBaseurl: string = ""
   @State tmpUrl: string = ""
   @State tmpUsername: string = ""
@@ -27,6 +29,35 @@ export default struct editServerBuilder {
         .padding({ left: 20, right: 20 })
         .margin({ top: 20 })
         .textAlign(TextAlign.Center)
+      Row() {
+        Text("名称")
+          .width(60)
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+        TextInput({
+          placeholder: '服务器名称',
+          text: this.servernames.length > this.editServerIdx ? this.servernames[this.editServerIdx] : ""
+        })
+          .width("100%")
+          .height(40)
+          .layoutWeight(1)
+          .borderRadius(10)
+          .margin({ left: 15 })
+          .caretColor($r('app.color.font_secondary'))
+          .fontColor($r('app.color.font'))
+          .fontSize(20)
+          .placeholderFont({
+            size: 20
+          })
+          .type(InputType.Normal)
+          .enterKeyType(EnterKeyType.Next)
+          .onChange((value) => {
+            this.tmpServername = value
+          })
+      }
+      .width('100%')
+      .margin({ top: 20 })
+
       Row() {
         Text("服务器")
           .width(60)
@@ -56,13 +87,14 @@ export default struct editServerBuilder {
           .backgroundColor($r('app.color.textInput'))
         TextInput({
           placeholder: 'myserver.com',
-          text: this.baseurls.length > 0 && this.editServerIdx !== -1 ? this.baseurls[this.editServerIdx].replace(/^https?:\/\//, "") : ""
+          text: this.baseurls.length > this.editServerIdx && this.editServerIdx !== -1 ? this.baseurls[this.editServerIdx].replace(/^https?:\/\//, "") : ""
         })
           .width("100%")
           .height(40)
           .offset({
-            x: -15
+            x: -20
           })
+          .padding({ left: 22 })
           .margin({ right: -15 })
           .layoutWeight(1)
           .borderRadius(10)
@@ -89,7 +121,7 @@ export default struct editServerBuilder {
           .fontColor($r('app.color.font'))
         TextInput({
           placeholder: 'username',
-          text: this.usernames.length > 0 ? this.usernames[this.editServerIdx] : ""
+          text: this.usernames.length > this.editServerIdx ? this.usernames[this.editServerIdx] : ""
         })
           .width("100%")
           .height(40)
@@ -118,7 +150,7 @@ export default struct editServerBuilder {
           .fontColor($r('app.color.font'))
         TextInput({
           placeholder: 'password',
-          text: this.passwords.length > 0 ? this.passwords[this.editServerIdx] : ""
+          text: this.passwords.length > this.editServerIdx ? this.passwords[this.editServerIdx] : ""
         })
           .width("100%")
           .height(40)
@@ -160,6 +192,7 @@ export default struct editServerBuilder {
             this.tmpBaseurl = this.urlHead[this.urlHeadIdx] + this.tmpUrl
             let status = await ping(this.tmpBaseurl, this.tmpUsername, this.tmpPassword)
             if (status === 'ok') {
+              this.servernames[this.editServerIdx] = this.tmpServername
               this.baseurls[this.editServerIdx] = this.tmpBaseurl
               this.usernames[this.editServerIdx] = this.tmpUsername
               this.passwords[this.editServerIdx] = this.tmpPassword
@@ -195,6 +228,7 @@ export default struct editServerBuilder {
           } else {
             let index = this.editServerIdx
             this.editServerIdx = -1
+            this.servernames.splice(index, 1)
             this.baseurls.splice(index, 1)
             this.usernames.splice(index, 1)
             this.passwords.splice(index, 1)

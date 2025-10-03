@@ -4,6 +4,7 @@ import editServerBuilder from './dialogs/EditServer'
 
 @Component
 export default struct Setting {
+  @StorageLink('servernames') servernames: string[] = []
   @StorageLink('baseURL') baseURL: string = ""
   @StorageLink('username') username: string = ""
   @StorageLink('password') password: string = ""
@@ -20,13 +21,13 @@ export default struct Setting {
   addServer: CustomDialogController = new CustomDialogController({
     builder: addServerBuilder(),
     width: 350,
-    height: 314,
+    height: 374,
     backgroundColor: $r('app.color.start_window_background')
   })
   editServer: CustomDialogController = new CustomDialogController({
     builder: editServerBuilder(),
     width: 350,
-    height: 314,
+    height: 374,
     backgroundColor: $r('app.color.start_window_background'),
     onWillDismiss:(dismissDialogAction: DismissDialogAction)=> {
       dismissDialogAction.dismiss();
@@ -60,7 +61,7 @@ export default struct Setting {
                       checkedBackgroundColor: $r('app.color.radio'),
                       indicatorColor: $r('app.color.start_window_background')
                     })
-                  Text(url)
+                  Text(this.servernames[index] !== undefined && this.servernames[index] !== "" ? this.servernames[index] : url)
                     .width('100%')
                     .layoutWeight(1)
                     .fontSize(20)

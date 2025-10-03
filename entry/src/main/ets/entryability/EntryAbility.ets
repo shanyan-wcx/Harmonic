@@ -49,6 +49,7 @@ export default class EntryAbility extends UIAbility {
       PersistentStorage.persistProp('password', '');
       PersistentStorage.persistProp('libraryStates', '{}');
       PersistentStorage.persistProp('server', -1);
+      PersistentStorage.persistProp('servernames', []);
       PersistentStorage.persistProp('baseurls', []);
       PersistentStorage.persistProp('usernames', []);
       PersistentStorage.persistProp('passwords', []);
