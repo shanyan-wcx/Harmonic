@@ -97,7 +97,7 @@ export default struct Artists {
 
       Button({ type: ButtonType.Normal }) {
         Image($r('app.media.totop'))
-          .width(26)
+          .width(20)
           .aspectRatio(1)
       }
       .position({
@@ -105,9 +105,9 @@ export default struct Artists {
         bottom: this.startPlaying ? 100 : 15
       })
       .animation({ duration: 510, curve: Curve.EaseInOut })
-      .width(48)
-      .height(48)
-      .borderRadius(8)
+      .width(36)
+      .height(36)
+      .borderRadius(6)
       .backgroundColor(Color.Transparent)
       .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
       .shadow({
@@ -117,6 +117,7 @@ export default struct Artists {
       .onClick(async () => {
         this.artistsScroller.scrollEdge(Edge.Top)
       })
+      .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)
     }
     .width('100%')
     .height('100%')

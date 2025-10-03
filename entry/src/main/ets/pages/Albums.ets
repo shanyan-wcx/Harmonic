@@ -26,7 +26,6 @@ export default struct Albums {
   @Consume albumsPage: number
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
-  @State isLoading: boolean = false;
   @State coverSize: number = 320
   private albumsScroller: Scroller = new Scroller();
 
@@ -77,7 +76,6 @@ export default struct Albums {
         .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
         .padding({ left: 10, right: 10, bottom: 10 })
         .onReachEnd(async () => {
-          this.isLoading = true;
           let size = 500
           let keys = Object.keys(this.libraryStates)
           for (const id of keys) {
@@ -95,7 +93,6 @@ export default struct Albums {
             }
           }
           this.albumsPage++
-          this.isLoading = false;
         })
         .visibility(this.albums.length > 0 && this.showProgress === false ? Visibility.Visible : Visibility.None)
 
@@ -115,7 +112,7 @@ export default struct Albums {
 
       Button({ type: ButtonType.Normal }) {
         Image($r('app.media.totop'))
-          .width(26)
+          .width(20)
           .aspectRatio(1)
       }
       .position({
@@ -123,9 +120,9 @@ export default struct Albums {
         bottom: this.startPlaying ? 100 : 15
       })
       .animation({ duration: 510, curve: Curve.EaseInOut })
-      .width(48)
-      .height(48)
-      .borderRadius(8)
+      .width(36)
+      .height(36)
+      .borderRadius(6)
       .backgroundColor(Color.Transparent)
       .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
       .shadow({
@@ -135,6 +132,7 @@ export default struct Albums {
       .onClick(async () => {
         this.albumsScroller.scrollEdge(Edge.Top)
       })
+      .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)
     }
     .width('100%')
     .height('100%')
