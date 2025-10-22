@@ -1,5 +1,8 @@
 import { createPlaylist, getPlaylists } from '../../utils/Api'
 import { Playlist } from '../../utils/Interface'
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @CustomDialog
 export default struct createPlaylistBuilder {
@@ -81,7 +84,16 @@ export default struct createPlaylistBuilder {
       .width('100%')
       .height(50)
       .borderRadius(10)
-      .backgroundColor($r('app.color.bar_background'))
+      .backgroundColor($r('sys.color.comp_background_tertiary'))
+      .border({
+        width: deviceTypeInfo === '2in1' ? 1 : 0,
+        radius: 10,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+      })
+      .shadow({
+        radius: 6,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+      })
       .onClick(async () => {
         if(this.name!==''){
           this.createPlaylist.close()

@@ -1,6 +1,6 @@
 import { Album, MusicFolder, Song } from '../utils/Interface';
-import { curves } from '@kit.ArkUI';
 import { getAlbumList } from '../utils/Api';
+import { ShadowCoverImage } from '../utils/Component';
 
 @Component
 export default struct Albums {
@@ -41,22 +41,42 @@ export default struct Albums {
             GridItem() {
               Button({ type: ButtonType.Normal }) {
                 Column() {
-                  Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                    .alt($rawfile('nocover.png'))
-                    .objectFit(ImageFit.Contain)
-                    .width('100%')
-                    .aspectRatio(1)
-                    .borderRadius(10)
-                    .margin(10)
+                  Column(){
+                    ShadowCoverImage({
+                      url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                      radius: 10
+                    })
+                  }
+                  .width('100%')
+                  .layoutWeight(1)
+                  .aspectRatio(1)
+                  .justifyContent(FlexAlign.Center)
+
+                  Text(album.title)
+                    .fontSize(17)
+                    .fontWeight(FontWeight.Medium)
+                    .fontColor($r('app.color.font'))
+                    .margin({ top: 5 })
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                    .wordBreak(WordBreak.BREAK_ALL)
+                  Text(album.artist)
+                    .fontSize(14)
+                    .fontColor($r('app.color.font_secondary'))
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+                    .wordBreak(WordBreak.BREAK_ALL)
                 }
                 .width('100%')
                 .height('auto')
+                .alignItems(HorizontalAlign.Start)
               }
               .width('100%')
               .height('auto')
-              .margin({ bottom: this.startPlaying === true && index === this.albums.length - 1 ? 85 : 0 })
-              .animation({ curve: curves.springMotion(0.6, 1) })
               .borderRadius(10)
+              .clip(true)
+              .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+              .margin({ bottom: this.startPlaying === true && index === this.albums.length - 1 ? 85 : 0 })
               .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.album = album
@@ -114,6 +134,7 @@ export default struct Albums {
         Image($r('app.media.totop'))
           .width(20)
           .aspectRatio(1)
+          .draggable(false)
       }
       .position({
         right: 15,
@@ -126,8 +147,8 @@ export default struct Albums {
       .backgroundColor(Color.Transparent)
       .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
       .shadow({
-        radius: 20,
-        color: $r('app.color.shadow'),
+        radius: 12,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark'),
       })
       .onClick(async () => {
         this.albumsScroller.scrollEdge(Edge.Top)

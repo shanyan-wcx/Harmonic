@@ -1,6 +1,6 @@
 import { Album, Artist } from '../utils/Interface';
-import { curves } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ShadowArtistImage, ShadowCoverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -99,21 +99,44 @@ export default struct Home {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .height('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
-                      .margin(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .height('100%')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+                    Column() {
+                      Text(album.title)
+                        .fontSize(17)
+                        .fontWeight(FontWeight.Medium)
+                        .fontColor($r('app.color.font'))
+                        .margin({ top: 5 })
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                      Text(album.artist)
+                        .fontSize(14)
+                        .fontColor($r('app.color.font_secondary'))
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                    }
+                    .alignItems(HorizontalAlign.Start)
+                    .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                   }
                   .width('auto')
                   .height('100%')
+                  .alignItems(HorizontalAlign.Start)
                 }
                 .width('auto')
                 .height('100%')
+                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
-                .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
@@ -131,7 +154,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 250 : 210)
+        .height(this.displayWidth > 1400 ? 290 : (this.displayWidth > 1200 ? 270 : 250))
         .visibility(this.showProgress === true || this.recentAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -191,21 +214,44 @@ export default struct Home {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .height('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
-                      .margin(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .height('100%')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+                    Column() {
+                      Text(album.title)
+                        .fontSize(17)
+                        .fontWeight(FontWeight.Medium)
+                        .fontColor($r('app.color.font'))
+                        .margin({ top: 5 })
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                      Text(album.artist)
+                        .fontSize(14)
+                        .fontColor($r('app.color.font_secondary'))
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                    }
+                    .alignItems(HorizontalAlign.Start)
+                    .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                   }
                   .width('auto')
                   .height('100%')
+                  .alignItems(HorizontalAlign.Start)
                 }
                 .width('auto')
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.newestAlbums!.length - 1 ? 10 : 0 })
-                .animation({ curve: curves.springMotion(0.6, 1) })
+                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
@@ -223,7 +269,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 250 : 210)
+        .height(this.displayWidth > 1400 ? 290 : (this.displayWidth > 1200 ? 270 : 250))
         .visibility(this.showProgress === true || this.newestAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -283,21 +329,44 @@ export default struct Home {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .height('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
-                      .margin(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .height('100%')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+                    Column() {
+                      Text(album.title)
+                        .fontSize(17)
+                        .fontWeight(FontWeight.Medium)
+                        .fontColor($r('app.color.font'))
+                        .margin({ top: 5 })
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                      Text(album.artist)
+                        .fontSize(14)
+                        .fontColor($r('app.color.font_secondary'))
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                    }
+                    .alignItems(HorizontalAlign.Start)
+                    .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                   }
                   .width('auto')
                   .height('100%')
+                  .alignItems(HorizontalAlign.Start)
                 }
                 .width('auto')
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.frequentAlbums!.length - 1 ? 10 : 0 })
-                .animation({ curve: curves.springMotion(0.6, 1) })
+                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
@@ -315,7 +384,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 250 : 210)
+        .height(this.displayWidth > 1400 ? 290 : (this.displayWidth > 1200 ? 270 : 250))
         .visibility(this.showProgress === true || this.frequentAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -375,21 +444,44 @@ export default struct Home {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .height('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
-                      .margin(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .height('100%')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+                    Column() {
+                      Text(album.title)
+                        .fontSize(17)
+                        .fontWeight(FontWeight.Medium)
+                        .fontColor($r('app.color.font'))
+                        .margin({ top: 5 })
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                      Text(album.artist)
+                        .fontSize(14)
+                        .fontColor($r('app.color.font_secondary'))
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                    }
+                    .alignItems(HorizontalAlign.Start)
+                    .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                   }
                   .width('auto')
                   .height('100%')
+                  .alignItems(HorizontalAlign.Start)
                 }
                 .width('auto')
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.randomAlbums!.length - 1 ? 10 : 0 })
-                .animation({ curve: curves.springMotion(0.6, 1) })
+                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
@@ -407,7 +499,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 250 : 210)
+        .height(this.displayWidth > 1400 ? 290 : (this.displayWidth > 1200 ? 270 : 250))
         .visibility(this.showProgress === true || this.randomAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -467,21 +559,44 @@ export default struct Home {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .height('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
-                      .margin(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .height('100%')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+                    Column() {
+                      Text(album.title)
+                        .fontSize(17)
+                        .fontWeight(FontWeight.Medium)
+                        .fontColor($r('app.color.font'))
+                        .margin({ top: 5 })
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                      Text(album.artist)
+                        .fontSize(14)
+                        .fontColor($r('app.color.font_secondary'))
+                        .maxLines(1)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                        .wordBreak(WordBreak.BREAK_ALL)
+                    }
+                    .alignItems(HorizontalAlign.Start)
+                    .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                   }
                   .width('auto')
                   .height('100%')
+                  .alignItems(HorizontalAlign.Start)
                 }
                 .width('auto')
                 .height('100%')
-                .margin({ left: index === 0 ? 10 : 0, right: index === this.starredAlbums!.length - 1 ? 10 : 0 })
-                .animation({ curve: curves.springMotion(0.6, 1) })
+                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+                .margin({ left: index === 0 ? 10 : 0, right: index === this.recentAlbums!.length - 1 ? 10 : 0 })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
@@ -499,7 +614,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 250 : 210)
+        .height(this.displayWidth > 1400 ? 290 : (this.displayWidth > 1200 ? 270 : 250))
         .visibility(this.showProgress === true || this.starredAlbums.length === 0 ? Visibility.None :
         Visibility.Visible)
 
@@ -559,30 +674,34 @@ export default struct Home {
               ListItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                      .alt($rawfile('noprofile.jpg'))
-                      .objectFit(ImageFit.Cover)
-                      .height('100%')
-                      .layoutWeight(1)
-                      .aspectRatio(1)
-                      .borderRadius(100)
-                      .margin(10)
+                    Column(){
+                      ShadowArtistImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
+                      })
+                    }
+                    .height('100%')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+
                     Text(artist.name)
                       .width('100%')
                       .fontSize(16)
                       .fontColor($r('app.color.font'))
-                      .margin({ bottom: 10, left: 10, right: 10 })
+                      .margin({ top: 10 })
                       .maxLines(1)
                       .textAlign(TextAlign.Center)
                       .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .wordBreak(WordBreak.BREAK_ALL)
                   }
+                  .padding(10)
                   .width('100%')
                   .height('100%')
                 }
-                .width(this.displayWidth > 1400 ? 160 : 124)
+                .width(this.displayWidth > 1400 ? 160 : (this.displayWidth > 1200 ? 135 : 125))
                 .height('100%')
                 .margin({ left: index === 0 ? 10 : 0, right: index === this.starredArtists!.length - 1 ? 10 : 0 })
-                .animation({ curve: curves.springMotion(0.6, 1) })
                 .borderRadius(10)
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
@@ -600,7 +719,7 @@ export default struct Home {
           .edgeEffect(EdgeEffect.Spring)
         }
         .width('100%')
-        .height(this.displayWidth > 1400 ? 230 : 195)
+        .height(this.displayWidth > 1400 ? 230 : (this.displayWidth > 1200 ? 205 : 195))
         .visibility(this.showProgress === true || this.starredArtists.length === 0 ? Visibility.None :
         Visibility.Visible)
 

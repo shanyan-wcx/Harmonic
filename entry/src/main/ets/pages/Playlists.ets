@@ -1,6 +1,9 @@
 import { getPlaylists } from '../utils/Api'
 import { Playlist } from '../utils/Interface'
 import createPlaylistBuilder from './dialogs/CreatePlaylist'
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @Component
 export default struct Playlists {
@@ -40,7 +43,16 @@ export default struct Playlists {
         .width('90%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(() => {
           this.createPlaylist.open()
         })
@@ -75,6 +87,11 @@ export default struct Playlists {
             .borderRadius(10)
             .backgroundColor(Color.Transparent)
             .padding({ left: 20, right: 20 })
+            .margin({
+              bottom: this.startPlaying
+                ? (index === this.playlists.length - 1 ? 95 : 0)
+                : (index === this.playlists.length - 1 ? 10 : 0)
+            })
             .onClick(() => {
               this.playlist = playlist
               this.pageStack.pushPathByName('PlaylistDetail', undefined);
@@ -86,7 +103,6 @@ export default struct Playlists {
       .height('100%')
       .layoutWeight(1)
       .alignListItem(ListItemAlign.Center)
-      .padding({ bottom: this.startPlaying === true ? 95 : 10 })
       .listDirection(Axis.Vertical)
       .scrollBar(BarState.Off)
       .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})

@@ -1,9 +1,10 @@
 import { Album, Artist, Line, MusicFolder, SearchResult, Song, StructuredLyric } from '../utils/Interface';
-import { curves } from '@kit.ArkUI';
+import { CircleShape } from '@kit.ArkUI';
 import { getLyrics, getSong, search, searchAlbums, searchArtists, searchSongs } from '../utils/Api';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ShadowArtistImage, ShadowCoverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -138,6 +139,15 @@ export default struct Search_ {
           .layoutWeight(1)
           .borderRadius(10)
           .margin({ left: 20, right: 20 })
+          .shadow({
+            radius: 6,
+            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          })
+          .border({
+            width: deviceTypeInfo === '2in1' ? 1 : 0,
+            radius: 10,
+            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          })
           .searchIcon({
             size: 0
           })
@@ -203,7 +213,7 @@ export default struct Search_ {
             }
           })
       }
-      .padding({ bottom: 5 })
+      .padding({ top: 5, bottom: 5 })
 
       Stack() {
         Tabs({ barPosition: BarPosition.Start, index: $$this.searchTabIndex }) {
@@ -215,79 +225,93 @@ export default struct Search_ {
                     .fontSize(20)
                     .fontColor($r('app.color.font'))
                     .fontWeight(FontWeight.Medium)
-                    .margin({ top: 8, bottom: 5, left: 20 })
+                    .margin({ top: 13, bottom: 5, left: 20 })
                     .alignSelf(ItemAlign.Start)
 
-                  ForEach(this.searchSongs, (song: Song, index) => {
-                    if (index < 5) {
-                      Button({ type: ButtonType.Normal }) {
-                        Row() {
-                          Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                            .alt($rawfile('nocover.png'))
-                            .objectFit(ImageFit.Contain)
-                            .width(60)
-                            .aspectRatio(1)
-                            .borderRadius(5)
-                          Column() {
-                            Text(song.title)
-                              .fontSize(18)
-                              .fontColor($r('app.color.font'))
-                              .maxLines(1)
-                              .textOverflow({ overflow: TextOverflow.Ellipsis })
-                            Text(song.artist + " - " + song.album)
-                              .fontSize(15)
-                              .fontColor($r('app.color.font_secondary'))
-                              .margin({ top: 5 })
-                              .maxLines(1)
-                              .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  List() {
+                    ForEach(this.searchSongs, (song: Song, index) => {
+                      if (index < (this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1)) * 5) {
+                        ListItem() {
+                          Button({ type: ButtonType.Normal }) {
+                            Row() {
+                              Column(){
+                                ShadowCoverImage({
+                                  url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                                  radius: 5
+                                })
+                              }
+                              .width(60)
+                              .aspectRatio(1)
+                              .justifyContent(FlexAlign.Center)
+
+                              Column() {
+                                Text(song.title)
+                                  .fontSize(18)
+                                  .fontColor($r('app.color.font'))
+                                  .maxLines(1)
+                                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                                Text(song.artist + " - " + song.album)
+                                  .fontSize(15)
+                                  .fontColor($r('app.color.font_secondary'))
+                                  .margin({ top: 5 })
+                                  .maxLines(1)
+                                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                              }
+                              .width('100%')
+                              .layoutWeight(1)
+                              .margin({ left: 10 })
+                              .alignItems(HorizontalAlign.Start)
+                            }
+                            .width('100%')
+                            .height('100%')
+                            .padding({ right: 15 })
                           }
                           .width('100%')
-                          .layoutWeight(1)
-                          .margin({ left: 10 })
-                          .alignItems(HorizontalAlign.Start)
-                        }
-                        .width('100%')
-                        .height('100%')
-                        .padding({ right: 15 })
-                      }
-                      .width('100%')
-                      .height(80)
-                      .borderRadius(10)
-                      .backgroundColor(Color.Transparent)
-                      .padding({ left: 20, right: 20 })
-                      .animation({ curve: curves.springMotion(0.6, 1) })
-                      .onClick(async () => {
-                        this.startPlaying = true
-                        await this.avPlayer!.reset()
-                        this.isPlaying = true
-                        this.nowPlayingSong = song
-                        this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
-                        if (this.nowPlayingLyrics !== undefined) {
-                          this.groupLyrics()
-                        }
-                        this.nowPlayingListOriginal = this.searchSongs.slice()
-                        if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
-                          this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
-                        } else {
-                          this.nowPlayingList = this.nowPlayingListOriginal.slice()
-                        }
-                        this.getNowPlayingIndex(song, this.nowPlayingList)
-                        this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
-                      })
-                      .gesture(
-                        LongPressGesture()
-                          .onAction(async (event: GestureEvent) => {
-                            this.longPressSong = song
-                            this.showMenu = true
-                            let tmp_song: Song | undefined =
-                              await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
-                            if (tmp_song !== undefined && tmp_song.starred !== undefined) {
-                              this.longPressSong!.starred = tmp_song.starred
+                          .height(80)
+                          .borderRadius(10)
+                          .backgroundColor(Color.Transparent)
+                          .padding({ left: 20, right: 20 })
+                          .onClick(async () => {
+                            this.startPlaying = true
+                            await this.avPlayer!.reset()
+                            this.isPlaying = true
+                            this.nowPlayingSong = song
+                            this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+                            if (this.nowPlayingLyrics !== undefined) {
+                              this.groupLyrics()
                             }
+                            this.nowPlayingListOriginal = this.searchSongs.slice()
+                            if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SHUFFLE) {
+                              this.nowPlayingList = this.shuffleList(this.nowPlayingListOriginal.slice())
+                            } else {
+                              this.nowPlayingList = this.nowPlayingListOriginal.slice()
+                            }
+                            this.getNowPlayingIndex(song, this.nowPlayingList)
+                            this.avPlayer!.url =
+                              this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
                           })
-                      )
-                    }
-                  })
+                          .gesture(
+                            LongPressGesture()
+                              .onAction(async (event: GestureEvent) => {
+                                this.longPressSong = song
+                                this.showMenu = true
+                                let tmp_song: Song | undefined =
+                                  await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                                if (tmp_song !== undefined && tmp_song.starred !== undefined) {
+                                  this.longPressSong!.starred = tmp_song.starred
+                                }
+                              })
+                          )
+                        }
+                      }
+                    })
+                  }
+                  .width('100%')
+                  .height('auto')
+                  .scrollBar(BarState.Off)
+                  .listDirection(Axis.Vertical)
+                  .lanes(this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1))
+                  .edgeEffect(EdgeEffect.None)
                 }
                 .width('100%')
                 .padding({ bottom: this.searchAlbums.length > 0 ? 0 : 10 })
@@ -339,7 +363,7 @@ export default struct Search_ {
                   }
                   .width('100%')
                   .padding({ left: 20, right: 20 })
-                  .margin({ top: 5 })
+                  .margin({ top: 10 })
                   .justifyContent(FlexAlign.SpaceBetween)
                   .alignItems(VerticalAlign.Bottom)
 
@@ -349,25 +373,47 @@ export default struct Search_ {
                         ListItem() {
                           Button({ type: ButtonType.Normal }) {
                             Column() {
-                              Image(this.baseURL + this.getCoverUrl + this.auth +
-                                `&id=${album.id}&size=${this.coverSize}`)
-                                .alt($rawfile('nocover.png'))
-                                .objectFit(ImageFit.Contain)
-                                .height('100%')
-                                .aspectRatio(1)
-                                .borderRadius(10)
-                                .margin(10)
+                              Column(){
+                                ShadowCoverImage({
+                                  url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                                  radius: 10
+                                })
+                              }
+                              .height('100%')
+                              .layoutWeight(1)
+                              .aspectRatio(1)
+                              .justifyContent(FlexAlign.Center)
+
+                              Column() {
+                                Text(album.title)
+                                  .fontSize(17)
+                                  .fontWeight(FontWeight.Medium)
+                                  .fontColor($r('app.color.font'))
+                                  .margin({ top: 5 })
+                                  .maxLines(1)
+                                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                                  .wordBreak(WordBreak.BREAK_ALL)
+                                Text(album.artist)
+                                  .fontSize(14)
+                                  .fontColor($r('app.color.font_secondary'))
+                                  .maxLines(1)
+                                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                                  .wordBreak(WordBreak.BREAK_ALL)
+                              }
+                              .alignItems(HorizontalAlign.Start)
+                              .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                             }
                             .width('auto')
                             .height('100%')
+                            .alignItems(HorizontalAlign.Start)
                           }
                           .width('auto')
                           .height('100%')
+                          .padding({ left: 10, right: 10, top: 10, bottom: 7 })
                           .margin({
                             left: index === 0 ? 10 : 0,
                             right: index === this.searchAlbums.length - 1 ? 10 : 0
                           })
-                          .animation({ curve: curves.springMotion(0.6, 1) })
                           .borderRadius(10)
                           .backgroundColor(Color.Transparent)
                           .onClick(() => {
@@ -386,7 +432,7 @@ export default struct Search_ {
                   .edgeEffect(EdgeEffect.Spring)
                 }
                 .width('100%')
-                .height(this.displayWidth > 1400 ? 250 : 210)
+                .height(this.displayWidth > 1400 ? 290 : (this.displayWidth > 1200 ? 270 : 250))
                 .padding({ bottom: this.searchArtists.length > 0 ? 0 : 10 })
                 .visibility(this.searchAlbums.length > 0 ? Visibility.Visible : Visibility.None)
 
@@ -436,7 +482,7 @@ export default struct Search_ {
                   }
                   .width('100%')
                   .padding({ left: 20, right: 20 })
-                  .margin({ top: 5 })
+                  .margin({ top: 10 })
                   .justifyContent(FlexAlign.SpaceBetween)
                   .alignItems(VerticalAlign.Bottom)
 
@@ -446,34 +492,35 @@ export default struct Search_ {
                         ListItem() {
                           Button({ type: ButtonType.Normal }) {
                             Column() {
-                              Image(this.baseURL + this.getCoverUrl + this.auth +
-                                `&id=${artist.id}&size=${this.profileSize}`)
-                                .alt($rawfile('noprofile.jpg'))
-                                .objectFit(ImageFit.Cover)
-                                .height('100%')
+                              Column(){
+                                ShadowArtistImage({
+                                  url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
+                                })
+                              }
+                                .width('100%')
                                 .layoutWeight(1)
                                 .aspectRatio(1)
-                                .borderRadius(100)
-                                .margin(10)
+                                .justifyContent(FlexAlign.Center)
                               Text(artist.name)
                                 .width('100%')
                                 .fontSize(16)
                                 .fontColor($r('app.color.font'))
-                                .margin({ bottom: 10, left: 10, right: 10 })
+                                .margin({ top: 10 })
                                 .maxLines(1)
                                 .textAlign(TextAlign.Center)
                                 .textOverflow({ overflow: TextOverflow.Ellipsis })
+                                .wordBreak(WordBreak.BREAK_ALL)
                             }
+                            .padding(10)
                             .width('100%')
-                            .height('100%')
+                            .height('auto')
                           }
-                          .width(this.displayWidth > 1400 ? 160 : 124)
-                          .height('100%')
+                          .width(this.displayWidth > 1400 ? 160 : 125)
+                          .height('auto')
                           .margin({
                             left: index === 0 ? 10 : 0,
                             right: index === this.searchArtists.length - 1 ? 10 : 0
                           })
-                          .animation({ curve: curves.springMotion(0.6, 1) })
                           .borderRadius(10)
                           .backgroundColor(Color.Transparent)
                           .onClick(() => {
@@ -528,12 +575,15 @@ export default struct Search_ {
                 ListItem() {
                   Button({ type: ButtonType.Normal }) {
                     Row() {
-                      Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                        .alt($rawfile('nocover.png'))
-                        .objectFit(ImageFit.Contain)
-                        .width(60)
-                        .aspectRatio(1)
-                        .borderRadius(5)
+                      Column(){
+                        ShadowCoverImage({ url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                          radius: 5
+                        })
+                      }
+                      .width(60)
+                      .aspectRatio(1)
+                      .justifyContent(FlexAlign.Center)
+
                       Column() {
                         Text(song.title)
                           .fontSize(18)
@@ -566,7 +616,6 @@ export default struct Search_ {
                       ? (index === this.searchSongs.length - 1 ? 95 : 0)
                       : (index === this.searchSongs.length - 1 ? 10 : 0)
                   })
-                  .animation({ curve: curves.springMotion(0.6, 1) })
                   .onClick(async () => {
                     this.startPlaying = true
                     await this.avPlayer!.reset()
@@ -617,6 +666,7 @@ export default struct Search_ {
             .width('100%')
             .height('100%')
             .layoutWeight(1)
+            .lanes(this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1))
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
             .visibility(this.searched === true ? Visibility.Visible : Visibility.None)
@@ -649,22 +699,43 @@ export default struct Search_ {
                   GridItem() {
                     Button({ type: ButtonType.Normal }) {
                       Column() {
-                        Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                          .alt($rawfile('nocover.png'))
-                          .objectFit(ImageFit.Contain)
-                          .width('100%')
-                          .aspectRatio(1)
-                          .borderRadius(10)
-                          .margin(10)
+                        Column(){
+                          ShadowCoverImage({
+                            url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                            radius: 10
+                          })
+                        }
+                        .width('100%')
+                        .height('auto')
+                        .layoutWeight(1)
+                        .aspectRatio(1)
+                        .justifyContent(FlexAlign.Center)
+
+                        Text(album.title)
+                          .fontSize(17)
+                          .fontWeight(FontWeight.Medium)
+                          .fontColor($r('app.color.font'))
+                          .margin({ top: 5 })
+                          .maxLines(1)
+                          .textOverflow({ overflow: TextOverflow.Ellipsis })
+                          .wordBreak(WordBreak.BREAK_ALL)
+                        Text(album.artist)
+                          .fontSize(14)
+                          .fontColor($r('app.color.font_secondary'))
+                          .maxLines(1)
+                          .textOverflow({ overflow: TextOverflow.Ellipsis })
+                          .wordBreak(WordBreak.BREAK_ALL)
                       }
                       .width('100%')
                       .height('auto')
+                      .alignItems(HorizontalAlign.Start)
                     }
                     .width('100%')
                     .height('auto')
-                    .margin({ bottom: this.startPlaying === true && index === this.searchAlbums.length - 1 ? 85 : 0 })
-                    .animation({ curve: curves.springMotion(0.6, 1) })
                     .borderRadius(10)
+                    .clip(true)
+                    .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+                    .margin({ bottom: this.startPlaying === true && index === this.searchAlbums.length - 1 ? 85 : 0 })
                     .backgroundColor(Color.Transparent)
                     .onClick(() => {
                       this.album = album
@@ -727,29 +798,31 @@ export default struct Search_ {
                   GridItem() {
                     Button({ type: ButtonType.Normal }) {
                       Column() {
-                        Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                          .alt($rawfile('noprofile.jpg'))
-                          .objectFit(ImageFit.Cover)
+                        Column(){
+                          ShadowArtistImage({
+                            url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
+                          })
+                        }
                           .width('100%')
                           .aspectRatio(1)
-                          .borderRadius(10000)
-                          .margin({ top: 10, left: 10, right: 10 })
+                          .justifyContent(FlexAlign.Center)
                         Text(artist.name)
                           .width('100%')
                           .fontSize(16)
                           .fontColor($r('app.color.font'))
-                          .margin(10)
+                          .margin({ top: 10 })
                           .maxLines(1)
                           .textAlign(TextAlign.Center)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
+                          .wordBreak(WordBreak.BREAK_ALL)
                       }
+                      .padding(10)
                       .width('100%')
                       .height('auto')
                     }
                     .width('100%')
                     .height('auto')
                     .margin({ bottom: this.startPlaying === true && index === this.searchArtists.length - 1 ? 85 : 0 })
-                    .animation({ curve: curves.springMotion(0.6, 1) })
                     .borderRadius(10)
                     .backgroundColor(Color.Transparent)
                     .onClick(() => {
@@ -821,6 +894,7 @@ export default struct Search_ {
           Image($r('app.media.totop'))
             .width(20)
             .aspectRatio(1)
+            .draggable(false)
         }
         .position({
           right: 15,
@@ -833,8 +907,8 @@ export default struct Search_ {
         .backgroundColor(Color.Transparent)
         .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
         .shadow({
-          radius: 20,
-          color: $r('app.color.shadow'),
+          radius: 12,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark'),
         })
         .onClick(async () => {
           switch (this.searchTabIndex) {

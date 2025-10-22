@@ -1,5 +1,8 @@
 import { deletePlaylist, getPlaylist, getPlaylists, updatePlaylist } from '../../utils/Api'
 import { Playlist } from '../../utils/Interface'
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @CustomDialog
 export default struct editPlaylistBuilder {
@@ -84,7 +87,16 @@ export default struct editPlaylistBuilder {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(async () => {
           this.editPlaylist.close()
           let success = await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, this.name, this.comment)
@@ -113,7 +125,16 @@ export default struct editPlaylistBuilder {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor(Color.Red)
+        .backgroundColor($r('sys.color.warning'))
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(async () => {
           this.editPlaylist.close()
           let success = await deletePlaylist(this.baseURL, this.username, this.password, this.playlist!.id)

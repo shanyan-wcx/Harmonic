@@ -1,7 +1,8 @@
 import { Album, Artist, MusicFolder } from '../utils/Interface';
-import { curves, LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
+import { LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ShadowArtistImage, ShadowCoverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -75,21 +76,24 @@ export default struct ArtistDetail {
     NavDestination() {
       Scroll() {
         Column() {
-          Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`)
-            .alt($rawfile('noprofile.jpg'))
-            .objectFit(ImageFit.Cover)
-            .width(this.displayWidth > 1400 ? 180 : 120)
+          Column(){
+            ShadowArtistImage({
+              url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`
+            })
+          }
+            .width(this.displayWidth > 1400 ? 160 : (this.displayWidth > 1200 ? 140 : 120))
             .aspectRatio(1)
-            .borderRadius(10000)
+            .justifyContent(FlexAlign.Center)
           Column() {
             Text(this.artist!.name)
-              .fontSize(this.displayWidth > 1400 ? 30 : 24)
+              .fontSize(this.displayWidth > 1400 ? 28 : 24)
               .fontColor($r('app.color.font'))
               .fontWeight(FontWeight.Bold)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .wordBreak(WordBreak.BREAK_ALL)
             Text(this.artist!.biography)
-              .fontSize(this.displayWidth > 1400 ? 22 : 18)
+              .fontSize(this.displayWidth > 1400 ? 20 : 18)
               .fontColor($r('app.color.font_secondary'))
               .margin({ top: 10 })
               .maxLines(3)
@@ -123,20 +127,41 @@ export default struct ArtistDetail {
               GridItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .width('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
-                      .margin(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .width('100%')
+                    .height('auto')
+                    .layoutWeight(1)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+
+                    Text(album.title)
+                      .fontSize(17)
+                      .fontWeight(FontWeight.Medium)
+                      .margin({ top: 5 })
+                      .maxLines(1)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .wordBreak(WordBreak.BREAK_ALL)
+                    Text(album.songCount + "首·" + (album.year !== undefined ? album.year.toString() : '-'))
+                      .fontSize(14)
+                      .fontColor($r('sys.color.font_secondary'))
+                      .maxLines(1)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .wordBreak(WordBreak.BREAK_ALL)
                   }
                   .width('100%')
-                  .aspectRatio(1)
+                  .height('auto')
+                  .alignItems(HorizontalAlign.Start)
                 }
                 .width('100%')
-                .aspectRatio(1)
+                .height('auto')
                 .borderRadius(10)
+                .clip(true)
+                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.album = album
@@ -157,11 +182,11 @@ export default struct ArtistDetail {
         }
         .width('100%')
         .height('auto')
+        .margin({ top: 10 })
       }
       .width('100%')
       .height('100%')
       .padding({ bottom: this.startPlaying === true ? 85 : 0 })
-      .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
       .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)

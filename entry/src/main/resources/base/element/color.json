@@ -2,7 +2,7 @@
   "color": [
     {
       "name": "start_window_background",
-      "value": "#EDEEF0"
+      "value": "#F0F3F5"
     },
     {
       "name": "statusbar",
@@ -10,11 +10,11 @@
     },
     {
       "name": "content_background",
-      "value": "#EDEEF0"
+      "value": "#F0F3F5"
     },
     {
       "name": "bar_background",
-      "value": "#F8F9FB"
+      "value": "#FFFFFF"
     },
     {
       "name": "button_selected",

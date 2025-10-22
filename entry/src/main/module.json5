@@ -65,31 +65,13 @@
     ],
     "requestPermissions": [
       {
-        "name": "ohos.permission.INTERNET",
-        "reason": "$string:module_desc",
-        "usedScene": {
-          "abilities": [
-            "entry"
-          ]
-        }
+        "name": "ohos.permission.INTERNET"
       },
       {
-        "name": "ohos.permission.GET_NETWORK_INFO",
-        "reason": "$string:module_desc",
-        "usedScene": {
-          "abilities": [
-            "entry"
-          ]
-        }
+        "name": "ohos.permission.GET_NETWORK_INFO"
       },
       {
-        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
-        "reason": "$string:module_desc",
-        "usedScene": {
-          "abilities": [
-            "entry"
-          ]
-        }
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING"
       }
     ]
   }

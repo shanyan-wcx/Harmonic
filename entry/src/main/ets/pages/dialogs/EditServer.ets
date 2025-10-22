@@ -1,4 +1,7 @@
 import { ping } from "../../utils/Api"
+import { deviceInfo } from "@kit.BasicServicesKit";
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @CustomDialog
 export default struct editServerBuilder {
@@ -181,7 +184,16 @@ export default struct editServerBuilder {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(async () => {
           if (this.tmpUrl === "") {
             this.getUIContext().getPromptAction().showToast({
@@ -218,7 +230,16 @@ export default struct editServerBuilder {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor(Color.Red)
+        .backgroundColor($r('sys.color.warning'))
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(async () => {
           if (this.editServerIdx === this.serverIdx) {
             this.getUIContext().getPromptAction().showToast({

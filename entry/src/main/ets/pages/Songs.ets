@@ -2,6 +2,7 @@ import { Song, StructuredLyric, Line, MusicFolder } from '../utils/Interface'
 import { media } from '@kit.MediaKit'
 import { getAllSongs, getLyrics, getSong } from '../utils/Api'
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
+import { ShadowCoverImage } from '../utils/Component';
 
 @Component
 export default struct Songs {
@@ -35,6 +36,7 @@ export default struct Songs {
   @Consume songsPage: number
   @Consume musicFolders: MusicFolder[]
   @Consume libraryStates: Record<number, boolean>
+  @Consume displayWidth: number
   private songsScroller: Scroller = new Scroller
 
   shuffleList<T>(array: T[]): T[] {
@@ -82,12 +84,16 @@ export default struct Songs {
             ListItem() {
               Button({ type: ButtonType.Normal }) {
                 Row() {
-                  Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                    .alt($rawfile('nocover.png'))
-                    .objectFit(ImageFit.Contain)
-                    .width(60)
-                    .aspectRatio(1)
-                    .borderRadius(5)
+                  Column(){
+                    ShadowCoverImage({
+                      url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                      radius: 5
+                    })
+                  }
+                  .width(60)
+                  .aspectRatio(1)
+                  .justifyContent(FlexAlign.Center)
+
                   Column() {
                     Text(song.title)
                       .fontSize(18)
@@ -159,6 +165,7 @@ export default struct Songs {
         .listDirection(Axis.Vertical)
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
+        .lanes(this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1))
         .onReachEnd(async () => {
           let size = 500
           let keys = Object.keys(this.libraryStates)
@@ -198,6 +205,7 @@ export default struct Songs {
         Image($r('app.media.totop'))
           .width(20)
           .aspectRatio(1)
+          .draggable(false)
       }
       .position({
         right: 15,
@@ -210,8 +218,8 @@ export default struct Songs {
       .backgroundColor(Color.Transparent)
       .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
       .shadow({
-        radius: 20,
-        color: $r('app.color.shadow'),
+        radius: 12,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark'),
       })
       .onClick(async () => {
         this.songsScroller.scrollEdge(Edge.Top)

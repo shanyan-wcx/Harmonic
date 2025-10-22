@@ -47,6 +47,7 @@ import { KeyCode } from '@kit.InputKit';
 import { i18n, intl } from '@kit.LocalizationKit';
 import Songs from './Songs';
 import app from '@system.app';
+import { ShadowCoverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -155,7 +156,7 @@ struct Index {
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 350,
-    height: 372,
+    height: 380,
     backgroundColor: $r('app.color.start_window_background')
   })
   info: CustomDialogController = new CustomDialogController({
@@ -836,11 +837,12 @@ struct Index {
         Image(this.themeIcon)
           .width(deviceTypeInfo === '2in1' ? 18 : 24)
           .aspectRatio(1)
+          .draggable(false)
       }
-      .margin({ right: deviceTypeInfo === '2in1' ? 156 : 0 })
+      .margin({ right: deviceTypeInfo === '2in1' ? 160 : 0 })
       .width(deviceTypeInfo === '2in1' ? 40 : 48)
       .aspectRatio(1)
-      .borderRadius(deviceTypeInfo === '2in1' ? 3 : 8)
+      .borderRadius(deviceTypeInfo === '2in1' ? 4 : 8)
       .backgroundColor(Color.Transparent)
       .onClick(() => {
         if (this.theme === ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET) {
@@ -1068,6 +1070,7 @@ struct Index {
         Image($r('app.media.sidebar'))
           .width(24)
           .aspectRatio(1)
+          .draggable(false)
       }
       .width(48)
       .height(48)
@@ -1098,6 +1101,10 @@ struct Index {
             .fontColor([$r('app.color.font')])
         }
       }
+      .shadow({
+        radius: 6,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+      })
       .padding({
         left: this.displayWidth > 1400 ? 15 : 12,
         right: this.displayWidth > 1400 ? 15 : 12,
@@ -1106,7 +1113,12 @@ struct Index {
       })
       .margin({ left: 10 })
       .borderRadius(8)
-      .backgroundColor($r('app.color.button_selected'))
+      .border({
+        width: deviceTypeInfo === '2in1' ? 1 : 0,
+        radius: 8,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+      })
+      .backgroundColor($r('sys.color.comp_background_tertiary'))
       .bindContextMenu(this.showLibrary, this.musicFolderMenu, {
         borderRadius: 10,
         backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
@@ -1350,6 +1362,7 @@ struct Index {
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
+                  .draggable(false)
                 Text("首页")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
@@ -1358,8 +1371,18 @@ struct Index {
             }
             .width('100%')
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 0 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 0 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 0 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 0 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1377,6 +1400,7 @@ struct Index {
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
+                  .draggable(false)
                 Text("搜索")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
@@ -1385,8 +1409,18 @@ struct Index {
             }
             .width('100%')
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 1 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 1 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 1 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 1 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1404,6 +1438,7 @@ struct Index {
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
+                  .draggable(false)
                 Text("专辑")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
@@ -1412,8 +1447,18 @@ struct Index {
             }
             .width('100%')
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 2 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 2 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 2 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 2 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1431,6 +1476,7 @@ struct Index {
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
+                  .draggable(false)
                 Text("艺术家")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
@@ -1439,8 +1485,18 @@ struct Index {
             }
             .width('100%')
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 3 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 3 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 3 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 3 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1458,6 +1514,7 @@ struct Index {
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
+                  .draggable(false)
                 Text("歌曲")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
@@ -1466,8 +1523,18 @@ struct Index {
             }
             .width('100%')
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 4 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 4 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 4 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 4 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1485,6 +1552,7 @@ struct Index {
                   .width(24)
                   .aspectRatio(1)
                   .margin({ right: 10 })
+                  .draggable(false)
                 Text("歌单")
                   .fontSize(20)
                   .fontColor($r('app.color.font'))
@@ -1493,8 +1561,18 @@ struct Index {
             }
             .width('100%')
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 5 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 5 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 5 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1509,7 +1587,7 @@ struct Index {
           .width('90%')
           .height('auto')
           .borderRadius(10)
-          .clip(true)
+          .clip(false)
           .backgroundColor($r('app.color.content_background'))
 
           Blank()
@@ -1520,12 +1598,23 @@ struct Index {
                 Image($r('app.media.setting'))
                   .width(24)
                   .height(24)
+                  .draggable(false)
               }
             }
             .width(50)
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 6 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 6 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 6 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1542,12 +1631,23 @@ struct Index {
                 Image($r('app.media.info'))
                   .width(26)
                   .height(26)
+                  .draggable(false)
               }
             }
             .width(50)
             .height(50)
-            .borderRadius(10)
+            .borderRadius(8)
             .backgroundColor(this.nowPage === 7 ? $r('app.color.button_selected') : $r('app.color.content_background'))
+            .shadow({
+              radius: this.nowPage === 7 ? 6 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' && this.nowPage === 7 ? 1 : 0,
+              radius: 8,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .zIndex(this.nowPage === 7 ? 1 : 0)
             .onClick(() => {
               this.uiContext?.animateTo({
                 duration: 300,
@@ -1562,7 +1662,7 @@ struct Index {
           .width('90%')
           .height('auto')
           .borderRadius(10)
-          .clip(true)
+          .clip(false)
           .backgroundColor($r('app.color.content_background'))
           .justifyContent(FlexAlign.SpaceBetween)
         }
@@ -1575,9 +1675,7 @@ struct Index {
         })
         .shadow({
           radius: this.shadowRadius,
-          color: $r('app.color.shadow'),
-          offsetX: 0,
-          offsetY: 0
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
         })
 
         Stack() {
@@ -1661,7 +1759,7 @@ struct Index {
               .height('100%')
               .width('100%')
               .justifyContent(FlexAlign.Center)
-              .visibility(this.showProgress === true && this.nowPage <= 4 ? Visibility.Visible : Visibility.None)
+              .visibility(this.showProgress === true && this.nowPage <= 5 ? Visibility.Visible : Visibility.None)
             }
           }
           .mode(NavigationMode.Stack)
@@ -1705,14 +1803,17 @@ struct Index {
               if (this.showPlay === false) {
                 Row() {
                   Row() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth +
-                      `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .width(60)
-                      .aspectRatio(1)
-                      .borderRadius(5)
-                      .geometryTransition("cover_overlay")
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                        radius: 5
+                      })
+                    }
+                    .width(60)
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
+                    .geometryTransition("cover_overlay")
+
                     Column() {
                       Marquee({
                         start: true,
@@ -1744,6 +1845,7 @@ struct Index {
                       Image($r('app.media.prev'))
                         .width(30)
                         .height(30)
+                        .draggable(false)
                     }
                     .width(35)
                     .height(35)
@@ -1783,6 +1885,7 @@ struct Index {
                         Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
                           .width(25)
                           .height(25)
+                          .draggable(false)
                       }
                       .width(45)
                       .height(45)
@@ -1809,6 +1912,7 @@ struct Index {
                       Image($r('app.media.next'))
                         .width(30)
                         .height(30)
+                        .draggable(false)
                     }
                     .width(35)
                     .height(35)
@@ -1834,7 +1938,7 @@ struct Index {
                   .justifyContent(FlexAlign.SpaceBetween)
                 }
                 .opacity(this.showPlay ? 0 : 1)
-                .padding({ left: 15, right: 15, bottom: 5 })
+                .padding({ left: 16, right: 15, bottom: 5 })
                 .onClick(() => {
                   if (this.showPlay === true) {
                     this.showPlay = false
@@ -1878,6 +1982,14 @@ struct Index {
             .position({
               bottom: 0,
               right: 0
+            })
+            .border({
+              width: deviceTypeInfo === '2in1' ? 1 : 0,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            })
+            .shadow({
+              radius: 12,
+              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
             })
             .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
             .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
@@ -1948,14 +2060,17 @@ struct Index {
           if (this.showPlay === false) {
             Row() {
               Row() {
-                Image(this.baseURL + this.getCoverUrl + this.auth +
-                  `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
-                  .width(60)
-                  .aspectRatio(1)
-                  .borderRadius(5)
-                  .geometryTransition("cover_embed")
+                Column(){
+                  ShadowCoverImage({
+                    url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                    radius: 5
+                  })
+                }
+                .width(60)
+                .aspectRatio(1)
+                .justifyContent(FlexAlign.Center)
+                .geometryTransition("cover_embed")
+
                 Column() {
                   Marquee({
                     start: true,
@@ -1987,6 +2102,7 @@ struct Index {
                   Image($r('app.media.prev'))
                     .width(30)
                     .height(30)
+                    .draggable(false)
                 }
                 .width(35)
                 .height(35)
@@ -2026,6 +2142,7 @@ struct Index {
                     Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
                       .width(25)
                       .height(25)
+                      .draggable(false)
                   }
                   .width(45)
                   .height(45)
@@ -2052,6 +2169,7 @@ struct Index {
                   Image($r('app.media.next'))
                     .width(30)
                     .height(30)
+                    .draggable(false)
                 }
                 .width(35)
                 .height(35)
@@ -2112,6 +2230,14 @@ struct Index {
             }
           }
         }
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 12,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)
         .height(this.showPlay ? '100%' : 85)
         .justifyContent(FlexAlign.Center)

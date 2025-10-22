@@ -1,9 +1,10 @@
-import { curves, LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
+import { LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ShadowCoverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -126,21 +127,25 @@ export default struct AlbumDetail {
       Scroll() {
         Column() {
           Row() {
-            Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`)
-              .alt($rawfile('nocover.png'))
-              .objectFit(ImageFit.Contain)
-              .width(this.displayWidth > 1400 ? 200 : 140)
-              .aspectRatio(1)
-              .borderRadius(10)
-              .margin({ left: 20 })
+            Column(){
+              ShadowCoverImage({
+                url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`,
+                radius: 10
+              })
+            }
+            .width(this.displayWidth > 1400 ? 200 : (this.displayWidth > 1000 ? 175 : 150))
+            .aspectRatio(1)
+            .margin({ left: 20 })
+            .justifyContent(FlexAlign.Center)
+
             Column() {
               Text(this.album.name)
-                .fontSize(this.displayWidth > 1400 ? 30 : 24)
+                .fontSize(this.displayWidth > 1400 ? 28 : 24)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
               Button({ type: ButtonType.Normal }) {
                 Text(this.album.artist)
-                  .fontSize(this.displayWidth > 1400 ? 22 : 17)
+                  .fontSize(this.displayWidth > 1400 ? 20 : 18)
                   .fontColor($r('app.color.font_secondary'))
               }
               .margin({ top: 5 })
@@ -159,7 +164,7 @@ export default struct AlbumDetail {
           }
           .width('100%')
           .height('auto')
-          .margin({ top: 15 })
+          .margin({ top: 10 })
           .justifyContent(FlexAlign.Start)
 
           Row() {
@@ -359,7 +364,6 @@ export default struct AlbumDetail {
       .width('100%')
       .height('100%')
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
-      .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
       .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)

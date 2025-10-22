@@ -22,7 +22,7 @@
     },
     {
       "name": "font",
-      "value": "#F8F9FB"
+      "value": "#FFFFFF"
     },
     {
       "name": "font_secondary",
@@ -38,7 +38,7 @@
     },
     {
       "name": "progress",
-      "value": "#EDEEF0"
+      "value": "#F0F3F5"
     },
     {
       "name": "progress_background",
@@ -50,7 +50,7 @@
     },
     {
       "name": "indicator",
-      "value": "#EDEEF0"
+      "value": "#F0F3F5"
     },
     {
       "name": "index",

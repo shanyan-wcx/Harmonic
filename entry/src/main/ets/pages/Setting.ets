@@ -1,6 +1,9 @@
 import { ping } from '../utils/Api'
 import addServerBuilder from './dialogs/AddServer'
 import editServerBuilder from './dialogs/EditServer'
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @Component
 export default struct Setting {
@@ -107,6 +110,7 @@ export default struct Setting {
                 Image($r('app.media.edit'))
                   .width(20)
                   .height(20)
+                  .draggable(false)
               }
               .height(40)
               .width(40)
@@ -128,8 +132,17 @@ export default struct Setting {
           .width('100%')
           .height(50)
           .borderRadius(10)
-          .backgroundColor($r('app.color.content_background'))
+          .backgroundColor($r('sys.color.comp_background_tertiary'))
           .margin({ top: 10, bottom: 20 })
+          .border({
+            width: deviceTypeInfo === '2in1' ? 1 : 0,
+            radius: 10,
+            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          })
+          .shadow({
+            radius: 6,
+            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          })
           .onClick(async () => {
             this.addServer.open()
           })

@@ -49,6 +49,7 @@ export default struct About {
           Image($r('app.media.github'))
             .width(25)
             .height(25)
+            .draggable(false)
             .onClick(() => {
               let want: Want = {
                 action: 'ohos.want.action.viewData',
@@ -73,9 +74,9 @@ export default struct About {
           Text("查看引导")
             .fontSize(20)
             .fontColor($r('app.color.font'))
-          Text(">")
-            .fontSize(20)
-            .fontColor($r('app.color.font'))
+          SymbolGlyph($r('sys.symbol.chevron_right'))
+            .fontSize(24)
+            .fontColor([$r('app.color.font')])
         }
         .width('100%')
         .height('100%')

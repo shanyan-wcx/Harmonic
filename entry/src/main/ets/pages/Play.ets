@@ -21,6 +21,7 @@ import { common } from '@kit.AbilityKit';
 import { BusinessError, request } from '@kit.BasicServicesKit';
 import { fileUri, fileIo as fs, picker } from '@kit.CoreFileKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
+import { ShadowCoverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -115,7 +116,7 @@ export default struct Play {
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder(),
     width: 350,
-    height: 372,
+    height: 380,
     backgroundColor: $r('app.color.start_window_background'),
   })
   info: CustomDialogController = new CustomDialogController({
@@ -280,6 +281,7 @@ export default struct Play {
     Image($r('app.media.radiowave'))
       .width(30)
       .height(30)
+      .draggable(false)
   }
 
   @Builder
@@ -330,9 +332,18 @@ export default struct Play {
             .fontColor($r('app.color.font'))
         }
         .width('47%')
-        .height(60)
+        .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(() => {
           this.sleepTime = this.sleepValue * 60
           this.showSleep = false
@@ -344,9 +355,18 @@ export default struct Play {
             .fontColor($r('app.color.font'))
         }
         .width('47%')
-        .height(60)
+        .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('sys.color.warning'))
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        })
         .onClick(() => {
           this.sleepTime = 0
           this.sleepValue = 0
@@ -365,11 +385,20 @@ export default struct Play {
       Image($r('app.media.delete'))
         .width(30)
         .height(30)
+        .draggable(false)
     }
     .width(40)
     .height(40)
     .margin({ left: 10, right: 10 })
-    .backgroundColor(Color.Red)
+    .backgroundColor($r('sys.color.warning'))
+    .border({
+      width: deviceTypeInfo === '2in1' ? 1.6 : 0.6,
+      color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+    })
+    .shadow({
+      radius: 6,
+      color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+    })
     .onClick(() => {
       if (index === this.nowPlayingIndex) {
         this.uiContext!.getPromptAction().showToast({
@@ -393,12 +422,16 @@ export default struct Play {
           ListItem() {
             Button({ type: ButtonType.Normal }) {
               Row() {
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
-                  .width(45)
-                  .aspectRatio(1)
-                  .borderRadius(5)
+                Column(){
+                  ShadowCoverImage({
+                    url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                    radius: 5
+                  })
+                }
+                .width(45)
+                .aspectRatio(1)
+                .justifyContent(FlexAlign.Center)
+
                 Column() {
                   Text(song.title)
                     .fontSize(17)
@@ -424,7 +457,7 @@ export default struct Play {
             .height(60)
             .borderRadius(10)
             .padding({ left: 20, right: 20 })
-            .backgroundColor(index === this.nowPlayingIndex ? $r('app.color.progress_background') :
+            .backgroundColor(index === this.nowPlayingIndex ? $r('sys.color.comp_background_secondary') :
             $r('app.color.bar_background'))
             .onClick(async () => {
               this.showList = false
@@ -688,6 +721,7 @@ export default struct Play {
                 Image($r('app.media.down'))
                   .width(30)
                   .height(30)
+                  .draggable(false)
               }
               .width(40)
               .height(40)
@@ -713,7 +747,16 @@ export default struct Play {
               .height(40)
               .padding({ left: 15, right: 15 })
               .borderRadius(10)
-              .backgroundColor($r('app.color.content_background'))
+              .backgroundColor($r('sys.color.comp_background_tertiary'))
+              .border({
+                width: deviceTypeInfo === '2in1' ? 1 : 0,
+                radius: 10,
+                color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+              })
+              .shadow({
+                radius: 6,
+                color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+              })
               .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
 
               Button({ type: ButtonType.Circle }) {
@@ -818,15 +861,19 @@ export default struct Play {
               Column() {
                 Swiper(this.swiperController) {
                   Column() {
-                    Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                      .alt($rawfile('nocover.png'))
-                      .objectFit(ImageFit.Contain)
-                      .height('100%')
-                      .aspectRatio(1)
-                      .borderRadius(10)
+                    Column(){
+                      ShadowCoverImage({
+                        url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                        radius: 10
+                      })
+                    }
+                    .height('100%')
+                    .aspectRatio(1)
+                    .justifyContent(FlexAlign.Center)
                   }
                   .width('100%')
                   .height('100%')
+                  .clip(false)
                   .onTouch((event?: TouchEvent) => {
                     if (event?.type === TouchType.Move) {
                       this.lyricsScroller.scrollToIndex(this.lyricsIndex, false, ScrollAlign.CENTER)
@@ -897,11 +944,11 @@ export default struct Play {
                   .width('100%')
                   .height('100%')
                 }
-                .itemSpace(20)
+                .clip(false)
+                .itemSpace(this.displayHeight * 0.66 - 230 > this.displayWidth * 0.84 ? this.displayWidth * 0.08 : (this.displayWidth - this.displayHeight * 0.66 + 230) / 2)
                 .geometryTransition("cover_overlay")
                 .loop(false)
                 .height(this.displayHeight * 0.66 - 230 > this.displayWidth * 0.84 ? this.displayWidth * 0.84 : this.displayHeight * 0.66 - 230)
-                .aspectRatio(1)
                 .aspectRatio(1)
                 .indicator(this.indicatorController)
 
@@ -916,14 +963,16 @@ export default struct Play {
               .visibility(this.showCover === true ? Visibility.Visible : Visibility.None)
             } else {
               Column() {
-                Image(this.baseURL + this.getCoverUrl + this.auth +
-                  `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
-                  .height('100%')
-                  .aspectRatio(1)
-                  .borderRadius(10)
-                  .geometryTransition("cover_embed")
+                Column(){
+                  ShadowCoverImage({
+                    url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
+                    radius: 10
+                  })
+                }
+                .height('100%')
+                .aspectRatio(1)
+                .justifyContent(FlexAlign.Center)
+                .geometryTransition("cover_embed")
               }
               .height(this.displayHeight * 0.66 - 200 > this.displayWidth * 0.42 ? this.displayWidth * 0.42 : this.displayHeight * 0.66 - 200)
               .aspectRatio(1)
@@ -975,6 +1024,7 @@ export default struct Play {
                   Image($r('app.media.prev'))
                     .width(45)
                     .height(45)
+                    .draggable(false)
                 }
                 .width(55)
                 .height(55)
@@ -1000,6 +1050,7 @@ export default struct Play {
                   Image(this.isPlaying === true ? $r('app.media.play') : $r('app.media.pause'))
                     .width(47)
                     .height(47)
+                    .draggable(false)
                 }
                 .width(70)
                 .height(70)
@@ -1025,6 +1076,7 @@ export default struct Play {
                   Image($r('app.media.next'))
                     .width(45)
                     .height(45)
+                    .draggable(false)
                 }
                 .width(55)
                 .height(55)
@@ -1055,6 +1107,7 @@ export default struct Play {
                   Image(this.playModeIcon)
                     .width(30)
                     .height(30)
+                    .draggable(false)
                 }
                 .width(40)
                 .height(40)
@@ -1073,6 +1126,7 @@ export default struct Play {
                   Image($r('app.media.sleep'))
                     .width(30)
                     .height(30)
+                    .draggable(false)
                 }
                 .width(40)
                 .height(40)
@@ -1095,6 +1149,7 @@ export default struct Play {
                   Image($r('app.media.list'))
                     .width(30)
                     .height(30)
+                    .draggable(false)
                 }
                 .width(40)
                 .height(40)
@@ -1117,6 +1172,7 @@ export default struct Play {
                   Image($r('app.media.more'))
                     .width(30)
                     .height(30)
+                    .draggable(false)
                 }
                 .width(40)
                 .height(40)

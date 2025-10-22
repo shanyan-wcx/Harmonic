@@ -1,9 +1,9 @@
-import { curves } from '@kit.ArkUI';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getPlaylist, getSong } from '../utils/Api';
 import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
 import editPlaylistBuilder from './dialogs/EditPlaylist';
+import { ShadowCoverImage } from '../utils/Component';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -133,6 +133,7 @@ export default struct PlaylistDetail {
                 Image($r('app.media.edit'))
                   .width(20)
                   .height(20)
+                  .draggable(false)
               }
               .width(35)
               .height(35)
@@ -211,12 +212,15 @@ export default struct PlaylistDetail {
                   .fontColor($r('app.color.font_secondary'))
                   .width(70)
                   .textAlign(TextAlign.Center)
-                Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`)
-                  .alt($rawfile('nocover.png'))
-                  .objectFit(ImageFit.Contain)
-                  .width(60)
-                  .aspectRatio(1)
-                  .borderRadius(5)
+                Column(){
+                  ShadowCoverImage({
+                    url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                    radius: 5
+                  })
+                }
+                .width(60)
+                .aspectRatio(1)
+                .justifyContent(FlexAlign.Center)
                 Column() {
                   Text(song.title)
                     .fontSize(18)
@@ -278,7 +282,6 @@ export default struct PlaylistDetail {
       .width('100%')
       .height('100%')
       .padding({ bottom: this.startPlaying === true ? 95 : 10 })
-      .animation({ curve: curves.springMotion(0.6, 1) })
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
       .visibility(this.showProgress === false ? Visibility.Visible : Visibility.None)

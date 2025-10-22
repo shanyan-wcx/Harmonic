@@ -1,5 +1,5 @@
 import { Artist } from '../utils/Interface'
-import { curves } from '@kit.ArkUI'
+import { ShadowArtistImage } from '../utils/Component'
 
 @Component
 export default struct Artists {
@@ -36,29 +36,31 @@ export default struct Artists {
             GridItem() {
               Button({ type: ButtonType.Normal }) {
                 Column() {
-                  Image(this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`)
-                    .alt($rawfile('noprofile.jpg'))
-                    .objectFit(ImageFit.Cover)
+                  Column(){
+                    ShadowArtistImage({
+                      url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
+                    })
+                  }
                     .width('100%')
                     .aspectRatio(1)
-                    .borderRadius(10000)
-                    .margin({ top: 10, left: 10, right: 10 })
+                    .justifyContent(FlexAlign.Center)
                   Text(artist.name)
                     .width('100%')
                     .fontSize(16)
                     .fontColor($r('app.color.font'))
-                    .margin(10)
+                    .margin({ top: 10 })
                     .maxLines(1)
                     .textAlign(TextAlign.Center)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
+                    .wordBreak(WordBreak.BREAK_ALL)
                 }
+                .padding(10)
                 .width('100%')
                 .height('auto')
               }
               .width('100%')
               .height('auto')
               .margin({ bottom: this.startPlaying === true && index === this.artists.length - 1 ? 85 : 0 })
-              .animation({ curve: curves.springMotion(0.6, 1) })
               .borderRadius(10)
               .backgroundColor(Color.Transparent)
               .onClick(() => {
@@ -99,6 +101,7 @@ export default struct Artists {
         Image($r('app.media.totop'))
           .width(20)
           .aspectRatio(1)
+          .draggable(false)
       }
       .position({
         right: 15,
@@ -111,8 +114,8 @@ export default struct Artists {
       .backgroundColor(Color.Transparent)
       .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
       .shadow({
-        radius: 20,
-        color: $r('app.color.shadow'),
+        radius: 12,
+        color: $r('sys.color.ohos_id_shadow_default_lg_dark'),
       })
       .onClick(async () => {
         this.artistsScroller.scrollEdge(Edge.Top)
