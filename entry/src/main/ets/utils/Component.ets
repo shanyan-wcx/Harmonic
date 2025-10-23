@@ -4,11 +4,11 @@ import { deviceInfo } from "@kit.BasicServicesKit";
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
 @Component
-export struct ShadowCoverImage {
+export struct coverImage {
   @Prop url: string = ''
   @Prop radius: number = 0
   @State aspect: number = 1
-  @State shadowRadius: number = 12
+  @State shadowRadius: number = 6
 
   build() {
     Image(this.url)
@@ -24,9 +24,9 @@ export struct ShadowCoverImage {
       })
       .onAreaChange((oldArea, newArea) => {
         if (newArea.width > 60 || newArea.height > 60) {
-          this.shadowRadius = 12
-        } else {
           this.shadowRadius = 6
+        } else {
+          this.shadowRadius = 3
         }
       })
       .aspectRatio(this.aspect)
@@ -46,9 +46,9 @@ export struct ShadowCoverImage {
 }
 
 @Component
-export struct ShadowArtistImage {
+export struct artistImage {
   @Prop url: string = ''
-  @State shadowRadius: number = 12
+  @State shadowRadius: number = 6
 
   build() {
     Image(this.url)
@@ -58,16 +58,16 @@ export struct ShadowArtistImage {
       .aspectRatio(1)
       .onAreaChange((oldArea, newArea) => {
         if (newArea.width > 60 || newArea.height > 60) {
-          this.shadowRadius = 12
-        } else {
           this.shadowRadius = 6
+        } else {
+          this.shadowRadius = 3
         }
       })
       .draggable(false)
       .clipShape(new CircleShape({ width: '100%', height: '100%' }))
       .border({
         width: deviceTypeInfo === '2in1' ? 1 : 0,
-        radius: this.shadowRadius,
+        radius: 999999999999999,
         color: $r('sys.color.ohos_id_shadow_default_lg_dark')
       })
       .shadow({

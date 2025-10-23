@@ -4,7 +4,7 @@ import { getLyrics, getSong, search, searchAlbums, searchArtists, searchSongs } 
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { ShadowArtistImage, ShadowCoverImage } from '../utils/Component';
+import { artistImage, coverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -235,23 +235,23 @@ export default struct Search_ {
                           Button({ type: ButtonType.Normal }) {
                             Row() {
                               Column(){
-                                ShadowCoverImage({
+                                coverImage({
                                   url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
                                   radius: 5
                                 })
                               }
-                              .width(60)
+                              .width(56)
                               .aspectRatio(1)
                               .justifyContent(FlexAlign.Center)
 
                               Column() {
                                 Text(song.title)
-                                  .fontSize(18)
+                                  .fontSize(17)
                                   .fontColor($r('app.color.font'))
                                   .maxLines(1)
                                   .textOverflow({ overflow: TextOverflow.Ellipsis })
                                 Text(song.artist + " - " + song.album)
-                                  .fontSize(15)
+                                  .fontSize(14)
                                   .fontColor($r('app.color.font_secondary'))
                                   .margin({ top: 5 })
                                   .maxLines(1)
@@ -267,10 +267,10 @@ export default struct Search_ {
                             .padding({ right: 15 })
                           }
                           .width('100%')
-                          .height(80)
+                          .height(72)
                           .borderRadius(10)
                           .backgroundColor(Color.Transparent)
-                          .padding({ left: 20, right: 20 })
+                          .padding({ left: 10, right: 10 })
                           .onClick(async () => {
                             this.startPlaying = true
                             await this.avPlayer!.reset()
@@ -308,6 +308,7 @@ export default struct Search_ {
                   }
                   .width('100%')
                   .height('auto')
+                  .padding({ left: 10, right: 10 })
                   .scrollBar(BarState.Off)
                   .listDirection(Axis.Vertical)
                   .lanes(this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1))
@@ -374,7 +375,7 @@ export default struct Search_ {
                           Button({ type: ButtonType.Normal }) {
                             Column() {
                               Column(){
-                                ShadowCoverImage({
+                                coverImage({
                                   url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                                   radius: 10
                                 })
@@ -386,8 +387,7 @@ export default struct Search_ {
 
                               Column() {
                                 Text(album.title)
-                                  .fontSize(17)
-                                  .fontWeight(FontWeight.Medium)
+                                  .fontSize(16)
                                   .fontColor($r('app.color.font'))
                                   .margin({ top: 5 })
                                   .maxLines(1)
@@ -493,7 +493,7 @@ export default struct Search_ {
                           Button({ type: ButtonType.Normal }) {
                             Column() {
                               Column(){
-                                ShadowArtistImage({
+                                artistImage({
                                   url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
                                 })
                               }
@@ -576,22 +576,22 @@ export default struct Search_ {
                   Button({ type: ButtonType.Normal }) {
                     Row() {
                       Column(){
-                        ShadowCoverImage({ url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
+                        coverImage({ url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
                           radius: 5
                         })
                       }
-                      .width(60)
+                      .width(56)
                       .aspectRatio(1)
                       .justifyContent(FlexAlign.Center)
 
                       Column() {
                         Text(song.title)
-                          .fontSize(18)
+                          .fontSize(17)
                           .fontColor($r('app.color.font'))
                           .maxLines(1)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                         Text(song.artist + " - " + song.album)
-                          .fontSize(15)
+                          .fontSize(14)
                           .fontColor($r('app.color.font_secondary'))
                           .margin({ top: 5 })
                           .maxLines(1)
@@ -607,10 +607,10 @@ export default struct Search_ {
                     .padding({ right: 15 })
                   }
                   .width('100%')
-                  .height(80)
+                  .height(72)
                   .borderRadius(10)
                   .backgroundColor(Color.Transparent)
-                  .padding({ left: 20, right: 20 })
+                  .padding({ left: 10, right: 10 })
                   .margin({
                     bottom: this.startPlaying
                       ? (index === this.searchSongs.length - 1 ? 95 : 0)
@@ -666,6 +666,7 @@ export default struct Search_ {
             .width('100%')
             .height('100%')
             .layoutWeight(1)
+            .padding({ left: 10, right: 10 })
             .lanes(this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1))
             .scrollBar(BarState.Off)
             .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
@@ -700,7 +701,7 @@ export default struct Search_ {
                     Button({ type: ButtonType.Normal }) {
                       Column() {
                         Column(){
-                          ShadowCoverImage({
+                          coverImage({
                             url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                             radius: 10
                           })
@@ -712,8 +713,7 @@ export default struct Search_ {
                         .justifyContent(FlexAlign.Center)
 
                         Text(album.title)
-                          .fontSize(17)
-                          .fontWeight(FontWeight.Medium)
+                          .fontSize(16)
                           .fontColor($r('app.color.font'))
                           .margin({ top: 5 })
                           .maxLines(1)
@@ -799,7 +799,7 @@ export default struct Search_ {
                     Button({ type: ButtonType.Normal }) {
                       Column() {
                         Column(){
-                          ShadowArtistImage({
+                          artistImage({
                             url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
                           })
                         }

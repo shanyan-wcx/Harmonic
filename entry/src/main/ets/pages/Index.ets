@@ -47,7 +47,7 @@ import { KeyCode } from '@kit.InputKit';
 import { i18n, intl } from '@kit.LocalizationKit';
 import Songs from './Songs';
 import app from '@system.app';
-import { ShadowCoverImage } from '../utils/Component';
+import { coverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -1118,7 +1118,7 @@ struct Index {
         radius: 8,
         color: $r('sys.color.ohos_id_shadow_default_lg_dark')
       })
-      .backgroundColor($r('sys.color.comp_background_tertiary'))
+      .backgroundColor($r('app.color.button_selected'))
       .bindContextMenu(this.showLibrary, this.musicFolderMenu, {
         borderRadius: 10,
         backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
@@ -1752,7 +1752,7 @@ struct Index {
               Column() {
                 LoadingProgress()
                   .width("100%")
-                  .height(80)
+                  .height(72)
                   .color($r('app.color.font'))
                   .margin({ bottom: 160 })
               }
@@ -1804,7 +1804,7 @@ struct Index {
                 Row() {
                   Row() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
                         radius: 5
                       })
@@ -1820,18 +1820,18 @@ struct Index {
                         step: 3,
                         src: this.nowPlayingSong?.title
                       })
-                        .fontSize(18)
+                        .fontSize(17)
                         .fontColor($r('app.color.font'))
                       Marquee({
                         start: true,
                         step: 3,
                         src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
                       })
-                        .fontSize(15)
+                        .fontSize(14)
                         .fontColor($r('app.color.font_secondary'))
                         .margin({ top: 5 })
                     }
-                    .margin({ left: 10, right: 10 })
+                    .margin({ left: 12, right: 10 })
                     .alignItems(HorizontalAlign.Start)
                     .width('100%')
                     .layoutWeight(1)
@@ -1988,7 +1988,7 @@ struct Index {
               color: $r('sys.color.ohos_id_shadow_default_lg_dark')
             })
             .shadow({
-              radius: 12,
+              radius: 6,
               color: $r('sys.color.ohos_id_shadow_default_lg_dark')
             })
             .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
@@ -2061,7 +2061,7 @@ struct Index {
             Row() {
               Row() {
                 Column(){
-                  ShadowCoverImage({
+                  coverImage({
                     url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
                     radius: 5
                   })
@@ -2077,18 +2077,18 @@ struct Index {
                     step: 3,
                     src: this.nowPlayingSong?.title
                   })
-                    .fontSize(18)
+                    .fontSize(17)
                     .fontColor($r('app.color.font'))
                   Marquee({
                     start: true,
                     step: 3,
                     src: this.nowPlayingSong?.artist + " - " + this.nowPlayingSong?.album
                   })
-                    .fontSize(15)
+                    .fontSize(14)
                     .fontColor($r('app.color.font_secondary'))
                     .margin({ top: 5 })
                 }
-                .margin({ left: 10, right: 10 })
+                .margin({ left: 12, right: 10 })
                 .alignItems(HorizontalAlign.Start)
                 .width('100%')
                 .layoutWeight(1)
@@ -2235,7 +2235,7 @@ struct Index {
           color: $r('sys.color.ohos_id_shadow_default_lg_dark')
         })
         .shadow({
-          radius: 12,
+          radius: 6,
           color: $r('sys.color.ohos_id_shadow_default_lg_dark')
         })
         .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)

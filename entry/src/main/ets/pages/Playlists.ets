@@ -43,7 +43,7 @@ export default struct Playlists {
         .width('90%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .backgroundColor($r('app.color.button_selected'))
         .shadow({
           radius: 6,
           color: $r('sys.color.ohos_id_shadow_default_lg_dark')
@@ -66,6 +66,7 @@ export default struct Playlists {
         .width('90%')
         .height(1)
         .color($r('app.color.divider'))
+        .margin({ bottom: 10 })
 
       List() {
         ForEach(this.playlists, (playlist: Playlist, index) => {

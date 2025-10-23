@@ -2,7 +2,7 @@ import { Album, Artist, MusicFolder } from '../utils/Interface';
 import { LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { ShadowArtistImage, ShadowCoverImage } from '../utils/Component';
+import { artistImage, coverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -77,7 +77,7 @@ export default struct ArtistDetail {
       Scroll() {
         Column() {
           Column(){
-            ShadowArtistImage({
+            artistImage({
               url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`
             })
           }
@@ -88,7 +88,7 @@ export default struct ArtistDetail {
             Text(this.artist!.name)
               .fontSize(this.displayWidth > 1400 ? 28 : 24)
               .fontColor($r('app.color.font'))
-              .fontWeight(FontWeight.Bold)
+              .fontWeight(FontWeight.Medium)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .wordBreak(WordBreak.BREAK_ALL)
@@ -103,7 +103,7 @@ export default struct ArtistDetail {
           .width('100%')
           .height('auto')
           .padding({
-            top: 20,
+            top: 15,
             bottom: 20,
             left: 40,
             right: 40
@@ -128,7 +128,7 @@ export default struct ArtistDetail {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -194,7 +194,7 @@ export default struct ArtistDetail {
       Column() {
         LoadingProgress()
           .width("100%")
-          .height(80)
+          .height(72)
           .color($r('app.color.font'))
           .margin({ bottom: 160 })
       }

@@ -1,6 +1,6 @@
 import { Album, MusicFolder, Song } from '../utils/Interface';
 import { getAlbumList } from '../utils/Api';
-import { ShadowCoverImage } from '../utils/Component';
+import { coverImage } from '../utils/Component';
 
 @Component
 export default struct Albums {
@@ -42,7 +42,7 @@ export default struct Albums {
               Button({ type: ButtonType.Normal }) {
                 Column() {
                   Column(){
-                    ShadowCoverImage({
+                    coverImage({
                       url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                       radius: 10
                     })
@@ -53,8 +53,7 @@ export default struct Albums {
                   .justifyContent(FlexAlign.Center)
 
                   Text(album.title)
-                    .fontSize(17)
-                    .fontWeight(FontWeight.Medium)
+                    .fontSize(16)
                     .fontColor($r('app.color.font'))
                     .margin({ top: 5 })
                     .maxLines(1)

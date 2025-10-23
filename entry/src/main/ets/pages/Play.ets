@@ -21,7 +21,7 @@ import { common } from '@kit.AbilityKit';
 import { BusinessError, request } from '@kit.BasicServicesKit';
 import { fileUri, fileIo as fs, picker } from '@kit.CoreFileKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { ShadowCoverImage } from '../utils/Component';
+import { coverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -334,7 +334,7 @@ export default struct Play {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .backgroundColor($r('app.color.button_selected'))
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
           radius: 10,
@@ -392,7 +392,7 @@ export default struct Play {
     .margin({ left: 10, right: 10 })
     .backgroundColor($r('sys.color.warning'))
     .border({
-      width: deviceTypeInfo === '2in1' ? 1.6 : 0.6,
+      width: deviceTypeInfo === '2in1' ? 1 : 0,
       color: $r('sys.color.ohos_id_shadow_default_lg_dark')
     })
     .shadow({
@@ -423,7 +423,7 @@ export default struct Play {
             Button({ type: ButtonType.Normal }) {
               Row() {
                 Column(){
-                  ShadowCoverImage({
+                  coverImage({
                     url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
                     radius: 5
                   })
@@ -434,12 +434,12 @@ export default struct Play {
 
                 Column() {
                   Text(song.title)
-                    .fontSize(17)
+                    .fontSize(15)
                     .fontColor($r('app.color.font'))
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
                   Text(song.artist + " - " + song.album)
-                    .fontSize(14)
+                    .fontSize(12)
                     .fontColor($r('app.color.font_secondary'))
                     .margin({ top: 5 })
                     .maxLines(1)
@@ -454,9 +454,9 @@ export default struct Play {
               .height('100%')
             }
             .width('100%')
-            .height(60)
+            .height(62)
             .borderRadius(10)
-            .padding({ left: 20, right: 20 })
+            .padding({ left: 10, right: 10 })
             .backgroundColor(index === this.nowPlayingIndex ? $r('sys.color.comp_background_secondary') :
             $r('app.color.bar_background'))
             .onClick(async () => {
@@ -488,7 +488,7 @@ export default struct Play {
       .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
     }
     .width('90%')
-    .height(this.nowPlayingList.length > 7 ? 420 : this.nowPlayingList.length * 60)
+    .height(this.nowPlayingList.length > 7 ? 434 : this.nowPlayingList.length * 62)
     .borderRadius(10)
     .margin({ bottom: 25 })
     .clip(true)
@@ -747,7 +747,7 @@ export default struct Play {
               .height(40)
               .padding({ left: 15, right: 15 })
               .borderRadius(10)
-              .backgroundColor($r('sys.color.comp_background_tertiary'))
+              .backgroundColor($r('app.color.button_selected'))
               .border({
                 width: deviceTypeInfo === '2in1' ? 1 : 0,
                 radius: 10,
@@ -862,7 +862,7 @@ export default struct Play {
                 Swiper(this.swiperController) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -964,7 +964,7 @@ export default struct Play {
             } else {
               Column() {
                 Column(){
-                  ShadowCoverImage({
+                  coverImage({
                     url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
                     radius: 10
                   })

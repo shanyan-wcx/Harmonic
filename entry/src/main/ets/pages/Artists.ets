@@ -1,5 +1,5 @@
 import { Artist } from '../utils/Interface'
-import { ShadowArtistImage } from '../utils/Component'
+import { artistImage } from '../utils/Component'
 
 @Component
 export default struct Artists {
@@ -37,7 +37,7 @@ export default struct Artists {
               Button({ type: ButtonType.Normal }) {
                 Column() {
                   Column(){
-                    ShadowArtistImage({
+                    artistImage({
                       url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
                     })
                   }

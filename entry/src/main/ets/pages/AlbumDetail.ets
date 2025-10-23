@@ -4,7 +4,7 @@ import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } from '../utils/Api';
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { ShadowCoverImage } from '../utils/Component';
+import { coverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -127,8 +127,8 @@ export default struct AlbumDetail {
       Scroll() {
         Column() {
           Row() {
-            Column(){
-              ShadowCoverImage({
+            Column() {
+              coverImage({
                 url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.album.id}&size=${this.coverSize}`,
                 radius: 10
               })
@@ -142,7 +142,7 @@ export default struct AlbumDetail {
               Text(this.album.name)
                 .fontSize(this.displayWidth > 1400 ? 28 : 24)
                 .fontColor($r('app.color.font'))
-                .fontWeight(FontWeight.Bold)
+                .fontWeight(FontWeight.Medium)
               Button({ type: ButtonType.Normal }) {
                 Text(this.album.artist)
                   .fontSize(this.displayWidth > 1400 ? 20 : 18)
@@ -217,7 +217,7 @@ export default struct AlbumDetail {
               Column() {
                 Text(this.discsKeys[index] === 0 ? "DISC" : "DISC " + this.discsKeys[index])
                   .width('100%')
-                  .fontSize(17)
+                  .fontSize(16)
                   .fontColor($r('app.color.font'))
                   .fontWeight(FontWeight.Bold)
                   .padding({ left: 20, top: 20 })
@@ -225,18 +225,18 @@ export default struct AlbumDetail {
                   Button({ type: ButtonType.Normal }) {
                     Row() {
                       Text(song.track !== undefined ? song.track.toString() : '-')
-                        .fontSize(18)
+                        .fontSize(17)
                         .fontColor($r('app.color.font_secondary'))
                         .width(80)
                         .textAlign(TextAlign.Center)
                       Column() {
                         Text(song.title)
-                          .fontSize(18)
+                          .fontSize(17)
                           .fontColor($r('app.color.font'))
                           .maxLines(1)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                         Text(song.artist)
-                          .fontSize(15)
+                          .fontSize(14)
                           .fontColor($r('app.color.font_secondary'))
                           .margin({ top: 5 })
                           .maxLines(1)
@@ -251,7 +251,7 @@ export default struct AlbumDetail {
                     .height('100%')
                   }
                   .width('100%')
-                  .height(80)
+                  .height(72)
                   .borderRadius(10)
                   .backgroundColor(Color.Transparent)
                   .onClick(async () => {
@@ -285,10 +285,11 @@ export default struct AlbumDetail {
                       })
                   )
                 })
+
                 Divider()
                   .width('100%')
                   .height(1)
-                  .margin({ left: 20, right: 20 })
+                  .margin({ top: 10, left: 20, right: 20 })
                   .color($r('app.color.divider'))
                   .visibility(index === this.discs.length - 1 ? Visibility.None : Visibility.Visible)
               }
@@ -298,18 +299,18 @@ export default struct AlbumDetail {
               Button({ type: ButtonType.Normal }) {
                 Row() {
                   Text(song.track !== undefined ? song.track.toString() : '-')
-                    .fontSize(18)
+                    .fontSize(17)
                     .fontColor($r('app.color.font_secondary'))
                     .width(80)
                     .textAlign(TextAlign.Center)
                   Column() {
                     Text(song.title)
-                      .fontSize(18)
+                      .fontSize(17)
                       .fontColor($r('app.color.font'))
                       .maxLines(1)
                       .textOverflow({ overflow: TextOverflow.Ellipsis })
                     Text(song.artist)
-                      .fontSize(15)
+                      .fontSize(14)
                       .fontColor($r('app.color.font_secondary'))
                       .margin({ top: 5 })
                       .maxLines(1)
@@ -324,7 +325,7 @@ export default struct AlbumDetail {
                 .height('100%')
               }
               .width('100%')
-              .height(80)
+              .height(72)
               .borderRadius(10)
               .backgroundColor(Color.Transparent)
               .onClick(async () => {
@@ -371,7 +372,7 @@ export default struct AlbumDetail {
       Column() {
         LoadingProgress()
           .width("100%")
-          .height(80)
+          .height(72)
           .color($r('app.color.font'))
           .margin({ bottom: 160 })
       }
@@ -396,7 +397,8 @@ export default struct AlbumDetail {
     })
     .menus([{
       value: "star",
-      symbolIcon: new SymbolGlyphModifier(this.album.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
+      symbolIcon: new SymbolGlyphModifier(this.album.starred === undefined ? $r('sys.symbol.heart') :
+        $r('sys.symbol.heart_fill')),
       action: async () => {
         if (this.album.starred !== undefined) {
           let starStatus = await unstar(this.baseURL, this.username, this.password, this.album.id, 'album')

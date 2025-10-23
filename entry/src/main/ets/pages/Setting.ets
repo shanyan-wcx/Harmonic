@@ -132,7 +132,7 @@ export default struct Setting {
           .width('100%')
           .height(50)
           .borderRadius(10)
-          .backgroundColor($r('sys.color.comp_background_tertiary'))
+          .backgroundColor($r('app.color.button_selected'))
           .margin({ top: 10, bottom: 20 })
           .border({
             width: deviceTypeInfo === '2in1' ? 1 : 0,

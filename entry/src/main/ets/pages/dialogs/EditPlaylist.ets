@@ -87,7 +87,7 @@ export default struct editPlaylistBuilder {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('sys.color.comp_background_tertiary'))
+        .backgroundColor($r('app.color.button_selected'))
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
           radius: 10,

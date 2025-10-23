@@ -3,7 +3,7 @@ import { avSession as AVSessionManager } from '@kit.AVSessionKit';
 import { getLyrics, getPlaylist, getSong } from '../utils/Api';
 import { Playlist, Song, StructuredLyric, Line } from '../utils/Interface'
 import editPlaylistBuilder from './dialogs/EditPlaylist';
-import { ShadowCoverImage } from '../utils/Component';
+import { coverImage } from '../utils/Component';
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -201,41 +201,42 @@ export default struct PlaylistDetail {
           Divider()
             .width('100%')
             .height(1)
-            .margin({ left: 20, right: 20 })
+            .margin({ left: 20, right: 20, bottom: 10 })
             .color($r('app.color.divider'))
 
           ForEach(this.playlist!.entry, (song: Song, index) => {
             Button({ type: ButtonType.Normal }) {
               Row() {
                 Text((index + 1).toString())
-                  .fontSize(18)
+                  .fontSize(17)
                   .fontColor($r('app.color.font_secondary'))
                   .width(70)
                   .textAlign(TextAlign.Center)
-                Column(){
-                  ShadowCoverImage({
+                Column() {
+                  coverImage({
                     url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
                     radius: 5
                   })
                 }
-                .width(60)
+                .width(56)
                 .aspectRatio(1)
                 .justifyContent(FlexAlign.Center)
+
                 Column() {
                   Text(song.title)
-                    .fontSize(18)
+                    .fontSize(17)
                     .fontColor($r('app.color.font'))
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
                   Text(song.artist)
-                    .fontSize(15)
+                    .fontSize(14)
                     .fontColor($r('app.color.font_secondary'))
                     .margin({ top: 5 })
                     .maxLines(1)
                     .textOverflow({ overflow: TextOverflow.Ellipsis })
                 }
                 .alignItems(HorizontalAlign.Start)
-                .padding({ left: 15, right: 15 })
+                .padding({ left: 10, right: 10 })
                 .width('100%')
                 .layoutWeight(1)
               }
@@ -243,7 +244,7 @@ export default struct PlaylistDetail {
               .height('100%')
             }
             .width('100%')
-            .height(80)
+            .height(76)
             .borderRadius(10)
             .backgroundColor(Color.Transparent)
             .onClick(async () => {
@@ -270,8 +271,9 @@ export default struct PlaylistDetail {
                   this.longPressSong = song
                   this.longPressIndex = index
                   this.showMenu = true
-                  let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
-                  if(tmp_song !== undefined && tmp_song.starred !== undefined){
+                  let tmp_song: Song | undefined =
+                    await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                  if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                     this.longPressSong!.starred = tmp_song.starred
                   }
                 })
@@ -289,7 +291,7 @@ export default struct PlaylistDetail {
       Column() {
         LoadingProgress()
           .width("100%")
-          .height(80)
+          .height(72)
           .color($r('app.color.font'))
           .margin({ bottom: 160 })
       }

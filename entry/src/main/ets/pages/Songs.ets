@@ -2,7 +2,7 @@ import { Song, StructuredLyric, Line, MusicFolder } from '../utils/Interface'
 import { media } from '@kit.MediaKit'
 import { getAllSongs, getLyrics, getSong } from '../utils/Api'
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
-import { ShadowCoverImage } from '../utils/Component';
+import { coverImage } from '../utils/Component';
 
 @Component
 export default struct Songs {
@@ -85,23 +85,23 @@ export default struct Songs {
               Button({ type: ButtonType.Normal }) {
                 Row() {
                   Column(){
-                    ShadowCoverImage({
+                    coverImage({
                       url: this.baseURL + this.getCoverUrl + this.auth + `&id=${song.id}&size=${this.coverSize}`,
                       radius: 5
                     })
                   }
-                  .width(60)
+                  .width(56)
                   .aspectRatio(1)
                   .justifyContent(FlexAlign.Center)
 
                   Column() {
                     Text(song.title)
-                      .fontSize(18)
+                      .fontSize(17)
                       .fontColor($r('app.color.font'))
                       .maxLines(1)
                       .textOverflow({ overflow: TextOverflow.Ellipsis })
                     Text(song.artist)
-                      .fontSize(15)
+                      .fontSize(14)
                       .fontColor($r('app.color.font_secondary'))
                       .margin({ top: 5 })
                       .maxLines(1)
@@ -116,9 +116,9 @@ export default struct Songs {
                 .height('100%')
               }
               .width('100%')
-              .height(80)
+              .height(72)
               .borderRadius(10)
-              .padding({ left: 20, right: 20 })
+              .padding({ left: 11, right: 11 })
               .margin({
                 bottom: this.startPlaying
                   ? (index === this.songs.length - 1 ? 95 : 0)
@@ -166,6 +166,7 @@ export default struct Songs {
         .scrollBar(BarState.Off)
         .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
         .lanes(this.displayWidth > 1400 ? 3 : (this.displayWidth > 1000 ? 2 : 1))
+        .padding({ left: 10, right: 10 })
         .onReachEnd(async () => {
           let size = 500
           let keys = Object.keys(this.libraryStates)

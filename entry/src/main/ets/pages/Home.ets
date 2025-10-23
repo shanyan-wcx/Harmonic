@@ -1,6 +1,6 @@
 import { Album, Artist } from '../utils/Interface';
 import { deviceInfo } from '@kit.BasicServicesKit';
-import { ShadowArtistImage, ShadowCoverImage } from '../utils/Component';
+import { artistImage, coverImage } from '../utils/Component';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -100,7 +100,7 @@ export default struct Home {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -112,8 +112,7 @@ export default struct Home {
 
                     Column() {
                       Text(album.title)
-                        .fontSize(17)
-                        .fontWeight(FontWeight.Medium)
+                        .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
                         .maxLines(1)
@@ -215,7 +214,7 @@ export default struct Home {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -227,8 +226,7 @@ export default struct Home {
 
                     Column() {
                       Text(album.title)
-                        .fontSize(17)
-                        .fontWeight(FontWeight.Medium)
+                        .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
                         .maxLines(1)
@@ -330,7 +328,7 @@ export default struct Home {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -342,8 +340,7 @@ export default struct Home {
 
                     Column() {
                       Text(album.title)
-                        .fontSize(17)
-                        .fontWeight(FontWeight.Medium)
+                        .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
                         .maxLines(1)
@@ -445,7 +442,7 @@ export default struct Home {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -457,8 +454,7 @@ export default struct Home {
 
                     Column() {
                       Text(album.title)
-                        .fontSize(17)
-                        .fontWeight(FontWeight.Medium)
+                        .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
                         .maxLines(1)
@@ -560,7 +556,7 @@ export default struct Home {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowCoverImage({
+                      coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
                       })
@@ -572,8 +568,7 @@ export default struct Home {
 
                     Column() {
                       Text(album.title)
-                        .fontSize(17)
-                        .fontWeight(FontWeight.Medium)
+                        .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
                         .maxLines(1)
@@ -675,7 +670,7 @@ export default struct Home {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
                     Column(){
-                      ShadowArtistImage({
+                      artistImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${artist.id}&size=${this.profileSize}`
                       })
                     }
