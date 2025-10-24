@@ -143,7 +143,7 @@ struct Index {
   @State startPlayTime: number = 0
   @State verse: Verse | undefined = undefined
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
-  @Provide libraryStates: Record<number, boolean> = JSON.parse(this.libraryStatesStr)
+  @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
   @StorageLink('playMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
@@ -682,45 +682,44 @@ struct Index {
       return
     }
     this.showProgress = true
-    if (this.musicFolders.length === 0) {
-      this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
-      if (this.musicFolders.length === 0) {
-        this.uiContext!.getPromptAction().showToast({
-          message: '获取音乐库失败，请检查网络连接！',
-          duration: 500
-        });
-      } else {
-        const keys = Object.keys(this.libraryStates)
-        const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
-        if (keys.length === 0 || allFalse) {
-          this.libraryStates['1'] = true
-        }
-      }
+    this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+    const newStates: Record<string, boolean> = {};
+    this.musicFolders.forEach(folder => {
+      newStates[folder.id] = this.libraryStates[folder.id] ?? false
+    });
+    const keys = Object.keys(this.libraryStates)
+    const keys1 = Object.keys(newStates)
+    const allFalse = keys1.length > 0 && keys1.every(key => newStates[key] === false)
+    if (allFalse) {
+      newStates[keys1[0]] = true
     }
-    let keys = Object.keys(this.libraryStates)
+    this.libraryStates = newStates;
+    this.libraryStatesStr = JSON.stringify(this.libraryStates);
+    if (this.musicFolders.length === 0) {
+      this.uiContext!.getPromptAction().showToast({
+        message: '获取音乐库失败，请检查网络连接！',
+        duration: 500
+      });
+    }
     for (const id of keys) {
       if (this.libraryStates[id] === true) {
-        if (!this.musicFolders.some(item => item.id === Number(id))) {
-          this.libraryStates[id] = false
-          continue;
-        }
         switch (this.nowPage) {
           case 0:
-            let recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password, Number(id))
+            let recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password, id)
             this.recentAlbums.unshift(...recentAlbums)
-            let newestAlbums = await getNewestAlbums(this.baseURL, this.username, this.password, Number(id))
+            let newestAlbums = await getNewestAlbums(this.baseURL, this.username, this.password, id)
             this.newestAlbums.unshift(...newestAlbums)
-            let frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password, Number(id))
+            let frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password, id)
             this.frequentAlbums.unshift(...frequentAlbums)
-            let randomAlbums = await getRandomAlbums(this.baseURL, this.username, this.password, Number(id))
+            let randomAlbums = await getRandomAlbums(this.baseURL, this.username, this.password, id)
             this.randomAlbums.unshift(...randomAlbums)
-            let starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password, Number(id))
+            let starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password, id)
             this.starredAlbums.unshift(...starredAlbums)
-            let starredArtists = await getStarredArtists(this.baseURL, this.username, this.password, Number(id))
+            let starredArtists = await getStarredArtists(this.baseURL, this.username, this.password, id)
             this.starredArtists.unshift(...starredArtists)
             break;
           case 2:
-            let pageAlbums = await getAlbumList(this.baseURL, this.username, this.password, 0, Number(id))
+            let pageAlbums = await getAlbumList(this.baseURL, this.username, this.password, 0, id)
             if (pageAlbums === undefined || pageAlbums.length === 0) {
               this.albumsPage = 0
               return;
@@ -729,14 +728,14 @@ struct Index {
             this.albumsPage = 1
             break;
           case 3:
-            let artists = await getIndexes(this.baseURL, this.username, this.password, Number(id))
+            let artists = await getIndexes(this.baseURL, this.username, this.password, id)
             this.artists.unshift(...artists)
             this.artists.sort((a, b) => {
               return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
             })
             break;
           case 4:
-            let pageSongs = await getAllSongs(this.baseURL, this.username, this.password, 0, Number(id))
+            let pageSongs = await getAllSongs(this.baseURL, this.username, this.password, 0, id)
             if (pageSongs === undefined || pageSongs.length === 0) {
               this.songsPage = 0
               return;
@@ -1123,12 +1122,18 @@ struct Index {
         borderRadius: 10,
         backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
         onDisappear: () => {
+          const newStates: Record<string, boolean> = {};
+          this.musicFolders.forEach(folder => {
+            newStates[folder.id] = this.libraryStates[folder.id] ?? false
+          });
           const keys = Object.keys(this.libraryStates)
-          const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
-          if (keys.length === 0 || allFalse) {
-            this.libraryStates['1'] = true
-            this.libraryStatesStr = JSON.stringify(this.libraryStates)
+          const keys1 = Object.keys(newStates)
+          const allFalse = keys1.length > 0 && keys1.every(key => newStates[key] === false)
+          if (allFalse) {
+            newStates[keys1[0]] = true
           }
+          this.libraryStates = newStates;
+          this.libraryStatesStr = JSON.stringify(this.libraryStates);
           this.needUpdate = !this.needUpdate
           this.showLibrary = false;
         }
@@ -1142,18 +1147,24 @@ struct Index {
         } else {
           this.musicFolders = []
           this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+          const newStates: Record<string, boolean> = {};
+          this.musicFolders.forEach(folder => {
+            newStates[folder.id] = this.libraryStates[folder.id] ?? false
+          });
+          const keys = Object.keys(this.libraryStates)
+          const keys1 = Object.keys(newStates)
+          const allFalse = keys1.length > 0 && keys1.every(key => newStates[key] === false)
+          if (allFalse) {
+            newStates[keys1[0]] = true
+          }
+          this.libraryStates = newStates;
+          this.libraryStatesStr = JSON.stringify(this.libraryStates);
           if (this.musicFolders.length === 0) {
             this.uiContext!.getPromptAction().showToast({
               message: '获取音乐库失败，请检查网络连接！',
               duration: 500
             });
           } else {
-            const keys = Object.keys(this.libraryStates)
-            const allFalse = keys.length > 0 && keys.every(key => this.libraryStates[key] === false)
-            if (keys.length === 0 || allFalse) {
-              this.libraryStates['1'] = true
-              this.libraryStatesStr = JSON.stringify(this.libraryStates)
-            }
             this.showLibrary = true
           }
         }

@@ -99,12 +99,8 @@ export default struct Albums {
           let keys = Object.keys(this.libraryStates)
           for (const id of keys) {
             if (this.libraryStates[id] === true) {
-              if (!this.musicFolders.some(item => item.id === Number(id))) {
-                this.libraryStates[id] = false
-                continue;
-              }
               let pageAlbums =
-                await getAlbumList(this.baseURL, this.username, this.password, this.albumsPage * size, Number(id))
+                await getAlbumList(this.baseURL, this.username, this.password, this.albumsPage * size, id)
               if (pageAlbums === undefined || pageAlbums.length === 0) {
                 continue;
               }

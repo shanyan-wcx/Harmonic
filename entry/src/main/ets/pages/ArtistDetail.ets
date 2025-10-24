@@ -47,14 +47,10 @@ export default struct ArtistDetail {
     let keys = Object.keys(this.libraryStates)
     for (const id of keys) {
       if (this.libraryStates[id] === true) {
-        if (!this.musicFolders.some(item => item.id === Number(id))) {
-          this.libraryStates[id] = false
-          continue;
-        }
         let offset = 0
         let size = 500
         while (true) {
-          let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, Number(id))
+          let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, id)
           if (albums === undefined || albums.length === 0) {
             break;
           }

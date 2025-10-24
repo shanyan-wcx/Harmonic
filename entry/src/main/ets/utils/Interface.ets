@@ -7,6 +7,7 @@ export interface Artist {
   album?: Album[];
   biography?: string;
   starred?: string;
+  starred2?: string;
 }
 
 export interface SimilarArtist {
@@ -48,6 +49,7 @@ export interface SubsonicResponse {
   serverVersion: string;
   openSubsonic: boolean;
   indexes?: Indexes;
+  artists?: Indexes;
   artist?: Artist;
   album?: Album;
   song?: Song;
@@ -57,6 +59,7 @@ export interface SubsonicResponse {
   artistInfo?: ArtistInfo;
   lyricsList?: LyricsList;
   starred?: Starred;
+  starred2?: Starred;
   shares?: Shares;
   searchResult2?: SearchResult;
   musicFolders?: MusicFolders;
@@ -67,7 +70,7 @@ export interface MusicFolders {
 }
 
 export interface MusicFolder {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -98,10 +101,11 @@ export interface Album {
   musicBrainzId: string;
   genres: string[];
   replayGain: object;
-  channelCount: number;
+  channelCount?: number;
   samplingRate: number;
   song?: Song[];
   starred?: string;
+  starred2?: string;
 }
 
 export interface Song {
@@ -119,6 +123,7 @@ export interface Song {
   contentType: string;
   suffix: string;
   starred?: string;
+  starred2?: string;
   duration: number;
   bitRate: number;
   path: string;
@@ -135,7 +140,7 @@ export interface Song {
   musicBrainzId: string;
   genres: Genre[];
   replayGain?: ReplayGain;
-  channelCount: number;
+  channelCount?: number;
   samplingRate: number;
   transcodedContentType?: string;
   transcodedSuffix?: string;

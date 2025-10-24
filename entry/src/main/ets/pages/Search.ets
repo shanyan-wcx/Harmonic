@@ -186,12 +186,8 @@ export default struct Search_ {
               let keys = Object.keys(this.libraryStates)
               for (const id of keys) {
                 if (this.libraryStates[id] === true) {
-                  if (!this.musicFolders.some(item => item.id === Number(id))) {
-                    this.libraryStates[id] = false
-                    continue;
-                  }
                   let searchResult: SearchResult | undefined =
-                    await search(this.baseURL, this.username, this.password, searchContent, Number(id))
+                    await search(this.baseURL, this.username, this.password, searchContent, id)
                   if (searchResult !== undefined) {
                     if (searchResult.song !== undefined && searchResult.song.length > 0) {
                       this.searchSongs.unshift(...searchResult.song);
@@ -676,12 +672,8 @@ export default struct Search_ {
               let keys = Object.keys(this.libraryStates)
               for (const id of keys) {
                 if (this.libraryStates[id] === true) {
-                  if (!this.musicFolders.some(item => item.id === Number(id))) {
-                    this.libraryStates[id] = false
-                    continue;
-                  }
                   let pageSongs = await searchSongs(this.baseURL, this.username, this.password, this.searchQuery,
-                    this.searchSongsPage * size, Number(id))
+                    this.searchSongsPage * size, id)
                   if (pageSongs === undefined || pageSongs.length === 0) {
                     continue;
                   }
@@ -759,12 +751,8 @@ export default struct Search_ {
                 let keys = Object.keys(this.libraryStates)
                 for (const id of keys) {
                   if (this.libraryStates[id] === true) {
-                    if (!this.musicFolders.some(item => item.id === Number(id))) {
-                      this.libraryStates[id] = false
-                      continue;
-                    }
                     let pageAlbums =
-                      await searchAlbums(this.baseURL, this.username, this.password, this.searchQuery, this.searchAlbumsPage * size, Number(id))
+                      await searchAlbums(this.baseURL, this.username, this.password, this.searchQuery, this.searchAlbumsPage * size, id)
                     if (pageAlbums === undefined || pageAlbums.length === 0) {
                       continue;
                     }
@@ -848,12 +836,8 @@ export default struct Search_ {
                 let keys = Object.keys(this.libraryStates)
                 for (const id of keys) {
                   if (this.libraryStates[id] === true) {
-                    if (!this.musicFolders.some(item => item.id === Number(id))) {
-                      this.libraryStates[id] = false
-                      continue;
-                    }
                     let pageArtists =
-                      await searchArtists(this.baseURL, this.username, this.password, this.searchQuery, this.searchArtistsPage * size, Number(id))
+                      await searchArtists(this.baseURL, this.username, this.password, this.searchQuery, this.searchArtistsPage * size, id)
                     if (pageArtists === undefined || pageArtists.length === 0) {
                       continue;
                     }
