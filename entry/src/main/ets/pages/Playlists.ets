@@ -17,6 +17,7 @@ export default struct Playlists {
   @Consume playlist: Playlist | undefined
   @Consume showProgress: boolean
   @Consume showLibrary: boolean
+  @Consume auth: string
   createPlaylist: CustomDialogController = new CustomDialogController({
     builder: createPlaylistBuilder(),
     width: 350,
@@ -26,7 +27,7 @@ export default struct Playlists {
 
   async aboutToAppear() {
     this.showProgress = true
-    this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+    this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
       return Date.parse(b.changed) - Date.parse(a.changed);
     })
     this.showProgress = false

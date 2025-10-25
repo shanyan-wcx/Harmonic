@@ -15,6 +15,7 @@ export default struct selectPlaylistBuilder {
   @Consume showPlay: boolean
   @Consume longPressSong: Song | undefined
   @Consume playlist: Playlist | undefined
+  @Consume auth: string
   @State selectedPlaylistsNum: number = 0
   selectPlaylist: CustomDialogController = new CustomDialogController({
     builder: selectPlaylistBuilder({})
@@ -134,7 +135,7 @@ export default struct selectPlaylistBuilder {
           let success: boolean = true
           for (let index = 0; index < this.selectedPlaylists.length; index++) {
             if (this.selectedPlaylists[index] === true) {
-              let tmp: boolean = await updatePlaylist(this.baseURL, this.username, this.password, this.playlists[index].id, undefined, undefined,
+              let tmp: boolean = await updatePlaylist(this.baseURL, this.auth, this.playlists[index].id, undefined, undefined,
                 this.showPlay === true ? this.nowPlayingSong!.id : this.longPressSong!.id)
               if (tmp === false) {
                 success = false
@@ -153,9 +154,9 @@ export default struct selectPlaylistBuilder {
             });
           }
           if (this.playlist !== undefined) {
-            this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
+            this.playlist = await getPlaylist(this.baseURL, this.auth, this.playlist!.id)
           }
-          this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+          this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
         })

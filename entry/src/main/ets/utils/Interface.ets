@@ -92,7 +92,7 @@ export interface Album {
   duration: number;
   created: string;
   artistId: string;
-  songCount: number;
+  songCount?: number;
   isVideo: boolean;
   bpm: number;
   comment: string;

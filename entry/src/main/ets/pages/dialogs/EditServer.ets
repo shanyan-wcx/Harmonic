@@ -1,5 +1,6 @@
 import { ping } from "../../utils/Api"
 import { deviceInfo } from "@kit.BasicServicesKit";
+import CryptoJS from "@ohos/crypto-js";
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -9,7 +10,12 @@ export default struct editServerBuilder {
   @StorageLink('baseurls') baseurls: string[] = []
   @StorageLink('usernames') usernames: string[] = []
   @StorageLink('passwords') passwords: string[] = []
+  @StorageLink('usesalts') usesalts: boolean[] = []
   @StorageLink('server') serverIdx: number = -1
+  @Consume salt: string
+  @Consume version: string
+  @Consume client: string
+  @Consume editServerIdx: number
   @State tmpServername: string = ""
   @State tmpBaseurl: string = ""
   @State tmpUrl: string = ""
@@ -17,7 +23,8 @@ export default struct editServerBuilder {
   @State tmpPassword: string = ""
   @State urlHead: string[] = ["http://", "https://"]
   @State urlHeadIdx: number = 0
-  @Consume editServerIdx: number
+  @State auth: string = ""
+  @State useSalt: boolean = this.usesalts.length > this.editServerIdx ? this.usesalts[this.editServerIdx] : false
   createEditServer: CustomDialogController = new CustomDialogController({
     builder: editServerBuilder({})
   })
@@ -74,13 +81,13 @@ export default struct editServerBuilder {
             this.urlHeadIdx = index
           })
           .font({
-            size: 20
+            size: 20,
+            weight: FontWeight.Normal
           })
           .fontColor($r('app.color.font'))
           .height(40)
           .borderRadius(10)
           .margin({ left: 15 })
-          .controlSize(ControlSize.SMALL)
           .optionWidth(80)
           .optionFontColor($r('app.color.font'))
           .selectedOptionFontColor($r('app.color.font'))
@@ -89,7 +96,7 @@ export default struct editServerBuilder {
           .menuBackgroundBlurStyle(BlurStyle.NONE)
           .backgroundColor($r('app.color.textInput'))
         TextInput({
-          placeholder: 'myserver.com',
+          placeholder: 'server-url',
           text: this.baseurls.length > this.editServerIdx && this.editServerIdx !== -1 ? this.baseurls[this.editServerIdx].replace(/^https?:\/\//, "") : ""
         })
           .width("100%")
@@ -98,7 +105,7 @@ export default struct editServerBuilder {
             x: -20
           })
           .padding({ left: 22 })
-          .margin({ right: -15 })
+          .margin({ right: -20 })
           .layoutWeight(1)
           .borderRadius(10)
           .caretColor($r('app.color.font_secondary'))
@@ -173,7 +180,25 @@ export default struct editServerBuilder {
           })
       }
       .width('100%')
-      .margin({ top: 20, bottom: 20 })
+      .margin({ top: 20})
+
+      Row() {
+        Text("使用密码+盐验证")
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+        Radio({ value: this.useSalt.toString(), group: this.useSalt.toString(), indicatorType: RadioIndicatorType.TICK })
+          .checked(this.useSalt)
+          .margin({ left: 10 })
+          .radioStyle({
+            checkedBackgroundColor: $r('app.color.radio'),
+            indicatorColor: $r('app.color.start_window_background')
+          })
+          .onClick(() => {
+            this.useSalt = !this.useSalt
+          })
+      }
+      .margin({ top: 15, bottom: 15 })
+      .alignSelf(ItemAlign.Start)
 
       Row() {
         Button({ type: ButtonType.Normal }) {
@@ -202,12 +227,18 @@ export default struct editServerBuilder {
             });
           } else {
             this.tmpBaseurl = this.urlHead[this.urlHeadIdx] + this.tmpUrl
-            let status = await ping(this.tmpBaseurl, this.tmpUsername, this.tmpPassword)
+            if (this.useSalt) {
+              this.auth = `?u=${this.tmpUsername}&t=${CryptoJS.MD5(this.tmpPassword + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
+            } else {
+              this.auth = `?u=${this.tmpUsername}&p=${this.tmpPassword}&v=${this.version}&c=${this.client}&f=json`
+            }
+            let status = await ping(this.tmpBaseurl, this.auth)
             if (status === 'ok') {
               this.servernames[this.editServerIdx] = this.tmpServername
               this.baseurls[this.editServerIdx] = this.tmpBaseurl
               this.usernames[this.editServerIdx] = this.tmpUsername
               this.passwords[this.editServerIdx] = this.tmpPassword
+              this.usesalts[this.editServerIdx] = this.useSalt
               this.createEditServer.close()
               this.getUIContext().getPromptAction().showToast({
                 message: '编辑服务器成功！',

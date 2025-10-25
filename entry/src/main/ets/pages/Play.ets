@@ -269,7 +269,7 @@ export default struct Play {
     this.mainWindow.on('windowSizeChange', (size) => {
       this.scrollLyrics()
     })
-    let tmp_song: Song | undefined = await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+    let tmp_song: Song | undefined = await getSong(this.baseURL, this.auth, this.nowPlayingSong!.id)
     if (tmp_song !== undefined && tmp_song.starred !== undefined) {
       this.nowPlayingSong!.starred = tmp_song.starred
     }
@@ -463,7 +463,7 @@ export default struct Play {
               this.showList = false
               await this.avPlayer!.reset()
               this.nowPlayingSong = song
-              this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+              this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
               if (this.nowPlayingLyrics !== undefined) {
                 this.groupLyrics()
               }
@@ -533,7 +533,7 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.selectPlaylist.open()
-        this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+        this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
           return Date.parse(b.changed) - Date.parse(a.changed);
         })
       })
@@ -617,13 +617,13 @@ export default struct Play {
       .backgroundColor($r('app.color.bar_background'))
       .onClick(async () => {
         this.showMore = false
-        let url = await createShare(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+        let url = await createShare(this.baseURL, this.auth, this.nowPlayingSong!.id)
         if (url !== undefined) {
           let shareData: systemShare.SharedData = new systemShare.SharedData({
             utd: utd.UniformDataType.HYPERLINK,
             content: url,
             description: this.nowPlayingSong!.title + " - " + this.nowPlayingSong!.artist,
-            thumbnail: new Uint8Array(await getCover(this.baseURL, this.username, this.password,
+            thumbnail: new Uint8Array(await getCover(this.baseURL, this.auth,
               this.nowPlayingSong!.id, 128))
           });
           let controller: systemShare.ShareController = new systemShare.ShareController(shareData);
@@ -658,7 +658,7 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.closePlayPage()
-        this.artist = await getArtist(this.baseURL, this.username, this.password, this.nowPlayingSong!.artistId)
+        this.artist = await getArtist(this.baseURL, this.auth, this.nowPlayingSong!.artistId)
         this.pageStack.replacePathByName('ArtistDetail', undefined);
       })
 
@@ -677,7 +677,7 @@ export default struct Play {
       .onClick(async () => {
         this.showMore = false
         this.closePlayPage()
-        this.album = await getAlbum(this.baseURL, this.username, this.password, this.nowPlayingSong!.albumId)
+        this.album = await getAlbum(this.baseURL, this.auth, this.nowPlayingSong!.albumId)
         this.pageStack.replacePathByName('AlbumDetail', undefined);
       })
 
@@ -809,7 +809,7 @@ export default struct Play {
               .backgroundColor(Color.Transparent)
               .onClick(async () => {
                 if (this.nowPlayingSong?.starred !== undefined) {
-                  let starStatus = await unstar(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+                  let starStatus = await unstar(this.baseURL, this.auth, this.nowPlayingSong!.id)
                   if (starStatus === true) {
                     this.uiContext!.getPromptAction().showToast({
                       message: '取消收藏成功！',
@@ -828,14 +828,14 @@ export default struct Play {
                     });
                   }
                 } else {
-                  let starStatus = await star(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+                  let starStatus = await star(this.baseURL, this.auth, this.nowPlayingSong!.id)
                   if (starStatus === true) {
                     this.uiContext!.getPromptAction().showToast({
                       message: '收藏成功！',
                       duration: 500
                     });
                     let tmp_song: Song | undefined =
-                      await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+                      await getSong(this.baseURL, this.auth, this.nowPlayingSong!.id)
                     if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                       this.nowPlayingSong!.starred = tmp_song.starred
                     }
@@ -1038,7 +1038,7 @@ export default struct Play {
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                   this.nowPlayingLyrics =
-                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                    await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== undefined) {
                     this.groupLyrics()
                   }
@@ -1090,7 +1090,7 @@ export default struct Play {
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                   this.nowPlayingLyrics =
-                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                    await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== undefined) {
                     this.groupLyrics()
                   }

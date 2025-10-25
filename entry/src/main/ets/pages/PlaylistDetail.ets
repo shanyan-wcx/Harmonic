@@ -109,7 +109,7 @@ export default struct PlaylistDetail {
   async aboutToAppear() {
     this.showProgress = true
     this.addOrDelete = false
-    this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
+    this.playlist = await getPlaylist(this.baseURL, this.auth, this.playlist!.id)
     this.showProgress = false
   }
 
@@ -252,7 +252,7 @@ export default struct PlaylistDetail {
               await this.avPlayer!.reset()
               this.isPlaying = true
               this.nowPlayingSong = song
-              this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+              this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
               if (this.nowPlayingLyrics !== undefined) {
                 this.groupLyrics()
               }
@@ -272,7 +272,7 @@ export default struct PlaylistDetail {
                   this.longPressIndex = index
                   this.showMenu = true
                   let tmp_song: Song | undefined =
-                    await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                    await getSong(this.baseURL, this.auth, this.longPressSong!.id)
                   if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                     this.longPressSong!.starred = tmp_song.starred
                   }

@@ -103,7 +103,9 @@ export default struct AlbumDetail {
 
   async aboutToAppear() {
     this.showProgress = true
-    this.album.song = await getAlbumSong(this.baseURL, this.username, this.password, this.album.id);
+    let tmpAlbum = await getAlbum(this.baseURL, this.auth, this.album.id)
+    this.album = tmpAlbum ? tmpAlbum : this.album
+    this.album.song = await getAlbumSong(this.baseURL, this.auth, this.album.id);
     const groupedSongsMap = new Map<number, Song[]>();
     this.album.song!.forEach((song) => {
       let disc = song.discNumber;
@@ -152,7 +154,7 @@ export default struct AlbumDetail {
               .backgroundColor(Color.Transparent)
               .stateEffect(false)
               .onClick(async () => {
-                this.artist = await getArtist(this.baseURL, this.username, this.password, this.album.artistId)
+                this.artist = await getArtist(this.baseURL, this.auth, this.album.artistId)
                 this.pageStack.replacePathByName('ArtistDetail', undefined);
               })
             }
@@ -169,7 +171,7 @@ export default struct AlbumDetail {
 
           Row() {
             Column() {
-              Text(this.album.songCount.toString())
+              Text(this.album.songCount ? this.album.songCount.toString() : '-')
                 .fontSize(20)
                 .fontColor($r('app.color.font'))
                 .fontWeight(FontWeight.Bold)
@@ -209,7 +211,7 @@ export default struct AlbumDetail {
           Divider()
             .width('100%')
             .height(1)
-            .margin({ left: 20, right: 20 })
+            .margin({ left: 20, right: 20, bottom: 5 })
             .color($r('app.color.divider'))
 
           if (this.showDiscHeader) {
@@ -259,7 +261,7 @@ export default struct AlbumDetail {
                     await this.avPlayer!.reset()
                     this.isPlaying = true
                     this.nowPlayingSong = song
-                    this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+                    this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
                     if (this.nowPlayingLyrics !== undefined) {
                       this.groupLyrics()
                     }
@@ -278,7 +280,7 @@ export default struct AlbumDetail {
                         this.longPressSong = song
                         this.showMenu = true
                         let tmp_song: Song | undefined =
-                          await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                          await getSong(this.baseURL, this.auth, this.longPressSong!.id)
                         if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                           this.longPressSong!.starred = tmp_song.starred
                         }
@@ -333,7 +335,7 @@ export default struct AlbumDetail {
                 await this.avPlayer!.reset()
                 this.isPlaying = true
                 this.nowPlayingSong = song
-                this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+                this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
                 if (this.nowPlayingLyrics !== undefined) {
                   this.groupLyrics()
                 }
@@ -352,7 +354,7 @@ export default struct AlbumDetail {
                     this.longPressSong = song
                     this.showMenu = true
                     let tmp_song: Song | undefined =
-                      await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                      await getSong(this.baseURL, this.auth, this.longPressSong!.id)
                     if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                       this.longPressSong!.starred = tmp_song.starred
                     }
@@ -401,7 +403,7 @@ export default struct AlbumDetail {
         $r('sys.symbol.heart_fill')),
       action: async () => {
         if (this.album.starred !== undefined) {
-          let starStatus = await unstar(this.baseURL, this.username, this.password, this.album.id, 'album')
+          let starStatus = await unstar(this.baseURL, this.auth, this.album.id, 'album')
           if (starStatus === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '取消收藏成功！',
@@ -418,14 +420,14 @@ export default struct AlbumDetail {
             });
           }
         } else {
-          let starStatus = await star(this.baseURL, this.username, this.password, this.album.id, 'album')
+          let starStatus = await star(this.baseURL, this.auth, this.album.id, 'album')
           if (starStatus === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '收藏成功！',
               duration: 500
             });
             let tmp_album: Album | undefined =
-              await getAlbum(this.baseURL, this.username, this.password, this.album.id)
+              await getAlbum(this.baseURL, this.auth, this.album.id)
             if (tmp_album !== undefined && tmp_album.starred !== undefined) {
               this.album.starred = tmp_album.starred
             }

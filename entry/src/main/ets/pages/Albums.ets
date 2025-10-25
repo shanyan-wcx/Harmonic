@@ -100,7 +100,7 @@ export default struct Albums {
           for (const id of keys) {
             if (this.libraryStates[id] === true) {
               let pageAlbums =
-                await getAlbumList(this.baseURL, this.username, this.password, this.albumsPage * size, id)
+                await getAlbumList(this.baseURL, this.auth, this.albumsPage * size, id)
               if (pageAlbums === undefined || pageAlbums.length === 0) {
                 continue;
               }

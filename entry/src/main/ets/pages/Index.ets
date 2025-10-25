@@ -11,9 +11,9 @@ import CryptoJS from '@ohos/crypto-js';
 import {
   getAlbumList,
   getAllSongs,
+  getArtists,
   getCover,
   getFrequentAlbums,
-  getIndexes,
   getLyrics,
   getMusicFolders,
   getNewestAlbums,
@@ -86,6 +86,9 @@ struct Index {
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') @Watch('getAuth') username: string = ''
   @StorageLink('password') @Watch('getAuth') password: string = ''
+  @StorageLink('useSalt') @Watch('getAuth') useSalt: boolean = true
+  @StorageLink('usesalts') usesalts: boolean[] = []
+  @StorageLink('baseurls') baseurls: string[] = []
   @Provide salt: string = 'abcdef'
   @Provide version: string = '1.16.1'
   @Provide client: string = 'Harmonic'
@@ -198,7 +201,11 @@ struct Index {
   }
 
   getAuth() {
-    this.auth = `?u=${this.username}&t=${CryptoJS.MD5(this.password + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
+    if (this.useSalt) {
+      this.auth = `?u=${this.username}&t=${CryptoJS.MD5(this.password + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
+    } else {
+      this.auth = `?u=${this.username}&p=${this.password}&v=${this.version}&c=${this.client}&f=json`
+    }
   }
 
   groupLyrics() {
@@ -313,8 +320,7 @@ struct Index {
     let metadata: AVSessionManager.AVMetadata = {
       assetId: this.nowPlayingSong!.id,
       title: this.nowPlayingSong!.title,
-      mediaImage: this.getPixelMap(await getCover(this.baseURL, this.username, this.password, this.nowPlayingSong!.id,
-        512)),
+      mediaImage: this.getPixelMap(await getCover(this.baseURL, this.auth, this.nowPlayingSong!.id, 512)),
       duration: this.nowPlayingSong!.duration * 1000,
       artist: this.nowPlayingSong!.artist,
       lyric: this.convertToLrc(this.nowPlayingLyrics),
@@ -376,7 +382,7 @@ struct Index {
         this.nowPlayingIndex -= 1
       }
       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-      this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+      this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
       if (this.nowPlayingLyrics !== undefined) {
         this.groupLyrics()
       }
@@ -390,7 +396,7 @@ struct Index {
         this.nowPlayingIndex += 1
       }
       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-      this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+      this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
       if (this.nowPlayingLyrics !== undefined) {
         this.groupLyrics()
       }
@@ -411,7 +417,7 @@ struct Index {
     })
     this.session!.on('toggleFavorite', async (assetId: string) => {
       if (this.nowPlayingSong?.starred !== undefined) {
-        let starStatus = await unstar(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+        let starStatus = await unstar(this.baseURL, this.auth, this.nowPlayingSong!.id)
         if (starStatus === true) {
           this.uiContext!.getPromptAction().showToast({
             message: '取消收藏成功！',
@@ -430,14 +436,14 @@ struct Index {
           });
         }
       } else {
-        let starStatus = await star(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+        let starStatus = await star(this.baseURL, this.auth, this.nowPlayingSong!.id)
         if (starStatus === true) {
           this.uiContext!.getPromptAction().showToast({
             message: '收藏成功！',
             duration: 500
           });
           let tmp_song: Song | undefined =
-            await getSong(this.baseURL, this.username, this.password, this.nowPlayingSong!.id)
+            await getSong(this.baseURL, this.auth, this.nowPlayingSong!.id)
           if (tmp_song !== undefined && tmp_song.starred !== undefined) {
             this.nowPlayingSong!.starred = tmp_song.starred
           }
@@ -518,7 +524,7 @@ struct Index {
           console.info('播放器重置。');
           this.stopContinuousTask()
           this.nowPlayedTime = 0
-          await scrobble(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, true);
+          await scrobble(this.baseURL, this.auth, this.nowPlayingSong!.id, true);
           break;
         case 'initialized':
           console.info('播放器初始化。');
@@ -558,7 +564,7 @@ struct Index {
               this.avPlayer!.pause()
             }
           }
-          scrobble(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, false);
+          scrobble(this.baseURL, this.auth, this.nowPlayingSong!.id, false);
           break;
         case 'playing':
           console.info('播放器开始播放。');
@@ -584,7 +590,7 @@ struct Index {
               this.nowPlayingIndex += 1
             }
             this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-            this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+            this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
             if (this.nowPlayingLyrics !== undefined) {
               this.groupLyrics()
             }
@@ -682,19 +688,20 @@ struct Index {
       return
     }
     this.showProgress = true
-    this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+    this.musicFolders = await getMusicFolders(this.baseURL, this.auth)
     const newStates: Record<string, boolean> = {};
     this.musicFolders.forEach(folder => {
       newStates[folder.id] = this.libraryStates[folder.id] ?? false
     });
-    const keys = Object.keys(this.libraryStates)
-    const keys1 = Object.keys(newStates)
+    let keys = Object.keys(this.libraryStates)
+    let keys1 = Object.keys(newStates)
     const allFalse = keys1.length > 0 && keys1.every(key => newStates[key] === false)
     if (allFalse) {
       newStates[keys1[0]] = true
     }
     this.libraryStates = newStates;
     this.libraryStatesStr = JSON.stringify(this.libraryStates);
+    keys = keys1
     if (this.musicFolders.length === 0) {
       this.uiContext!.getPromptAction().showToast({
         message: '获取音乐库失败，请检查网络连接！',
@@ -705,21 +712,21 @@ struct Index {
       if (this.libraryStates[id] === true) {
         switch (this.nowPage) {
           case 0:
-            let recentAlbums = await getRecentAlbums(this.baseURL, this.username, this.password, id)
+            let recentAlbums = await getRecentAlbums(this.baseURL, this.auth, id)
             this.recentAlbums.unshift(...recentAlbums)
-            let newestAlbums = await getNewestAlbums(this.baseURL, this.username, this.password, id)
+            let newestAlbums = await getNewestAlbums(this.baseURL, this.auth, id)
             this.newestAlbums.unshift(...newestAlbums)
-            let frequentAlbums = await getFrequentAlbums(this.baseURL, this.username, this.password, id)
+            let frequentAlbums = await getFrequentAlbums(this.baseURL, this.auth, id)
             this.frequentAlbums.unshift(...frequentAlbums)
-            let randomAlbums = await getRandomAlbums(this.baseURL, this.username, this.password, id)
+            let randomAlbums = await getRandomAlbums(this.baseURL, this.auth, id)
             this.randomAlbums.unshift(...randomAlbums)
-            let starredAlbums = await getStarredAlbums(this.baseURL, this.username, this.password, id)
+            let starredAlbums = await getStarredAlbums(this.baseURL, this.auth, id)
             this.starredAlbums.unshift(...starredAlbums)
-            let starredArtists = await getStarredArtists(this.baseURL, this.username, this.password, id)
+            let starredArtists = await getStarredArtists(this.baseURL, this.auth, id)
             this.starredArtists.unshift(...starredArtists)
             break;
           case 2:
-            let pageAlbums = await getAlbumList(this.baseURL, this.username, this.password, 0, id)
+            let pageAlbums = await getAlbumList(this.baseURL, this.auth, 0, id)
             if (pageAlbums === undefined || pageAlbums.length === 0) {
               this.albumsPage = 0
               return;
@@ -728,14 +735,14 @@ struct Index {
             this.albumsPage = 1
             break;
           case 3:
-            let artists = await getIndexes(this.baseURL, this.username, this.password, id)
+            let artists = await getArtists(this.baseURL, this.auth, id)
             this.artists.unshift(...artists)
             this.artists.sort((a, b) => {
               return collator.compare(transliterator.transform(a.name), transliterator.transform(b.name));
             })
             break;
           case 4:
-            let pageSongs = await getAllSongs(this.baseURL, this.username, this.password, 0, id)
+            let pageSongs = await getAllSongs(this.baseURL, this.auth, 0, id)
             if (pageSongs === undefined || pageSongs.length === 0) {
               this.songsPage = 0
               return;
@@ -953,7 +960,7 @@ struct Index {
       .onClick(async () => {
         this.showMenu = false
         this.selectPlaylist.open()
-        this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+        this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
           return Date.parse(b.changed) - Date.parse(a.changed);
         })
       })
@@ -973,15 +980,15 @@ struct Index {
       .onClick(async () => {
         this.showMenu = false
         let success =
-          await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, undefined, undefined,
+          await updatePlaylist(this.baseURL, this.auth, this.playlist!.id, undefined, undefined,
             undefined, this.longPressIndex)
         if (success === true) {
           this.uiContext!.getPromptAction().showToast({
             message: '删除成功！',
             duration: 500
           });
-          this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
-          this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+          this.playlist = await getPlaylist(this.baseURL, this.auth, this.playlist!.id)
+          this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
             return Date.parse(b.changed) - Date.parse(a.changed);
           })
         } else {
@@ -1006,7 +1013,7 @@ struct Index {
       .onClick(async () => {
         this.showMenu = false
         if (this.longPressSong?.starred !== undefined) {
-          let starStatus = await unstar(this.baseURL, this.username, this.password, this.longPressSong!.id)
+          let starStatus = await unstar(this.baseURL, this.auth, this.longPressSong!.id)
           if (starStatus === true) {
             this.uiContext!.getPromptAction().showToast({
               message: '取消收藏成功！',
@@ -1027,14 +1034,14 @@ struct Index {
             });
           }
         } else {
-          let starStatus = await star(this.baseURL, this.username, this.password, this.longPressSong!.id)
+          let starStatus = await star(this.baseURL, this.auth, this.longPressSong!.id)
           if (starStatus === true) {
             this.uiContext!.getPromptAction().showToast({
               message: '收藏成功！',
               duration: 500
             });
             let tmp_song: Song | undefined =
-              await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+              await getSong(this.baseURL, this.auth, this.longPressSong!.id)
             if (tmp_song !== undefined && tmp_song.starred !== undefined) {
               this.longPressSong!.starred = tmp_song.starred
             }
@@ -1126,14 +1133,15 @@ struct Index {
           this.musicFolders.forEach(folder => {
             newStates[folder.id] = this.libraryStates[folder.id] ?? false
           });
-          const keys = Object.keys(this.libraryStates)
-          const keys1 = Object.keys(newStates)
+          let keys = Object.keys(this.libraryStates)
+          let keys1 = Object.keys(newStates)
           const allFalse = keys1.length > 0 && keys1.every(key => newStates[key] === false)
           if (allFalse) {
             newStates[keys1[0]] = true
           }
           this.libraryStates = newStates;
           this.libraryStatesStr = JSON.stringify(this.libraryStates);
+          keys = keys1
           this.needUpdate = !this.needUpdate
           this.showLibrary = false;
         }
@@ -1146,19 +1154,20 @@ struct Index {
           });
         } else {
           this.musicFolders = []
-          this.musicFolders = await getMusicFolders(this.baseURL, this.username, this.password)
+          this.musicFolders = await getMusicFolders(this.baseURL, this.auth)
           const newStates: Record<string, boolean> = {};
           this.musicFolders.forEach(folder => {
             newStates[folder.id] = this.libraryStates[folder.id] ?? false
           });
-          const keys = Object.keys(this.libraryStates)
-          const keys1 = Object.keys(newStates)
+          let keys = Object.keys(this.libraryStates)
+          let keys1 = Object.keys(newStates)
           const allFalse = keys1.length > 0 && keys1.every(key => newStates[key] === false)
           if (allFalse) {
             newStates[keys1[0]] = true
           }
           this.libraryStates = newStates;
           this.libraryStatesStr = JSON.stringify(this.libraryStates);
+          keys = keys1
           if (this.musicFolders.length === 0) {
             this.uiContext!.getPromptAction().showToast({
               message: '获取音乐库失败，请检查网络连接！',
@@ -1210,7 +1219,7 @@ struct Index {
         }
       }
     }
-    await scrobble(this.baseURL, this.username, this.password, this.nowPlayingSong!.id, true);
+    await scrobble(this.baseURL, this.auth, this.nowPlayingSong!.id, true);
   }
 
   async aboutToAppear() {
@@ -1312,6 +1321,12 @@ struct Index {
       }
       fs.closeSync(file);
     }
+    //  补齐是否使用盐的设置
+    this.baseurls.forEach((baseurl, index) => {
+      if (this.usesalts.length < this.baseurls.length) {
+        this.usesalts.push(true)
+      }
+    })
     if (this.sidebarType === SideBarContainerType.Embed) {
       getVerse().then((verse: Verse) => {
         this.verse = verse
@@ -1870,7 +1885,7 @@ struct Index {
                       }
                       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                       this.nowPlayingLyrics =
-                        await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                        await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                       if (this.nowPlayingLyrics !== undefined) {
                         this.groupLyrics()
                       }
@@ -1937,7 +1952,7 @@ struct Index {
                       }
                       this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                       this.nowPlayingLyrics =
-                        await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                        await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                       if (this.nowPlayingLyrics !== undefined) {
                         this.groupLyrics()
                       }
@@ -2127,7 +2142,7 @@ struct Index {
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                   this.nowPlayingLyrics =
-                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                    await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== undefined) {
                     this.groupLyrics()
                   }
@@ -2194,7 +2209,7 @@ struct Index {
                   }
                   this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
                   this.nowPlayingLyrics =
-                    await getLyrics(this.baseURL, this.username, this.password, this.nowPlayingSong.id)
+                    await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                   if (this.nowPlayingLyrics !== undefined) {
                     this.groupLyrics()
                   }

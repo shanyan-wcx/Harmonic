@@ -1,20 +1,15 @@
 import axios, { AxiosResponse } from '@ohos/axios'
-import CryptoJS from '@ohos/crypto-js'
 import { ApiResponse, Artist, LyricsList, Playlist, SubsonicResponse } from './Interface'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 
-let salt = 'abcdef'
-let version = '1.16.1'
-let client = 'Harmonic'
-
-export async function ping(baseURL: string, username: string, password: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function ping(baseURL: string, auth: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/ping' + auth, {
-        readTimeout: 100,
-        timeout: 100
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/ping' + auth, {}, {
+        timeout: 500,
+        readTimeout: 500,
+        connectTimeout: 500
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.status
@@ -24,12 +19,13 @@ export async function ping(baseURL: string, username: string, password: string) 
   }
 }
 
-export async function getMusicFolders(baseURL: string, username: string, password: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getMusicFolders(baseURL: string, auth: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getMusicFolders' + auth, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getMusicFolders' + auth, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.musicFolders!.musicFolder!
@@ -39,14 +35,15 @@ export async function getMusicFolders(baseURL: string, username: string, passwor
   }
 }
 
-export async function getIndexes(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getIndexes(baseURL: string, auth: string, musicFolderId: string) {
   let artists: Artist[] = []
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getIndexes' + auth +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     subsonicResponse.indexes!.index.forEach(item => {
@@ -59,12 +56,34 @@ export async function getIndexes(baseURL: string, username: string, password: st
   }
 }
 
-export async function getGenres(baseURL: string, username: string, password: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getArtists(baseURL: string, auth: string, musicFolderId: string) {
+  let artists: Artist[] = []
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getGenres' + auth, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getArtists' + auth +
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    subsonicResponse.artists!.index.forEach(item => {
+      artists = artists.concat(item.artist)
+    })
+    return artists
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return []
+  }
+}
+
+export async function getGenres(baseURL: string, auth: string) {
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getGenres' + auth, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     console.log(JSON.stringify(response.data))
   } catch (error) {
@@ -72,12 +91,13 @@ export async function getGenres(baseURL: string, username: string, password: str
   }
 }
 
-export async function getArtist(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getArtist(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.artist
@@ -87,15 +107,16 @@ export async function getArtist(baseURL: string, username: string, password: str
   }
 }
 
-export async function getArtistInfo(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getArtistInfo(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtistInfo' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtistInfo' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    if (subsonicResponse.artistInfo!.biography !== undefined) {
+    if (subsonicResponse.artistInfo!.biography !== undefined && subsonicResponse.artistInfo!.biography.length > 0) {
       return '\u3000\u3000' + subsonicResponse.artistInfo!.biography
     } else {
       return '暂无介绍'
@@ -106,12 +127,13 @@ export async function getArtistInfo(baseURL: string, username: string, password:
   }
 }
 
-export async function getAlbumSong(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getAlbumSong(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.album!.song
@@ -121,12 +143,13 @@ export async function getAlbumSong(baseURL: string, username: string, password: 
   }
 }
 
-export async function getAlbum(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getAlbum(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.album
@@ -136,15 +159,15 @@ export async function getAlbum(baseURL: string, username: string, password: stri
   }
 }
 
-export async function getAlbumList(baseURL: string, username: string, password: string, offset: number,
-  musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getAlbumList(baseURL: string, auth: string, offset: number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth +
         `&type=alphabeticalByName&size=500&offset=${offset}` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.albumList!.album
@@ -154,13 +177,32 @@ export async function getAlbumList(baseURL: string, username: string, password: 
   }
 }
 
-export async function getRecentAlbums(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getAlbumListByArtist(baseURL: string, auth: string, offset: number, musicFolderId: string) {
+  try {
+    const response: AxiosResponse =
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth +
+        `&type=alphabeticalByArtist&size=500&offset=${offset}` +
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
+      })
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    return subsonicResponse.albumList!.album
+  } catch (error) {
+    console.error(JSON.stringify(error));
+    return undefined
+  }
+}
+
+export async function getRecentAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=recent` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.albumList!.album) {
@@ -173,13 +215,14 @@ export async function getRecentAlbums(baseURL: string, username: string, passwor
   }
 }
 
-export async function getNewestAlbums(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getNewestAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=newest` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.albumList!.album) {
@@ -192,13 +235,14 @@ export async function getNewestAlbums(baseURL: string, username: string, passwor
   }
 }
 
-export async function getFrequentAlbums(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getFrequentAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=frequent` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.albumList!.album) {
@@ -211,13 +255,14 @@ export async function getFrequentAlbums(baseURL: string, username: string, passw
   }
 }
 
-export async function getRandomAlbums(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getRandomAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=random` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.albumList!.album) {
@@ -230,12 +275,13 @@ export async function getRandomAlbums(baseURL: string, username: string, passwor
   }
 }
 
-export async function getSong(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getSong(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getSong' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getSong' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.song
@@ -245,18 +291,19 @@ export async function getSong(baseURL: string, username: string, password: strin
   }
 }
 
-export async function getPlaylists(baseURL: string, username: string, password: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getPlaylists(baseURL: string, auth: string) {
   let playlists: Playlist[] = []
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylists' + auth, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylists' + auth, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.playlists!.playlist && subsonicResponse.playlists!.playlist.length > 0) {
       await Promise.all(subsonicResponse.playlists!.playlist.map(async (playlist) => {
-        let tmpPlaylist = await getPlaylist(baseURL, username, password, playlist.id)
+        let tmpPlaylist = await getPlaylist(baseURL, auth, playlist.id)
         if (tmpPlaylist !== undefined) {
           playlists.push(tmpPlaylist)
         }
@@ -269,12 +316,13 @@ export async function getPlaylists(baseURL: string, username: string, password: 
   }
 }
 
-export async function getPlaylist(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getPlaylist(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylist' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylist' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       });
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"];
     return subsonicResponse.playlist!
@@ -284,12 +332,13 @@ export async function getPlaylist(baseURL: string, username: string, password: s
   }
 }
 
-export async function getLyrics(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getLyrics(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getLyricsBySongId' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getLyricsBySongId' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     let lyricsList: LyricsList = subsonicResponse.lyricsList!
@@ -303,12 +352,13 @@ export async function getLyrics(baseURL: string, username: string, password: str
   }
 }
 
-export async function getCover(baseURL: string, username: string, password: string, id: string, size: number) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getCover(baseURL: string, auth: string, id: string, size: number) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getCoverArt' + auth + `&id=${id}&size=${size}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getCoverArt' + auth + `&id=${id}&size=${size}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     return response.data
   } catch (error) {
@@ -317,10 +367,7 @@ export async function getCover(baseURL: string, username: string, password: stri
   }
 }
 
-export async function updatePlaylist(baseURL: string, username: string, password: string, playlistId: string,
-  name?: string, comment?: string, songIdToAdd?: string,
-  songIndexToRemove?: number) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function updatePlaylist(baseURL: string, auth: string, playlistId: string, name?: string, comment?: string, songIdToAdd?: string, songIndexToRemove?: number) {
   let url = baseURL + '/rest/updatePlaylist' + auth + `&playlistId=${playlistId}`
   if (name !== undefined) {
     url += `&name=${name}`
@@ -338,8 +385,10 @@ export async function updatePlaylist(baseURL: string, username: string, password
   }
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(url, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(url, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     return true
   } catch (error) {
@@ -348,18 +397,18 @@ export async function updatePlaylist(baseURL: string, username: string, password
   }
 }
 
-export async function createPlaylist(baseURL: string, username: string, password: string, name: string,
-  comment: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function createPlaylist(baseURL: string, auth: string, name: string, comment: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/createPlaylist' + auth + `&name=${name}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/createPlaylist' + auth + `&name=${name}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     let playlist = subsonicResponse.playlist
     if (playlist !== undefined) {
-      let success = await updatePlaylist(baseURL, username, password, playlist.id, undefined, comment)
+      let success = await updatePlaylist(baseURL, auth, playlist.id, undefined, comment)
       if (success === false) {
         return false
       }
@@ -373,12 +422,13 @@ export async function createPlaylist(baseURL: string, username: string, password
   }
 }
 
-export async function deletePlaylist(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function deletePlaylist(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/deletePlaylist' + auth + `&id=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/deletePlaylist' + auth + `&id=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     return true
   } catch (error) {
@@ -387,13 +437,14 @@ export async function deletePlaylist(baseURL: string, username: string, password
   }
 }
 
-export async function getStarredArtists(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getStarredArtists(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getStarred2' + auth +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (Object.keys(subsonicResponse.starred2!).length !== 0 && subsonicResponse.starred2!.artist !== undefined) {
@@ -406,13 +457,14 @@ export async function getStarredArtists(baseURL: string, username: string, passw
   }
 }
 
-export async function getStarredAlbums(baseURL: string, username: string, password: string, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getStarredAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getStarred2' + auth +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (Object.keys(subsonicResponse.starred2!).length !== 0 && subsonicResponse.starred2!.album !== undefined) {
@@ -425,16 +477,17 @@ export async function getStarredAlbums(baseURL: string, username: string, passwo
   }
 }
 
-export async function star(baseURL: string, username: string, password: string, id: string, type?: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function star(baseURL: string, auth: string, id: string, type?: string) {
   let idType = "id"
   if (type !== undefined) {
     idType = type === "album" ? "albumId" : "artistId"
   }
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/star' + auth + `&${idType}=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/star' + auth + `&${idType}=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     return true
   } catch (error) {
@@ -443,16 +496,17 @@ export async function star(baseURL: string, username: string, password: string, 
   }
 }
 
-export async function unstar(baseURL: string, username: string, password: string, id: string, type?: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function unstar(baseURL: string, auth: string, id: string, type?: string) {
   let idType = "id"
   if (type !== undefined) {
     idType = type === "album" ? "albumId" : "artistId"
   }
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/unstar' + auth + `&${idType}=${id}`, {
-        timeout: 10000
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/unstar' + auth + `&${idType}=${id}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     return true
   } catch (error) {
@@ -461,16 +515,17 @@ export async function unstar(baseURL: string, username: string, password: string
   }
 }
 
-export async function createShare(baseURL: string, username: string, password: string, id: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function createShare(baseURL: string, auth: string, id: string) {
   let currentDate = new Date();
   currentDate.setMonth(currentDate.getMonth() + 1);
   let time = currentDate.getTime();
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/createShare' + auth +
-        `&id=${id}&expires=${time}`, {
-        timeout: 10000
+        `&id=${id}&expires=${time}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     if (subsonicResponse.shares !== undefined) {
@@ -483,14 +538,14 @@ export async function createShare(baseURL: string, username: string, password: s
   }
 }
 
-export async function search(baseURL: string, username: string, password: string, query: string,
-  musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function search(baseURL: string, auth: string, query: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songCount=500&albumCount=500&artistCount=500` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2;
@@ -500,13 +555,14 @@ export async function search(baseURL: string, username: string, password: string
   }
 }
 
-export async function searchSongs(baseURL: string, username: string, password: string, query: string, songOffset:number, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function searchSongs(baseURL: string, auth: string, query: string, songOffset:number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songOffset=${songOffset}&songCount=500&albumCount=0&artistCount=0` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2?.song;
@@ -516,13 +572,14 @@ export async function searchSongs(baseURL: string, username: string, password: s
   }
 }
 
-export async function searchAlbums(baseURL: string, username: string, password: string, query: string, albumOffset:number, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function searchAlbums(baseURL: string, auth: string, query: string, albumOffset:number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songCount=0&albumOffset=${albumOffset}&albumCount=500&artistCount=0` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2?.album;
@@ -532,13 +589,14 @@ export async function searchAlbums(baseURL: string, username: string, password: 
   }
 }
 
-export async function searchArtists(baseURL: string, username: string, password: string, query: string, artistOffset:number, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function searchArtists(baseURL: string, auth: string, query: string, artistOffset:number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&query=${query}&songCount=0&albumCount=0&artistOffset=${artistOffset}&artistCount=500` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2?.artist;
@@ -548,13 +606,14 @@ export async function searchArtists(baseURL: string, username: string, password:
   }
 }
 
-export async function getAllSongs(baseURL: string, username: string, password: string, songOffset: number, musicFolderId: string) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function getAllSongs(baseURL: string, auth: string, songOffset: number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/search2' + auth + `&artistCount=0&albumCount=0&songCount=500&songOffset=${songOffset}` +
-        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {
-        timeout: 10000
+        (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : "") + '&query=', {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.searchResult2!.song;
@@ -564,13 +623,14 @@ export async function getAllSongs(baseURL: string, username: string, password: s
   }
 }
 
-export async function scrobble(baseURL: string, username: string, password: string, id: string, submission: boolean) {
-  let auth = `?u=${username}&t=${CryptoJS.MD5(password + salt)}&s=${salt}&v=${version}&c=${client}&f=json`
+export async function scrobble(baseURL: string, auth: string, id: string, submission: boolean) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/scrobble' + auth +
-        `&id=${id}&submission=${submission}`, {
-        timeout: 10000
+        `&id=${id}&submission=${submission}`, {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
       })
     return true
   } catch (error) {
@@ -582,7 +642,11 @@ export async function scrobble(baseURL: string, username: string, password: stri
 export async function getVerse() {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>("https://v1.hitokoto.cn/?c=i&encode=json&max_length=12")
+      await axios.post<string, AxiosResponse<string>>("https://v1.hitokoto.cn/?c=i&encode=json&max_length=12", {}, {
+        timeout: 10000,
+        readTimeout: 10000,
+        connectTimeout: 10000
+      })
     if (response.status === 200) {
       return response.data
     }

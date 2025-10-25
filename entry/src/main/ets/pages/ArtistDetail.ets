@@ -1,6 +1,6 @@
 import { Album, Artist, MusicFolder } from '../utils/Interface';
 import { LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
-import { getAlbumList, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
+import { getAlbumList, getAlbumListByArtist, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { artistImage, coverImage } from '../utils/Component';
 
@@ -42,29 +42,38 @@ export default struct ArtistDetail {
 
   async aboutToAppear() {
     this.showProgress = true
-    this.artist!.biography = await getArtistInfo(this.baseURL, this.username, this.password, this.artist!.id)
-    this.tempLibraryAlbums = []
+    let tmpArtist = await getArtist(this.baseURL, this.auth, this.artist!.id)
+    this.artist = tmpArtist ? tmpArtist : this.artist
+    this.artist!.biography = await getArtistInfo(this.baseURL, this.auth, this.artist!.id)
+    console.log(JSON.stringify(this.artist!.album))
+    let size = 500
     let keys = Object.keys(this.libraryStates)
+    let tmpAlbums: Album[] = []
     for (const id of keys) {
       if (this.libraryStates[id] === true) {
-        let offset = 0
-        let size = 500
-        while (true) {
-          let albums = await getAlbumList(this.baseURL, this.username, this.password, offset, id)
-          if (albums === undefined || albums.length === 0) {
+        let albumsPage = 0
+        let flag = false
+        while (1) {
+          let pageAlbums = await getAlbumListByArtist(this.baseURL, this.auth, albumsPage * size, id)
+          if (pageAlbums === undefined || pageAlbums.length === 0) {
             break;
           }
-          this.tempAlbums.push(...albums)
-          if (albums.length < size) {
+          let pageAlbums1 = pageAlbums.filter(album => album.artistId.toString() === this.artist!.id.toString())
+          if (pageAlbums1.length > 0) {
+            flag = true
+            tmpAlbums.push(...pageAlbums1)
+          }
+          albumsPage++
+          if (pageAlbums1.length === 0 && flag === true) {
             break;
           }
-          offset += size;
+          if (pageAlbums.length < size) {
+            break;
+          }
         }
-        this.tempLibraryAlbums.unshift(...this.tempAlbums.filter(album => album.artistId === this.artist?.id))
-        this.tempAlbums = []
       }
     }
-    this.artist!.album = this.tempLibraryAlbums
+    this.artist!.album = tmpAlbums
     this.showProgress = false
   }
 
@@ -135,7 +144,7 @@ export default struct ArtistDetail {
                     .aspectRatio(1)
                     .justifyContent(FlexAlign.Center)
 
-                    Text(album.title)
+                    Text(album.name)
                       .fontSize(17)
                       .fontWeight(FontWeight.Medium)
                       .margin({ top: 5 })
@@ -218,7 +227,7 @@ export default struct ArtistDetail {
       symbolIcon: new SymbolGlyphModifier(this.artist!.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
       action: async () => {
         if (this.artist!.starred !== undefined) {
-          let starStatus = await unstar(this.baseURL, this.username, this.password, this.artist!.id, 'artist')
+          let starStatus = await unstar(this.baseURL, this.auth, this.artist!.id, 'artist')
           if (starStatus === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '取消收藏成功！',
@@ -235,14 +244,14 @@ export default struct ArtistDetail {
             });
           }
         } else {
-          let starStatus = await star(this.baseURL, this.username, this.password, this.artist!.id, 'artist')
+          let starStatus = await star(this.baseURL, this.auth, this.artist!.id, 'artist')
           if (starStatus === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '收藏成功！',
               duration: 500
             });
             let tmp_artist: Artist | undefined =
-              await getArtist(this.baseURL, this.username, this.password, this.artist!.id)
+              await getArtist(this.baseURL, this.auth, this.artist!.id)
             if (tmp_artist !== undefined && tmp_artist.starred !== undefined) {
               this.artist!.starred = tmp_artist.starred
             }

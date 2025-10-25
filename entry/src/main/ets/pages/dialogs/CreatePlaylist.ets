@@ -10,6 +10,7 @@ export default struct createPlaylistBuilder {
   @StorageLink('username') username: string = ''
   @StorageLink('password') password: string = ''
   @Consume playlists: Playlist[]
+  @Consume auth: string
   @State name: string = ''
   @State comment: string = ''
   createPlaylist: CustomDialogController = new CustomDialogController({
@@ -97,13 +98,13 @@ export default struct createPlaylistBuilder {
       .onClick(async () => {
         if(this.name!==''){
           this.createPlaylist.close()
-          let success = await createPlaylist(this.baseURL, this.username, this.password, this.name, this.comment)
+          let success = await createPlaylist(this.baseURL, this.auth, this.name, this.comment)
           if (success === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '新建成功！',
               duration: 500
             });
-            this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+            this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
           } else {

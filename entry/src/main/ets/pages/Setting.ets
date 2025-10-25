@@ -2,6 +2,7 @@ import { ping } from '../utils/Api'
 import addServerBuilder from './dialogs/AddServer'
 import editServerBuilder from './dialogs/EditServer'
 import { deviceInfo } from '@kit.BasicServicesKit';
+import CryptoJS from '@ohos/crypto-js';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -11,6 +12,7 @@ export default struct Setting {
   @StorageLink('baseURL') baseURL: string = ""
   @StorageLink('username') username: string = ""
   @StorageLink('password') password: string = ""
+  @StorageLink('useSalt') useSalt: boolean = true
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('autoPlay') autoPlay: boolean = false
@@ -19,18 +21,23 @@ export default struct Setting {
   @StorageLink('baseurls') baseurls: string[] = []
   @StorageLink('usernames') usernames: string[] = []
   @StorageLink('passwords') passwords: string[] = []
+  @StorageLink('usesalts') usesalts: boolean[] = []
   @Provide editServerIdx: number = -1
   @Consume startPlaying: boolean
+  @State auth: string = ""
+  @Consume salt: string
+  @Consume version: string
+  @Consume client: string
   addServer: CustomDialogController = new CustomDialogController({
     builder: addServerBuilder(),
     width: 350,
-    height: 374,
+    height: 414,
     backgroundColor: $r('app.color.start_window_background')
   })
   editServer: CustomDialogController = new CustomDialogController({
     builder: editServerBuilder(),
     width: 350,
-    height: 374,
+    height: 414,
     backgroundColor: $r('app.color.start_window_background'),
     onWillDismiss:(dismissDialogAction: DismissDialogAction)=> {
       dismissDialogAction.dismiss();
@@ -90,13 +97,20 @@ export default struct Setting {
                   this.baseURL = ""
                   this.username = ""
                   this.password = ""
+                  this.useSalt = true
                 } else {
-                  let status = await ping(this.baseurls[index], this.usernames[index], this.passwords[index])
+                  if (this.usesalts[index]) {
+                    this.auth = `?u=${this.usernames[index]}&t=${CryptoJS.MD5(this.passwords[index] + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
+                  } else {
+                    this.auth = `?u=${this.usernames[index]}&p=${this.passwords[index]}&v=${this.version}&c=${this.client}&f=json`
+                  }
+                  let status = await ping(this.baseurls[index], this.auth)
                   if (status === 'ok') {
                     this.serverIdx = index
                     this.baseURL = this.baseurls[index]
                     this.username = this.usernames[index]
                     this.password = this.passwords[index]
+                    this.useSalt = this.usesalts[index]
                   } else {
                     this.getUIContext().getPromptAction().showToast({
                       message: '连接服务器失败！',
@@ -118,6 +132,7 @@ export default struct Setting {
               .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.editServerIdx = index
+                console.log(this.editServerIdx.toString())
                 this.editServer.open()
               })
             }

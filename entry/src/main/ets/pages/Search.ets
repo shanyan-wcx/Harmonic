@@ -1,5 +1,4 @@
 import { Album, Artist, Line, MusicFolder, SearchResult, Song, StructuredLyric } from '../utils/Interface';
-import { CircleShape } from '@kit.ArkUI';
 import { getLyrics, getSong, search, searchAlbums, searchArtists, searchSongs } from '../utils/Api';
 import { media } from '@kit.MediaKit';
 import { avSession as AVSessionManager } from '@kit.AVSessionKit';
@@ -187,7 +186,7 @@ export default struct Search_ {
               for (const id of keys) {
                 if (this.libraryStates[id] === true) {
                   let searchResult: SearchResult | undefined =
-                    await search(this.baseURL, this.username, this.password, searchContent, id)
+                    await search(this.baseURL, this.auth, searchContent, id)
                   if (searchResult !== undefined) {
                     if (searchResult.song !== undefined && searchResult.song.length > 0) {
                       this.searchSongs.unshift(...searchResult.song);
@@ -272,7 +271,7 @@ export default struct Search_ {
                             await this.avPlayer!.reset()
                             this.isPlaying = true
                             this.nowPlayingSong = song
-                            this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+                            this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
                             if (this.nowPlayingLyrics !== undefined) {
                               this.groupLyrics()
                             }
@@ -292,7 +291,7 @@ export default struct Search_ {
                                 this.longPressSong = song
                                 this.showMenu = true
                                 let tmp_song: Song | undefined =
-                                  await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                                  await getSong(this.baseURL, this.auth, this.longPressSong!.id)
                                 if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                                   this.longPressSong!.starred = tmp_song.starred
                                 }
@@ -617,7 +616,7 @@ export default struct Search_ {
                     await this.avPlayer!.reset()
                     this.isPlaying = true
                     this.nowPlayingSong = song
-                    this.nowPlayingLyrics = await getLyrics(this.baseURL, this.username, this.password, song.id)
+                    this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
                     if (this.nowPlayingLyrics !== undefined) {
                       this.groupLyrics()
                     }
@@ -636,7 +635,7 @@ export default struct Search_ {
                         this.longPressSong = song
                         this.showMenu = true
                         let tmp_song: Song | undefined =
-                          await getSong(this.baseURL, this.username, this.password, this.longPressSong!.id)
+                          await getSong(this.baseURL, this.auth, this.longPressSong!.id)
                         if (tmp_song !== undefined && tmp_song.starred !== undefined) {
                           this.longPressSong!.starred = tmp_song.starred
                         }
@@ -672,7 +671,7 @@ export default struct Search_ {
               let keys = Object.keys(this.libraryStates)
               for (const id of keys) {
                 if (this.libraryStates[id] === true) {
-                  let pageSongs = await searchSongs(this.baseURL, this.username, this.password, this.searchQuery,
+                  let pageSongs = await searchSongs(this.baseURL, this.auth, this.searchQuery,
                     this.searchSongsPage * size, id)
                   if (pageSongs === undefined || pageSongs.length === 0) {
                     continue;
@@ -752,7 +751,7 @@ export default struct Search_ {
                 for (const id of keys) {
                   if (this.libraryStates[id] === true) {
                     let pageAlbums =
-                      await searchAlbums(this.baseURL, this.username, this.password, this.searchQuery, this.searchAlbumsPage * size, id)
+                      await searchAlbums(this.baseURL, this.auth, this.searchQuery, this.searchAlbumsPage * size, id)
                     if (pageAlbums === undefined || pageAlbums.length === 0) {
                       continue;
                     }
@@ -837,7 +836,7 @@ export default struct Search_ {
                 for (const id of keys) {
                   if (this.libraryStates[id] === true) {
                     let pageArtists =
-                      await searchArtists(this.baseURL, this.username, this.password, this.searchQuery, this.searchArtistsPage * size, id)
+                      await searchArtists(this.baseURL, this.auth, this.searchQuery, this.searchArtistsPage * size, id)
                     if (pageArtists === undefined || pageArtists.length === 0) {
                       continue;
                     }

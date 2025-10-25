@@ -12,6 +12,7 @@ export default struct editPlaylistBuilder {
   @Consume playlist: Playlist | undefined
   @Consume playlists: Playlist[]
   @Consume pageStack: NavPathStack
+  @Consume auth: string
   @State name: string = this.playlist!.name
   @State comment: string = this.playlist!.comment
   editPlaylist: CustomDialogController = new CustomDialogController({
@@ -99,14 +100,14 @@ export default struct editPlaylistBuilder {
         })
         .onClick(async () => {
           this.editPlaylist.close()
-          let success = await updatePlaylist(this.baseURL, this.username, this.password, this.playlist!.id, this.name, this.comment)
+          let success = await updatePlaylist(this.baseURL, this.auth, this.playlist!.id, this.name, this.comment)
           if (success === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '修改成功！',
               duration: 500
             });
-            this.playlist = await getPlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
-            this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+            this.playlist = await getPlaylist(this.baseURL, this.auth, this.playlist!.id)
+            this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
           } else {
@@ -137,13 +138,13 @@ export default struct editPlaylistBuilder {
         })
         .onClick(async () => {
           this.editPlaylist.close()
-          let success = await deletePlaylist(this.baseURL, this.username, this.password, this.playlist!.id)
+          let success = await deletePlaylist(this.baseURL, this.auth, this.playlist!.id)
           if (success === true) {
             this.getUIContext().getPromptAction().showToast({
               message: '删除成功！',
               duration: 500
             });
-            this.playlists = (await getPlaylists(this.baseURL, this.username, this.password)).sort((a, b) => {
+            this.playlists = (await getPlaylists(this.baseURL, this.auth)).sort((a, b) => {
               return Date.parse(b.changed) - Date.parse(a.changed);
             })
             this.pageStack.pop()

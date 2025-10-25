@@ -1,5 +1,6 @@
 import { ping } from "../../utils/Api"
 import { deviceInfo } from "@kit.BasicServicesKit";
+import CryptoJS from "@ohos/crypto-js";
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -9,6 +10,7 @@ export default struct addServerBuilder {
   @StorageLink('baseurls') baseurls: string[] = []
   @StorageLink('usernames') usernames: string[] = []
   @StorageLink('passwords') passwords: string[] = []
+  @StorageLink('usesalts') usesalts: boolean[] = []
   @State tmpServername: string = ""
   @State tmpBaseurl: string = ""
   @State tmpUrl: string = ""
@@ -16,6 +18,11 @@ export default struct addServerBuilder {
   @State tmpPassword: string = ""
   @State urlHead: string[] = ["http://", "https://"]
   @State urlHeadIdx: number = 0
+  @State auth: string = ""
+  @State useSalt: boolean = false
+  @Consume salt: string
+  @Consume version: string
+  @Consume client: string
   createAddServer: CustomDialogController = new CustomDialogController({
     builder: addServerBuilder({})
   })
@@ -72,13 +79,13 @@ export default struct addServerBuilder {
             this.urlHeadIdx = index
           })
           .font({
-            size: 20
+            size: 20,
+            weight: FontWeight.Normal
           })
           .fontColor($r('app.color.font'))
           .height(40)
           .borderRadius(10)
           .margin({ left: 15 })
-          .controlSize(ControlSize.SMALL)
           .optionWidth(80)
           .optionFontColor($r('app.color.font'))
           .selectedOptionFontColor($r('app.color.font'))
@@ -87,7 +94,7 @@ export default struct addServerBuilder {
           .menuBackgroundBlurStyle(BlurStyle.NONE)
           .backgroundColor($r('app.color.textInput'))
         TextInput({
-          placeholder: 'myserver.com'
+          placeholder: 'server-url'
         })
           .width("100%")
           .height(40)
@@ -95,7 +102,7 @@ export default struct addServerBuilder {
             x: -20
           })
           .padding({ left: 22 })
-          .margin({ right: -15 })
+          .margin({ right: -20 })
           .layoutWeight(1)
           .borderRadius(10)
           .caretColor($r('app.color.font_secondary'))
@@ -168,7 +175,25 @@ export default struct addServerBuilder {
           })
       }
       .width('100%')
-      .margin({ top: 20, bottom: 20 })
+      .margin({ top: 20 })
+
+      Row() {
+        Text("使用密码+盐验证")
+          .fontSize(20)
+          .fontColor($r('app.color.font'))
+        Radio({ value: this.useSalt.toString(), group: this.useSalt.toString(), indicatorType: RadioIndicatorType.TICK })
+          .checked(this.useSalt)
+          .margin({ left: 10 })
+          .radioStyle({
+            checkedBackgroundColor: $r('app.color.radio'),
+            indicatorColor: $r('app.color.start_window_background')
+          })
+          .onClick(() => {
+            this.useSalt = !this.useSalt
+          })
+      }
+      .margin({ top: 15, bottom: 15 })
+      .alignSelf(ItemAlign.Start)
 
       Button({ type: ButtonType.Normal }) {
         Text("保存")
@@ -196,12 +221,18 @@ export default struct addServerBuilder {
           });
         } else {
           this.tmpBaseurl = this.urlHead[this.urlHeadIdx] + this.tmpUrl
-          let status = await ping(this.tmpBaseurl, this.tmpUsername, this.tmpPassword)
+          if (this.useSalt) {
+            this.auth = `?u=${this.tmpUsername}&t=${CryptoJS.MD5(this.tmpPassword + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
+          } else {
+            this.auth = `?u=${this.tmpUsername}&p=${this.tmpPassword}&v=${this.version}&c=${this.client}&f=json`
+          }
+          let status = await ping(this.tmpBaseurl, this.auth)
           if(status === 'ok'){
             this.servernames.push(this.tmpServername)
             this.baseurls.push(this.tmpBaseurl)
             this.usernames.push( this.tmpUsername)
             this.passwords.push(this.tmpPassword)
+            this.usesalts.push(this.useSalt)
             this.createAddServer.close()
             this.getUIContext().getPromptAction().showToast({
               message: '添加服务器成功！',
