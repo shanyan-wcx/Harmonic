@@ -31,13 +31,13 @@ export default struct Setting {
   addServer: CustomDialogController = new CustomDialogController({
     builder: addServerBuilder(),
     width: 350,
-    height: 414,
+    height: 374,
     backgroundColor: $r('app.color.start_window_background')
   })
   editServer: CustomDialogController = new CustomDialogController({
     builder: editServerBuilder(),
     width: 350,
-    height: 414,
+    height: 374,
     backgroundColor: $r('app.color.start_window_background'),
     onWillDismiss:(dismissDialogAction: DismissDialogAction)=> {
       dismissDialogAction.dismiss();
@@ -132,7 +132,6 @@ export default struct Setting {
               .backgroundColor(Color.Transparent)
               .onClick(() => {
                 this.editServerIdx = index
-                console.log(this.editServerIdx.toString())
                 this.editServer.open()
               })
             }

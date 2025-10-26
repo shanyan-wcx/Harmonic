@@ -193,8 +193,8 @@ export default struct infoBuilder {
         Text("声道")
           .fontSize(18)
           .fontColor($r('app.color.font'))
-        Text(this.showPlay === true ? this.nowPlayingSong!.channelCount?.toString() :
-        this.longPressSong!.channelCount?.toString())
+        Text(this.showPlay === true ? (this.nowPlayingSong!.channelCount?.toString() ?? '-') :
+        (this.longPressSong!.channelCount?.toString() ?? '-'))
           .fontSize(18)
           .fontColor($r('app.color.font_secondary'))
           .width('100%')
