@@ -111,7 +111,7 @@ export default struct Home {
                     .justifyContent(FlexAlign.Center)
 
                     Column() {
-                      Text(album.title)
+                      Text(album.name)
                         .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
@@ -225,7 +225,7 @@ export default struct Home {
                     .justifyContent(FlexAlign.Center)
 
                     Column() {
-                      Text(album.title)
+                      Text(album.name)
                         .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
@@ -339,7 +339,7 @@ export default struct Home {
                     .justifyContent(FlexAlign.Center)
 
                     Column() {
-                      Text(album.title)
+                      Text(album.name)
                         .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
@@ -453,7 +453,7 @@ export default struct Home {
                     .justifyContent(FlexAlign.Center)
 
                     Column() {
-                      Text(album.title)
+                      Text(album.name)
                         .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })
@@ -567,7 +567,7 @@ export default struct Home {
                     .justifyContent(FlexAlign.Center)
 
                     Column() {
-                      Text(album.title)
+                      Text(album.name)
                         .fontSize(16)
                         .fontColor($r('app.color.font'))
                         .margin({ top: 5 })

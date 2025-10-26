@@ -7,9 +7,9 @@ export async function ping(baseURL: string, auth: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/ping' + auth, {}, {
-        timeout: 500,
-        readTimeout: 500,
-        connectTimeout: 500
+        timeout: 1000,
+        readTimeout: 1000,
+        connectTimeout: 1000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
     return subsonicResponse.status
