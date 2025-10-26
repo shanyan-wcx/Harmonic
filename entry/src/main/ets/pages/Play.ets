@@ -747,7 +747,7 @@ export default struct Play {
               .height(40)
               .padding({ left: 15, right: 15 })
               .borderRadius(10)
-              .backgroundColor($r('app.color.button_selected'))
+              .backgroundColor($r('sys.color.comp_background_tertiary'))
               .border({
                 width: deviceTypeInfo === '2in1' ? 1 : 0,
                 radius: 10,

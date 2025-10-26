@@ -64,6 +64,7 @@ export interface SubsonicResponse {
   shares?: Shares;
   searchResult2?: SearchResult;
   musicFolders?: MusicFolders;
+  genres: Genre[];
 }
 
 export interface MusicFolders {
@@ -148,7 +149,10 @@ export interface Song {
 }
 
 export interface Genre {
-  name: string;
+  name?: string;
+  value?: string;
+  songCount?: number;
+  albumCount?: number;
 }
 
 export interface ReplayGain {

@@ -85,7 +85,8 @@ export async function getGenres(baseURL: string, auth: string) {
         readTimeout: 10000,
         connectTimeout: 10000
       })
-    console.log(JSON.stringify(response.data))
+    const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
+    console.log(JSON.stringify(subsonicResponse.genres))
   } catch (error) {
     console.error(JSON.stringify(error));
   }
