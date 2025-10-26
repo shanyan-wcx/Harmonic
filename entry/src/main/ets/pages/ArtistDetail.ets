@@ -45,7 +45,6 @@ export default struct ArtistDetail {
     let tmpArtist = await getArtist(this.baseURL, this.auth, this.artist!.id)
     this.artist = tmpArtist ? tmpArtist : this.artist
     this.artist!.biography = await getArtistInfo(this.baseURL, this.auth, this.artist!.id)
-    console.log(JSON.stringify(this.artist!.album))
     let size = 500
     let keys = Object.keys(this.libraryStates)
     let tmpAlbums: Album[] = []
