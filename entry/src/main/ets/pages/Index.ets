@@ -506,14 +506,19 @@ struct Index {
     avPlayer.on('error', async (err: BusinessError) => {
       await avPlayer.reset();
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
-      if (err.code === 5400106) {
+      if (err.code === 5400106 || err.code === 5400103 || err.code === 5411007) {
         this.uiContext!.getPromptAction().showToast({
           message: '播放失败，格式不支持或文件不存在！',
           duration: 500
         });
-      } else if (err.code === 5400104) {
+      } else if (err.code === 5400104 || err.code === 5411002 || err.code === 5411004) {
         this.uiContext!.getPromptAction().showToast({
           message: '播放失败，请检查网络连接！',
+          duration: 500
+        });
+      } else {
+        this.uiContext!.getPromptAction().showToast({
+          message: '播放失败，未知错误！',
           duration: 500
         });
       }
