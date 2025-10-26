@@ -1,6 +1,6 @@
 import { Album, Artist, MusicFolder } from '../utils/Interface';
 import { LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
-import { getAlbumList, getAlbumListByArtist, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
+import { getAlbumListByArtist, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { artistImage, coverImage } from '../utils/Component';
 
