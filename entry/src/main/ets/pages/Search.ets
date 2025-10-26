@@ -381,7 +381,7 @@ export default struct Search_ {
                               .justifyContent(FlexAlign.Center)
 
                               Column() {
-                                Text(album.title)
+                                Text(album.name)
                                   .fontSize(16)
                                   .fontColor($r('app.color.font'))
                                   .margin({ top: 5 })
@@ -703,7 +703,7 @@ export default struct Search_ {
                         .aspectRatio(1)
                         .justifyContent(FlexAlign.Center)
 
-                        Text(album.title)
+                        Text(album.name)
                           .fontSize(16)
                           .fontColor($r('app.color.font'))
                           .margin({ top: 5 })

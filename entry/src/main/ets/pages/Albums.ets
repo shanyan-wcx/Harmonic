@@ -52,7 +52,7 @@ export default struct Albums {
                   .aspectRatio(1)
                   .justifyContent(FlexAlign.Center)
 
-                  Text(album.title)
+                  Text(album.name)
                     .fontSize(16)
                     .fontColor($r('app.color.font'))
                     .margin({ top: 5 })
