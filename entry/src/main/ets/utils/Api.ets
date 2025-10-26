@@ -162,7 +162,7 @@ export async function getAlbum(baseURL: string, auth: string, id: string) {
 export async function getAlbumList(baseURL: string, auth: string, offset: number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList2' + auth +
         `&type=alphabeticalByName&size=500&offset=${offset}` +
         (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
         timeout: 10000,
@@ -170,7 +170,7 @@ export async function getAlbumList(baseURL: string, auth: string, offset: number
         connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    return subsonicResponse.albumList!.album
+    return subsonicResponse.albumList2!.album
   } catch (error) {
     console.error(JSON.stringify(error));
     return undefined
@@ -180,7 +180,7 @@ export async function getAlbumList(baseURL: string, auth: string, offset: number
 export async function getAlbumListByArtist(baseURL: string, auth: string, offset: number, musicFolderId: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList2' + auth +
         `&type=alphabeticalByArtist&size=500&offset=${offset}` +
         (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
         timeout: 10000,
@@ -188,7 +188,7 @@ export async function getAlbumListByArtist(baseURL: string, auth: string, offset
         connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    return subsonicResponse.albumList!.album
+    return subsonicResponse.albumList2!.album
   } catch (error) {
     console.error(JSON.stringify(error));
     return undefined
@@ -198,15 +198,15 @@ export async function getAlbumListByArtist(baseURL: string, auth: string, offset
 export async function getRecentAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=recent` +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList2' + auth + `&type=recent` +
         (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    if (subsonicResponse.albumList!.album) {
-      return subsonicResponse.albumList!.album
+    if (subsonicResponse.albumList2!.album) {
+      return subsonicResponse.albumList2!.album
     }
     return []
   } catch (error) {
@@ -218,15 +218,15 @@ export async function getRecentAlbums(baseURL: string, auth: string, musicFolder
 export async function getNewestAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=newest` +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList2' + auth + `&type=newest` +
         (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    if (subsonicResponse.albumList!.album) {
-      return subsonicResponse.albumList!.album
+    if (subsonicResponse.albumList2!.album) {
+      return subsonicResponse.albumList2!.album
     }
     return []
   } catch (error) {
@@ -238,15 +238,15 @@ export async function getNewestAlbums(baseURL: string, auth: string, musicFolder
 export async function getFrequentAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=frequent` +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList2' + auth + `&type=frequent` +
         (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    if (subsonicResponse.albumList!.album) {
-      return subsonicResponse.albumList!.album
+    if (subsonicResponse.albumList2!.album) {
+      return subsonicResponse.albumList2!.album
     }
     return []
   } catch (error) {
@@ -258,15 +258,15 @@ export async function getFrequentAlbums(baseURL: string, auth: string, musicFold
 export async function getRandomAlbums(baseURL: string, auth: string, musicFolderId: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList' + auth + `&type=random` +
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbumList2' + auth + `&type=random` +
         (musicFolderId !== '' ? `&musicFolderId=${musicFolderId}` : ""), {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
       })
     const subsonicResponse: SubsonicResponse = response.data["subsonic-response"]
-    if (subsonicResponse.albumList!.album) {
-      return subsonicResponse.albumList!.album
+    if (subsonicResponse.albumList2!.album) {
+      return subsonicResponse.albumList2!.album
     }
     return []
   } catch (error) {

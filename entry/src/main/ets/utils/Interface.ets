@@ -54,6 +54,7 @@ export interface SubsonicResponse {
   album?: Album;
   song?: Song;
   albumList?: AlbumList;
+  albumList2?: AlbumList;
   playlists?: Playlists;
   playlist?: Playlist;
   artistInfo?: ArtistInfo;
