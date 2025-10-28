@@ -5,6 +5,7 @@ import { getAlbum, getAlbumSong, getArtist, getLyrics, getSong, star, unstar } f
 import { Album, Artist, Line, Song, StructuredLyric } from '../utils/Interface';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { coverImage } from '../utils/Component';
+import reportBuilder from './dialogs/Report';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -62,11 +63,84 @@ export default struct AlbumDetail {
   @Consume longPressSong: Song | undefined
   @Consume avPlayer: media.AVPlayer | undefined
   @StorageLink('playMode') playMode: number = 0
+  @StorageLink('hideReport') hideReport: boolean = false
   @Consume session: AVSessionManager.AVSession | undefined
   @State coverSize: number = 256
   @State showDiscHeader: boolean = false
   @State discsKeys: number[] = []
   @State showProgress: boolean = false
+  report: CustomDialogController = new CustomDialogController({
+    builder: reportBuilder(),
+    width: 350,
+    height: 330,
+    backgroundColor: $r('app.color.start_window_background'),
+  })
+
+  getMenus(): NavigationMenuItem[] {
+    const starIcon = new SymbolGlyphModifier(
+      this.album.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')
+    );
+
+    const items: NavigationMenuItem[] = [
+      {
+        value: "star",
+        symbolIcon: starIcon, // 这里是 SymbolGlyphModifier 实例（类型正确）
+        action: async () => {
+          if (this.album.starred !== undefined) {
+            let starStatus = await unstar(this.baseURL, this.auth, this.album.id, 'album')
+            if (starStatus === true) {
+              this.getUIContext().getPromptAction().showToast({
+                message: '取消收藏成功！',
+                duration: 500
+              });
+              this.album.starred = undefined
+              if (this.nowPage === 0) {
+                this.needUpdate = !this.needUpdate
+              }
+            } else {
+              this.getUIContext().getPromptAction().showToast({
+                message: '取消收藏失败，请检查网络！',
+                duration: 500
+              });
+            }
+          } else {
+            let starStatus = await star(this.baseURL, this.auth, this.album.id, 'album')
+            if (starStatus === true) {
+              this.getUIContext().getPromptAction().showToast({
+                message: '收藏成功！',
+                duration: 500
+              });
+              let tmp_album: Album | undefined =
+                await getAlbum(this.baseURL, this.auth, this.album.id)
+              if (tmp_album !== undefined && tmp_album.starred !== undefined) {
+                this.album.starred = tmp_album.starred
+              }
+              if (this.nowPage === 0) {
+                this.needUpdate = !this.needUpdate
+              }
+            } else {
+              this.getUIContext().getPromptAction().showToast({
+                message: '收藏失败，请检查网络！',
+                duration: 500
+              });
+            }
+          }
+        }
+      }
+    ];
+
+    if (!this.hideReport) {
+      items.push({
+        value: "report",
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.reports')),
+        action: async () => {
+          this.report.open()
+        }
+      });
+    }
+
+    return items;
+  }
 
   groupLyrics() {
     this.nowPlayingLyricsByGroup = []
@@ -397,51 +471,6 @@ export default struct AlbumDetail {
         unit: LengthUnit.VP
       }
     })
-    .menus([{
-      value: "star",
-      symbolIcon: new SymbolGlyphModifier(this.album.starred === undefined ? $r('sys.symbol.heart') :
-        $r('sys.symbol.heart_fill')),
-      action: async () => {
-        if (this.album.starred !== undefined) {
-          let starStatus = await unstar(this.baseURL, this.auth, this.album.id, 'album')
-          if (starStatus === true) {
-            this.getUIContext().getPromptAction().showToast({
-              message: '取消收藏成功！',
-              duration: 500
-            });
-            this.album.starred = undefined
-            if (this.nowPage === 0) {
-              this.needUpdate = !this.needUpdate
-            }
-          } else {
-            this.getUIContext().getPromptAction().showToast({
-              message: '取消收藏失败，请检查网络！',
-              duration: 500
-            });
-          }
-        } else {
-          let starStatus = await star(this.baseURL, this.auth, this.album.id, 'album')
-          if (starStatus === true) {
-            this.getUIContext().getPromptAction().showToast({
-              message: '收藏成功！',
-              duration: 500
-            });
-            let tmp_album: Album | undefined =
-              await getAlbum(this.baseURL, this.auth, this.album.id)
-            if (tmp_album !== undefined && tmp_album.starred !== undefined) {
-              this.album.starred = tmp_album.starred
-            }
-            if (this.nowPage === 0) {
-              this.needUpdate = !this.needUpdate
-            }
-          } else {
-            this.getUIContext().getPromptAction().showToast({
-              message: '收藏失败，请检查网络！',
-              duration: 500
-            });
-          }
-        }
-      }
-    }])
+    .menus(this.getMenus())
   }
 }

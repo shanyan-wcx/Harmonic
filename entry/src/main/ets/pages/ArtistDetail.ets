@@ -3,6 +3,7 @@ import { LengthUnit, SymbolGlyphModifier } from '@kit.ArkUI';
 import { getAlbumListByArtist, getArtist, getArtistInfo, star, unstar } from '../utils/Api';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { artistImage, coverImage } from '../utils/Component';
+import reportBuilder from './dialogs/Report';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -39,6 +40,79 @@ export default struct ArtistDetail {
   @State profileSize: number = 256
   @State coverSize: number = 256
   @State showProgress: boolean = false
+  @StorageLink('hideReport') hideReport: boolean = false
+  report: CustomDialogController = new CustomDialogController({
+    builder: reportBuilder(),
+    width: 350,
+    height: 330,
+    backgroundColor: $r('app.color.start_window_background'),
+  })
+
+  getMenus(): NavigationMenuItem[] {
+    const starIcon = new SymbolGlyphModifier(
+      this.artist!.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')
+    );
+
+    const items: NavigationMenuItem[] = [
+      {
+        value: "star",
+        symbolIcon: starIcon, // 这里是 SymbolGlyphModifier 实例（类型正确）
+        action: async () => {
+          if (this.artist!.starred !== undefined) {
+            let starStatus = await unstar(this.baseURL, this.auth, this.artist!.id, 'artist')
+            if (starStatus === true) {
+              this.getUIContext().getPromptAction().showToast({
+                message: '取消收藏成功！',
+                duration: 500
+              });
+              this.artist!.starred = undefined
+              if (this.nowPage === 0) {
+                this.needUpdate = !this.needUpdate
+              }
+            } else {
+              this.getUIContext().getPromptAction().showToast({
+                message: '取消收藏失败，请检查网络！',
+                duration: 500
+              });
+            }
+          } else {
+            let starStatus = await star(this.baseURL, this.auth, this.artist!.id, 'artist')
+            if (starStatus === true) {
+              this.getUIContext().getPromptAction().showToast({
+                message: '收藏成功！',
+                duration: 500
+              });
+              let tmp_artist: Artist | undefined =
+                await getArtist(this.baseURL, this.auth, this.artist!.id)
+              if (tmp_artist !== undefined && tmp_artist.starred !== undefined) {
+                this.artist!.starred = tmp_artist.starred
+              }
+              if (this.nowPage === 0) {
+                this.needUpdate = !this.needUpdate
+              }
+            } else {
+              this.getUIContext().getPromptAction().showToast({
+                message: '收藏失败，请检查网络！',
+                duration: 500
+              });
+            }
+          }
+        }
+      }
+    ];
+
+    if (!this.hideReport) {
+      items.push({
+        value: "report",
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.reports')),
+        action: async () => {
+          this.report.open()
+        }
+      });
+    }
+
+    return items;
+  }
 
   async aboutToAppear() {
     this.showProgress = true
@@ -80,14 +154,15 @@ export default struct ArtistDetail {
     NavDestination() {
       Scroll() {
         Column() {
-          Column(){
+          Column() {
             artistImage({
               url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.artist!.id}&size=${this.profileSize}`
             })
           }
-            .width(this.displayWidth > 1400 ? 160 : (this.displayWidth > 1200 ? 140 : 120))
-            .aspectRatio(1)
-            .justifyContent(FlexAlign.Center)
+          .width(this.displayWidth > 1400 ? 160 : (this.displayWidth > 1200 ? 140 : 120))
+          .aspectRatio(1)
+          .justifyContent(FlexAlign.Center)
+
           Column() {
             Text(this.artist!.name)
               .fontSize(this.displayWidth > 1400 ? 28 : 24)
@@ -131,7 +206,7 @@ export default struct ArtistDetail {
               GridItem() {
                 Button({ type: ButtonType.Normal }) {
                   Column() {
-                    Column(){
+                    Column() {
                       coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${album.id}&size=${this.coverSize}`,
                         radius: 10
@@ -165,7 +240,12 @@ export default struct ArtistDetail {
                 .height('auto')
                 .borderRadius(10)
                 .clip(true)
-                .padding({ left: 10, right: 10, top: 10, bottom: 7 })
+                .padding({
+                  left: 10,
+                  right: 10,
+                  top: 10,
+                  bottom: 7
+                })
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
                   this.album = album
@@ -177,11 +257,12 @@ export default struct ArtistDetail {
           .width('100%')
           .columnsTemplate(this.displayWidth > 1400 ? "1fr 1fr 1fr 1fr 1fr 1fr 1fr" :
             (this.displayWidth > 1000 ? "1fr 1fr 1fr 1fr 1fr 1fr" :
-              (this.displayWidth > 800 ? "1fr 1fr 1fr 1fr 1fr" : (this.displayWidth > 400 ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr"))))
+              (this.displayWidth > 800 ? "1fr 1fr 1fr 1fr 1fr" :
+                (this.displayWidth > 400 ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr"))))
           .columnsGap(0)
           .rowsGap(0)
           .scrollBar(BarState.Off)
-          .edgeEffect(EdgeEffect.Fade, {alwaysEnabled: false})
+          .edgeEffect(EdgeEffect.Fade, { alwaysEnabled: false })
           .padding({ left: 10, right: 10, bottom: 10 })
         }
         .width('100%')
@@ -221,50 +302,6 @@ export default struct ArtistDetail {
         unit: LengthUnit.VP
       }
     })
-    .menus( [{
-      value: "star",
-      symbolIcon: new SymbolGlyphModifier(this.artist!.starred === undefined ? $r('sys.symbol.heart') : $r('sys.symbol.heart_fill')),
-      action: async () => {
-        if (this.artist!.starred !== undefined) {
-          let starStatus = await unstar(this.baseURL, this.auth, this.artist!.id, 'artist')
-          if (starStatus === true) {
-            this.getUIContext().getPromptAction().showToast({
-              message: '取消收藏成功！',
-              duration: 500
-            });
-            this.artist!.starred = undefined
-            if (this.nowPage === 0) {
-              this.needUpdate = !this.needUpdate
-            }
-          } else {
-            this.getUIContext().getPromptAction().showToast({
-              message: '取消收藏失败，请检查网络！',
-              duration: 500
-            });
-          }
-        } else {
-          let starStatus = await star(this.baseURL, this.auth, this.artist!.id, 'artist')
-          if (starStatus === true) {
-            this.getUIContext().getPromptAction().showToast({
-              message: '收藏成功！',
-              duration: 500
-            });
-            let tmp_artist: Artist | undefined =
-              await getArtist(this.baseURL, this.auth, this.artist!.id)
-            if (tmp_artist !== undefined && tmp_artist.starred !== undefined) {
-              this.artist!.starred = tmp_artist.starred
-            }
-            if (this.nowPage === 0) {
-              this.needUpdate = !this.needUpdate
-            }
-          } else {
-            this.getUIContext().getPromptAction().showToast({
-              message: '收藏失败，请检查网络！',
-              duration: 500
-            });
-          }
-        }
-      }
-    }])
+    .menus(this.getMenus())
   }
 }

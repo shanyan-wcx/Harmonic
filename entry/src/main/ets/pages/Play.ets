@@ -22,6 +22,7 @@ import { BusinessError, request } from '@kit.BasicServicesKit';
 import { fileUri, fileIo as fs, picker } from '@kit.CoreFileKit';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import { coverImage } from '../utils/Component';
+import reportBuilder from './dialogs/Report';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 
@@ -106,6 +107,7 @@ export default struct Play {
   @StorageLink('playMode') @Watch('changePlayMode') playMode: number = AVSessionManager.LoopMode.LOOP_MODE_LIST
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('collate') collate: boolean = false
+  @StorageLink('hideReport') hideReport: boolean = false
   @StorageLink('downloadDir') downloadDir: string = ''
   private listScroller: Scroller = new Scroller
   private lyricsScroller: Scroller = new Scroller
@@ -123,6 +125,12 @@ export default struct Play {
     builder: infoBuilder(),
     width: 350,
     height: 380,
+    backgroundColor: $r('app.color.start_window_background'),
+  })
+  report: CustomDialogController = new CustomDialogController({
+    builder: reportBuilder(),
+    width: 350,
+    height: 330,
     backgroundColor: $r('app.color.start_window_background'),
   })
 
@@ -679,6 +687,24 @@ export default struct Play {
         this.closePlayPage()
         this.album = await getAlbum(this.baseURL, this.auth, this.nowPlayingSong!.albumId)
         this.pageStack.replacePathByName('AlbumDetail', undefined);
+      })
+
+      Button({ type: ButtonType.Normal }) {
+        Text("举报内容")
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(18)
+          .fontColor($r('app.color.font'))
+      }
+      .width('100%')
+      .height(60)
+      .borderRadius(10)
+      .padding({ left: 20, right: 20 })
+      .backgroundColor($r('app.color.bar_background'))
+      .visibility(this.hideReport === false ? Visibility.Visible : Visibility.None)
+      .onClick(async () => {
+        this.showMore = false
+        this.report.open()
       })
 
       Button({ type: ButtonType.Normal }) {

@@ -46,6 +46,7 @@ export default class EntryAbility extends UIAbility {
       PersistentStorage.persistProp('fadeVolume', false);
       PersistentStorage.persistProp('autoPlay', false);
       PersistentStorage.persistProp('collate', false);
+      PersistentStorage.persistProp('hideReport', false);
       PersistentStorage.persistProp('baseURL', '');
       PersistentStorage.persistProp('username', '');
       PersistentStorage.persistProp('password', '');

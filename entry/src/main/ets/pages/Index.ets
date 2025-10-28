@@ -48,6 +48,7 @@ import { i18n, intl } from '@kit.LocalizationKit';
 import Songs from './Songs';
 import app from '@system.app';
 import { coverImage } from '../utils/Component';
+import reportBuilder from './dialogs/Report';
 
 let deviceTypeInfo: string = deviceInfo.deviceType;
 let transliterator = i18n.Transliterator.getInstance('Any-Latn');
@@ -152,6 +153,7 @@ struct Index {
   @StorageLink('audioNormalizatio') audioNormalization: boolean = false
   @StorageLink('fadeVolume') fadeVolume: boolean = false
   @StorageLink('autoPlay') autoPlay: boolean = false
+  @StorageLink('hideReport') hideReport: boolean = false
   @StorageLink('showStepper') showStepper: boolean = false
   @StorageLink('downloadDir') downloadDir: string = ''
   uiContext: UIContext | undefined = undefined
@@ -166,6 +168,12 @@ struct Index {
     builder: infoBuilder(),
     width: 350,
     height: 380,
+    backgroundColor: $r('app.color.start_window_background'),
+  })
+  report: CustomDialogController = new CustomDialogController({
+    builder: reportBuilder(),
+    width: 350,
+    height: 330,
     backgroundColor: $r('app.color.start_window_background'),
   })
 
@@ -1072,6 +1080,23 @@ struct Index {
     .margin({ top: 20, bottom: 25 })
     .clip(true)
     .backgroundColor($r('app.color.bar_background'))
+
+    Button({ type: ButtonType.Normal }) {
+      Text("举报内容")
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .fontSize(18)
+        .fontColor($r('app.color.font'))
+    }
+    .width('100%')
+    .height(60)
+    .borderRadius(10)
+    .backgroundColor($r('app.color.bar_background'))
+    .visibility(this.hideReport === false ? Visibility.Visible : Visibility.None)
+    .onClick(async () => {
+      this.showMenu = false
+      this.report.open()
+    })
   }
 
   @Builder
