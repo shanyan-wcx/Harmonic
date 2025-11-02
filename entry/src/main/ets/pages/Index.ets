@@ -1408,326 +1408,352 @@ struct Index {
           Divider()
             .width('90%')
             .height(1)
-            .margin({ top: 5, bottom: 5})
+            .margin({ top: 5, bottom: 3 })
             .color($r('app.color.divider'))
 
-          Column() {
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.home'))
-                  .width(24)
-                  .aspectRatio(1)
-                  .margin({ right: 10 })
-                  .draggable(false)
-                Text("首页")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
-              }
-              .width('50%')
-            }
-            .width('100%')
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 0 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 0 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 0 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 0 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 0
-            })
+          Scroll() {
+            Column() {
+              Column() {
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.home'))
+                      .width(24)
+                      .aspectRatio(1)
+                      .margin({ right: 10 })
+                      .draggable(false)
+                    Text("首页")
+                      .fontSize(20)
+                      .fontColor($r('app.color.font'))
+                  }
+                  .width('50%')
+                }
+                .width('100%')
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 0 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 0 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 0 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 0 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 0
+                })
 
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.search'))
-                  .width(24)
-                  .aspectRatio(1)
-                  .margin({ right: 10 })
-                  .draggable(false)
-                Text("搜索")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
-              }
-              .width('50%')
-            }
-            .width('100%')
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 1 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 1 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 1 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 1 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 1
-            })
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.search'))
+                      .width(24)
+                      .aspectRatio(1)
+                      .margin({ right: 10 })
+                      .draggable(false)
+                    Text("搜索")
+                      .fontSize(20)
+                      .fontColor($r('app.color.font'))
+                  }
+                  .width('50%')
+                }
+                .width('100%')
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 1 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 1 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 1 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 1 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 1
+                })
 
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.album'))
-                  .width(24)
-                  .aspectRatio(1)
-                  .margin({ right: 10 })
-                  .draggable(false)
-                Text("专辑")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
-              }
-              .width('50%')
-            }
-            .width('100%')
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 2 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 2 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 2 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 2 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 2
-            })
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.album'))
+                      .width(24)
+                      .aspectRatio(1)
+                      .margin({ right: 10 })
+                      .draggable(false)
+                    Text("专辑")
+                      .fontSize(20)
+                      .fontColor($r('app.color.font'))
+                  }
+                  .width('50%')
+                }
+                .width('100%')
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 2 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 2 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 2 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 2 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 2
+                })
 
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.artist'))
-                  .width(24)
-                  .aspectRatio(1)
-                  .margin({ right: 10 })
-                  .draggable(false)
-                Text("艺术家")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
-              }
-              .width('50%')
-            }
-            .width('100%')
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 3 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 3 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 3 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 3 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 3
-            })
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.artist'))
+                      .width(24)
+                      .aspectRatio(1)
+                      .margin({ right: 10 })
+                      .draggable(false)
+                    Text("艺术家")
+                      .fontSize(20)
+                      .fontColor($r('app.color.font'))
+                  }
+                  .width('50%')
+                }
+                .width('100%')
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 3 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 3 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 3 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 3 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 3
+                })
 
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.song'))
-                  .width(24)
-                  .aspectRatio(1)
-                  .margin({ right: 10 })
-                  .draggable(false)
-                Text("歌曲")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
-              }
-              .width('50%')
-            }
-            .width('100%')
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 4 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 4 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 4 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 4 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 4
-            })
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.song'))
+                      .width(24)
+                      .aspectRatio(1)
+                      .margin({ right: 10 })
+                      .draggable(false)
+                    Text("歌曲")
+                      .fontSize(20)
+                      .fontColor($r('app.color.font'))
+                  }
+                  .width('50%')
+                }
+                .width('100%')
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 4 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 4 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 4 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 4 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 4
+                })
 
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.playlist'))
-                  .width(24)
-                  .aspectRatio(1)
-                  .margin({ right: 10 })
-                  .draggable(false)
-                Text("歌单")
-                  .fontSize(20)
-                  .fontColor($r('app.color.font'))
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.playlist'))
+                      .width(24)
+                      .aspectRatio(1)
+                      .margin({ right: 10 })
+                      .draggable(false)
+                    Text("歌单")
+                      .fontSize(20)
+                      .fontColor($r('app.color.font'))
+                  }
+                  .width('50%')
+                }
+                .width('100%')
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 5 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 5 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 5 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 5
+                })
               }
-              .width('50%')
+              .width('90%')
+              .height('auto')
+              .borderRadius(10)
+              .clip(false)
+              .backgroundColor($r('app.color.content_background'))
+
+              Blank()
+                .height('100%')
+                .layoutWeight(1)
+
+              Row() {
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.setting'))
+                      .width(24)
+                      .height(24)
+                      .draggable(false)
+                  }
+                }
+                .width(50)
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 6 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 6 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 6 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 6
+                })
+
+                Button({ type: ButtonType.Normal }) {
+                  Row() {
+                    Image($r('app.media.info'))
+                      .width(26)
+                      .height(26)
+                      .draggable(false)
+                  }
+                }
+                .width(50)
+                .height(50)
+                .borderRadius(8)
+                .backgroundColor(this.nowPage === 7 ? $r('app.color.button_selected') :
+                  $r('app.color.content_background'))
+                .shadow({
+                  radius: this.nowPage === 7 ? 6 : 0,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .border({
+                  width: deviceTypeInfo === '2in1' && this.nowPage === 7 ? 1 : 0,
+                  radius: 8,
+                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                })
+                .zIndex(this.nowPage === 7 ? 1 : 0)
+                .onClick(() => {
+                  this.uiContext?.animateTo({
+                    duration: 300,
+                    curve: Curve.EaseOut,
+                  }, () => {
+                    this.showSidebar = false
+                  })
+                  this.pageStack.clear()
+                  this.nowPage = 7
+                })
+              }
+              .width('90%')
+              .height('auto')
+              .borderRadius(10)
+              .clip(false)
+              .backgroundColor($r('app.color.content_background'))
+              .justifyContent(FlexAlign.SpaceBetween)
             }
             .width('100%')
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 5 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 5 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 5 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 5
-            })
+            .height('auto')
+            .borderRadius(10)
+            .clip(false)
           }
-          .width('90%')
-          .height('auto')
+          .width('100%')
+          .height('100%')
+          .layoutWeight(1)
           .borderRadius(10)
-          .clip(false)
-          .backgroundColor($r('app.color.content_background'))
-
-          Blank()
-
-          Row() {
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.setting'))
-                  .width(24)
-                  .height(24)
-                  .draggable(false)
-              }
-            }
-            .width(50)
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 6 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 6 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 6 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 6
-            })
-
-            Button({ type: ButtonType.Normal }) {
-              Row() {
-                Image($r('app.media.info'))
-                  .width(26)
-                  .height(26)
-                  .draggable(false)
-              }
-            }
-            .width(50)
-            .height(50)
-            .borderRadius(8)
-            .backgroundColor(this.nowPage === 7 ? $r('app.color.button_selected') : $r('app.color.content_background'))
-            .shadow({
-              radius: this.nowPage === 7 ? 6 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .border({
-              width: deviceTypeInfo === '2in1' && this.nowPage === 7 ? 1 : 0,
-              radius: 8,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
-            })
-            .zIndex(this.nowPage === 7 ? 1 : 0)
-            .onClick(() => {
-              this.uiContext?.animateTo({
-                duration: 300,
-                curve: Curve.EaseOut,
-              }, () => {
-                this.showSidebar = false
-              })
-              this.pageStack.clear()
-              this.nowPage = 7
-            })
-          }
-          .width('90%')
-          .height('auto')
-          .borderRadius(10)
-          .clip(false)
-          .backgroundColor($r('app.color.content_background'))
-          .justifyContent(FlexAlign.SpaceBetween)
+          .clip(true)
+          .padding({ top: 2, bottom: 2 })
+          .scrollBar(BarState.Off)
+          .align(Alignment.Top)
         }
         .width('100%')
         .height('100%')
         .backgroundColor($r('app.color.content_background'))
         .padding({
           top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 16,
-          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 : this.sideBarWidth * 0.05 + 10
+          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 - 2 : this.sideBarWidth * 0.05 + 8
         })
         .shadow({
           radius: this.shadowRadius,

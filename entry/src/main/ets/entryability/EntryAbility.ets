@@ -78,7 +78,7 @@ export default class EntryAbility extends UIAbility {
       })
       data.setWindowLayoutFullScreen(true)
 
-      let orientation = window.Orientation.AUTO_ROTATION_PORTRAIT;
+      let orientation = window.Orientation.AUTO_ROTATION;
       try {
         data.setPreferredOrientation(orientation).then(() => {
           console.info('Succeeded in setting the window orientation.');
