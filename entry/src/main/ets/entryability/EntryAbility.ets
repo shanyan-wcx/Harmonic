@@ -3,6 +3,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { deviceInfo } from '@kit.BasicServicesKit';
 import app from '@system.app';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 let callback: errorManager.ErrorObserver = {
   onUnhandledException(errMsg) {
@@ -76,6 +77,17 @@ export default class EntryAbility extends UIAbility {
         statusBarColor: "#00000000"
       })
       data.setWindowLayoutFullScreen(true)
+
+      let orientation = window.Orientation.AUTO_ROTATION_PORTRAIT;
+      try {
+        data.setPreferredOrientation(orientation).then(() => {
+          console.info('Succeeded in setting the window orientation.');
+        }).catch((err: BusinessError) => {
+          console.error(`Failed to set the window orientation. Cause code: ${err.code}, message: ${err.message}`);
+        });
+      } catch (exception) {
+        console.error(`Failed to set window orientation. Cause code: ${exception.code}, message: ${exception.message}`);
+      }
     })
   }
 
