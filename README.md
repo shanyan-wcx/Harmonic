@@ -52,7 +52,7 @@ Navidrome的鸿蒙原生客户端，适配手机、平板、车机。
 
 将以下链接复制到华为浏览器打开：
 
-https://appgallery.huawei.com/link/invite-test-wap?taskId=b3b99cfd6b8b9d02750ae56189556017&invitationCode=2Sn8lBQ6rB3
+https://appgallery.huawei.com/link/invite-test-wap?taskId=6d0f609491867a5f53c2f8e1ada64929
 
 ### 自行侧载
 
