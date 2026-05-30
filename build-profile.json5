@@ -1,13 +1,27 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "C:/Users/21633/Desktop/Harmonic-Key/Harmonic.p12",
+          "storePassword": "00000018B2FCE2B97A61E0333739235583CD6D218FFD9BB612B73CF841CE875A9D66DFE20550452F",
+          "keyAlias": "Harmonic",
+          "keyPassword": "000000183CFD5D0C0309934F8DC715F5909A7A03D4562D8987BBC7941B657BE629F9C564E60CB10D",
+          "signAlg": "SHA256withECDSA",
+          "profile": "C:/Users/21633/Desktop/Harmonic-Key/HarmonicRelease.p7b",
+          "certpath": "C:/Users/21633/Desktop/Harmonic-Key/Harmonic.cer"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",
         "signingConfig": "default",
-        "compatibleSdkVersion": "5.0.5(17)",
+        "compatibleSdkVersion": "6.1.0(23)",
         "runtimeOS": "HarmonyOS",
-        "targetSdkVersion": "5.0.5(17)"
+        "targetSdkVersion": "6.1.0(23)"
       }
     ],
     "buildModeSet": [
