@@ -90,6 +90,9 @@ struct Index {
   @StorageLink('useSalt') @Watch('getAuth') useSalt: boolean = true
   @StorageLink('usesalts') usesalts: boolean[] = []
   @StorageLink('baseurls') baseurls: string[] = []
+  @StorageLink('usernames') usernames: string[] = []
+  @StorageLink('passwords') passwords: string[] = []
+  @StorageLink('server') serverIdx: number = -1
   @Provide salt: string = 'abcdef'
   @Provide version: string = '1.16.1'
   @Provide client: string = 'Harmonic'
@@ -145,7 +148,9 @@ struct Index {
   @State coverSize: number = 64
   @State themeIcon: Resource = $r('app.media.auto')
   @State startPlayTime: number = 0
+  @Provide sourceOffsetTime: number = 0
   @State verse: Verse | undefined = undefined
+  @State continuousTaskRunning: boolean = false
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -208,12 +213,90 @@ struct Index {
     })
   }
 
-  getAuth() {
-    if (this.useSalt) {
-      this.auth = `?u=${this.username}&t=${CryptoJS.MD5(this.password + this.salt)}&s=${this.salt}&v=${this.version}&c=${this.client}&f=json`
-    } else {
-      this.auth = `?u=${this.username}&p=${this.password}&v=${this.version}&c=${this.client}&f=json`
+  buildAuth(username: string, password: string, useSalt: boolean): string {
+    let encodedUsername = encodeURIComponent(username)
+    let encodedClient = encodeURIComponent(this.client)
+    if (useSalt) {
+      return `?u=${encodedUsername}&t=${CryptoJS.MD5(password + this.salt)}&s=${this.salt}&v=${this.version}&c=${encodedClient}&f=json`
     }
+    return `?u=${encodedUsername}&p=${encodeURIComponent(password)}&v=${this.version}&c=${encodedClient}&f=json`
+  }
+
+  getAuth() {
+    this.auth = this.buildAuth(this.username, this.password, this.useSalt)
+  }
+
+  buildStreamUrl(songId: string, timeOffset: number = 0): string {
+    let streamUrl = this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(songId)}&format=raw`
+    if (timeOffset > 0) {
+      streamUrl += `&timeOffset=${Math.floor(timeOffset)}`
+    }
+    return streamUrl
+  }
+
+  restoreServer(saveState: SaveState): boolean {
+    let savedServerIdx = saveState.serverIdx
+    if (savedServerIdx !== undefined && savedServerIdx >= 0) {
+      if (savedServerIdx >= this.baseurls.length || savedServerIdx >= this.usernames.length ||
+        savedServerIdx >= this.passwords.length) {
+        return false
+      }
+      if (saveState.baseURL !== undefined && saveState.baseURL !== this.baseurls[savedServerIdx]) {
+        return false
+      }
+      this.serverIdx = savedServerIdx
+      this.baseURL = this.baseurls[savedServerIdx]
+      this.username = this.usernames[savedServerIdx]
+      this.password = this.passwords[savedServerIdx]
+      this.useSalt = this.usesalts.length > savedServerIdx ? this.usesalts[savedServerIdx] : true
+    } else if (saveState.baseURL !== undefined && saveState.baseURL !== this.baseURL) {
+      return false
+    }
+    this.getAuth()
+    return this.baseURL.length > 0 && this.username.length > 0 && this.password.length > 0
+  }
+
+  clearSaveState(path: string) {
+    try {
+      if (fs.accessSync(path)) {
+        fs.truncateSync(path);
+      }
+    } catch (err) {
+      console.error('清空播放状态失败:', JSON.stringify(err));
+    }
+  }
+
+  getCurrentOriginalIndex(): number {
+    if (this.nowPlayingSong === undefined) {
+      return -1
+    }
+    let index = this.nowPlayingListOriginal.findIndex(item => item === this.nowPlayingSong)
+    if (index < 0) {
+      index = this.nowPlayingListOriginal.findIndex(item => item.id === this.nowPlayingSong!.id)
+    }
+    return index
+  }
+
+  async openRestoredSource() {
+    if (this.avPlayer === undefined || this.nowPlayingSong === undefined || this.baseURL.length === 0) {
+      return
+    }
+    let restoredOffsetTime = Math.max(0, Math.floor(this.startPlayTime))
+    let streamUrl = this.buildStreamUrl(this.nowPlayingSong.id, restoredOffsetTime)
+    this.nowPlayedTime = restoredOffsetTime
+    this.sliderValue = this.nowPlayedTime / this.nowPlayingSong.duration * 100
+    this.startPlayTime = 0
+    let headers: Record<string, string> = {
+      'User-Agent': 'Harmonic'
+    }
+    let mediaSource: media.MediaSource = media.createMediaSourceWithUrl(streamUrl, headers)
+    let playbackStrategy: media.PlaybackStrategy = {
+      preferredBufferDuration: 20
+    }
+    await this.avPlayer.reset()
+    this.sourceOffsetTime = restoredOffsetTime
+    console.info(`恢复播放源: ${this.baseURL}/rest/stream&id=${this.nowPlayingSong.id}&timeOffset=${this.sourceOffsetTime}`)
+    this.avPlayer.setMediaSource(mediaSource, playbackStrategy)
   }
 
   groupLyrics() {
@@ -295,6 +378,9 @@ struct Index {
   }
 
   async startContinuousTask() {
+    if (this.continuousTaskRunning === true) {
+      return
+    }
     let wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [
         {
@@ -309,6 +395,7 @@ struct Index {
     wantAgent.getWantAgent(wantAgentInfo).then((wantAgentObj: WantAgent) => {
       backgroundTaskManager.startBackgroundRunning(this.context,
         backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
+        this.continuousTaskRunning = true
         console.info(`启动长时任务。`);
       }).catch((err: BusinessError) => {
         console.error(`启动长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
@@ -317,20 +404,28 @@ struct Index {
   }
 
   async stopContinuousTask() {
+    if (this.continuousTaskRunning === false) {
+      return
+    }
     backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
+      this.continuousTaskRunning = false
       console.info(`停止长时任务。`);
     }).catch((err: BusinessError) => {
+      this.continuousTaskRunning = false
       console.error(`停止长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
     });
   }
 
   async setSessionInfo() {
+    if (this.session === undefined || this.nowPlayingSong === undefined) {
+      return
+    }
     let metadata: AVSessionManager.AVMetadata = {
-      assetId: this.nowPlayingSong!.id,
-      title: this.nowPlayingSong!.title,
-      mediaImage: this.getPixelMap(await getCover(this.baseURL, this.auth, this.nowPlayingSong!.id, 512)),
-      duration: this.nowPlayingSong!.duration * 1000,
-      artist: this.nowPlayingSong!.artist,
+      assetId: this.nowPlayingSong.id,
+      title: this.nowPlayingSong.title,
+      mediaImage: this.getPixelMap(await getCover(this.baseURL, this.auth, this.nowPlayingSong.id, 512)),
+      duration: this.nowPlayingSong.duration * 1000,
+      artist: this.nowPlayingSong.artist,
       lyric: this.convertToLrc(this.nowPlayingLyrics),
     };
     this.session!.setAVMetadata(metadata).then(() => {
@@ -340,7 +435,44 @@ struct Index {
     });
   }
 
+  async releaseSession() {
+    if (this.session === undefined) {
+      return
+    }
+    let session = this.session
+    this.session = undefined
+    try {
+      await session.destroy()
+    } catch (error) {
+      console.log("媒体会话销毁失败！", error)
+    }
+  }
+
+  async ensureSession(): Promise<boolean> {
+    if (this.session !== undefined) {
+      return true
+    }
+    try {
+      this.session = await AVSessionManager.createAVSession(this.context!, 'HarmonicAudioSession', 'audio')
+    } catch (error) {
+      console.error("创建媒体会话失败:", JSON.stringify(error))
+      this.session = undefined
+      return false
+    }
+    try {
+      await this.setSessionCallback()
+    } catch (error) {
+      console.error("绑定媒体会话回调失败:", JSON.stringify(error))
+      await this.releaseSession()
+      return false
+    }
+    return true
+  }
+
   async setPlaybackState(state: number) {
+    if (this.session === undefined) {
+      return
+    }
     let playbackState: AVSessionManager.AVPlaybackState = {
       state: state,
       loopMode: this.playMode,
@@ -360,7 +492,11 @@ struct Index {
   }
 
   async setSessionCallback() {
-    this.session!.on('play', () => {
+    if (this.session === undefined) {
+      return
+    }
+    let session = this.session
+    session.on('play', () => {
       this.isPlaying = true
       if (this.fadeVolume === true) {
         this.fadeIn()
@@ -368,7 +504,7 @@ struct Index {
         this.avPlayer!.play()
       }
     });
-    this.session!.on('pause', () => {
+    session.on('pause', () => {
       this.isPlaying = false
       if (this.fadeVolume === true) {
         this.fadeOut()
@@ -376,14 +512,15 @@ struct Index {
         this.avPlayer!.pause()
       }
     });
-    this.session!.on('stop', async () => {
+    session.on('stop', async () => {
       this.startPlaying = false
       this.isPlaying = false
       this.showPlay = false
       this.avPlayer!.stop()
     });
-    this.session!.on('playPrevious', async () => {
+    session.on('playPrevious', async () => {
       await this.avPlayer!.reset();
+      this.sourceOffsetTime = 0
       if (this.nowPlayingIndex === 0) {
         this.nowPlayingIndex = this.nowPlayingList.length - 1
       } else {
@@ -394,10 +531,11 @@ struct Index {
       if (this.nowPlayingLyrics !== undefined) {
         this.groupLyrics()
       }
-      this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+      this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong.id);
     });
-    this.session!.on('playNext', async () => {
+    session.on('playNext', async () => {
       await this.avPlayer!.reset();
+      this.sourceOffsetTime = 0
       if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
         this.nowPlayingIndex = 0
       } else {
@@ -408,13 +546,13 @@ struct Index {
       if (this.nowPlayingLyrics !== undefined) {
         this.groupLyrics()
       }
-      this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+      this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong.id);
     });
-    this.session!.on('seek', async (time: number) => {
+    session.on('seek', async (time: number) => {
       await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_BUFFERING)
-      this.avPlayer!.seek(time)
+      this.avPlayer!.seek(Math.max(0, time - this.sourceOffsetTime * 1000))
     });
-    this.session!.on('setLoopMode', async (mode: AVSessionManager.LoopMode) => {
+    session.on('setLoopMode', async (mode: AVSessionManager.LoopMode) => {
       if (mode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
         this.playMode = AVSessionManager.LoopMode.LOOP_MODE_LIST
       } else if (mode === AVSessionManager.LoopMode.LOOP_MODE_LIST) {
@@ -423,7 +561,7 @@ struct Index {
         this.playMode = AVSessionManager.LoopMode.LOOP_MODE_SINGLE
       }
     })
-    this.session!.on('toggleFavorite', async (assetId: string) => {
+    session.on('toggleFavorite', async (assetId: string) => {
       if (this.nowPlayingSong?.starred !== undefined) {
         let starStatus = await unstar(this.baseURL, this.auth, this.nowPlayingSong!.id)
         if (starStatus === true) {
@@ -468,12 +606,11 @@ struct Index {
         }
       }
     });
-    this.session!.off('setSpeed');
   }
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('timeUpdate', async (time: number) => {
-      this.nowPlayedTime = time / 1000
+      this.nowPlayedTime = this.sourceOffsetTime + time / 1000
       if (this.sliderMoving === false) {
         this.sliderValue = this.nowPlayedTime / this.nowPlayingSong?.duration! * 100
       }
@@ -500,7 +637,7 @@ struct Index {
     })
     avPlayer.on('seekDone', async (seekDoneTime: number) => {
       console.info(`播放器跳转成功，当前时间为 ${seekDoneTime}`);
-      this.nowPlayedTime = seekDoneTime / 1000
+      this.nowPlayedTime = this.sourceOffsetTime + seekDoneTime / 1000
       if (this.isPlaying === true) {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
       } else {
@@ -514,7 +651,12 @@ struct Index {
     avPlayer.on('error', async (err: BusinessError) => {
       await avPlayer.reset();
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
-      if (err.code === 5400106 || err.code === 5400103 || err.code === 5411007) {
+      if (err.code === 5400103) {
+        this.uiContext!.getPromptAction().showToast({
+          message: '播放失败，出现IO错误！',
+          duration: 500
+        });
+      } else if (err.code === 5400106 || err.code === 5411007) {
         this.uiContext!.getPromptAction().showToast({
           message: '播放失败，格式不支持或文件不存在！',
           duration: 500
@@ -537,7 +679,10 @@ struct Index {
           console.info('播放器重置。');
           this.stopContinuousTask()
           this.nowPlayedTime = 0
-          await scrobble(this.baseURL, this.auth, this.nowPlayingSong!.id, true);
+          this.sourceOffsetTime = 0
+          if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
+            await scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
+          }
           break;
         case 'initialized':
           console.info('播放器初始化。');
@@ -546,17 +691,32 @@ struct Index {
           break;
         case 'prepared':
           console.info('播放器就绪。');
-          if (this.session === undefined) {
-            this.session = await AVSessionManager.createAVSession(this.context!, 'AUDIO_PLAY', 'audio');
-            await this.setSessionCallback()
-            await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_INITIAL)
+          let sessionReady = await this.ensureSession()
+          if (sessionReady === false) {
+            this.uiContext!.getPromptAction().showToast({
+              message: '媒体会话创建失败',
+              duration: 500
+            });
+            break;
           }
-          await this.session!.activate()
-          this.session!.setExtras({
-            requireAbilityList: ['url-cast'],
-          });
-          await this.setSessionInfo()
-          await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PREPARE)
+          if (this.session !== undefined) {
+            try {
+              await this.session.activate()
+              this.session.setExtras({
+                requireAbilityList: ['url-cast'],
+              });
+              await this.setSessionInfo()
+              await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PREPARE)
+            } catch (error) {
+              console.error("媒体会话初始化失败:", JSON.stringify(error))
+              await this.releaseSession()
+              this.uiContext!.getPromptAction().showToast({
+                message: '媒体会话初始化失败',
+                duration: 500
+              });
+              break;
+            }
+          }
           if (this.audioNormalization === true && this.nowPlayingSong!.replayGain?.trackGain !== undefined) {
             this.avPlayer!.setVolume((100 + this.nowPlayingSong!.replayGain!.trackGain) / 100)
           }
@@ -570,14 +730,10 @@ struct Index {
             } else {
               this.avPlayer!.play()
             }
-          } else {
-            if (this.fadeVolume === true) {
-              this.fadeOut()
-            } else {
-              this.avPlayer!.pause()
-            }
           }
-          scrobble(this.baseURL, this.auth, this.nowPlayingSong!.id, false);
+          if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
+            scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, false);
+          }
           break;
         case 'playing':
           console.info('播放器开始播放。');
@@ -593,10 +749,11 @@ struct Index {
           console.info('播放完毕。');
           if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
             await avPlayer.reset();
-            this.avPlayer!.url =
-              this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
+            this.sourceOffsetTime = 0
+            this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong!.id);
           } else {
             await avPlayer.reset();
+            this.sourceOffsetTime = 0
             if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
               this.nowPlayingIndex = 0
             } else {
@@ -607,15 +764,14 @@ struct Index {
             if (this.nowPlayingLyrics !== undefined) {
               this.groupLyrics()
             }
-            this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+            this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong.id);
           }
           break;
         case 'stopped':
           console.info('播放器停止。');
           this.sleepTime = 0
           this.nowPlayedTime = 0
-          await this.session!.destroy()
-          this.session = undefined
+          await this.releaseSession()
           await avPlayer.reset();
           break;
         case 'released':
@@ -916,7 +1072,12 @@ struct Index {
       .onClick(async () => {
         this.showMenu = false
         if (this.nowPlayingList.length !== 0) {
-          this.nowPlayingListOriginal.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
+          let originalIndex = this.getCurrentOriginalIndex()
+          if (originalIndex >= 0) {
+            this.nowPlayingListOriginal.splice(originalIndex + 1, 0, this.longPressSong!)
+          } else {
+            this.nowPlayingListOriginal.push(this.longPressSong!)
+          }
           this.nowPlayingList.splice(this.nowPlayingIndex + 1, 0, this.longPressSong!)
           this.uiContext!.getPromptAction().showToast({
             message: '添加成功！',
@@ -1229,6 +1390,8 @@ struct Index {
         startPlaying: this.startPlaying,
         isPlaying: this.isPlaying,
         nowPlayedTime: this.nowPlayedTime,
+        serverIdx: this.serverIdx,
+        baseURL: this.baseURL,
       };
       try {
         let file = fs.openSync(path, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
@@ -1249,7 +1412,9 @@ struct Index {
         }
       }
     }
-    await scrobble(this.baseURL, this.auth, this.nowPlayingSong!.id, true);
+    if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
+      await scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
+    }
   }
 
   async aboutToAppear() {
@@ -1328,23 +1493,31 @@ struct Index {
         if (readLen > 0) {
           let buf = buffer.from(arrayBuffer, 0, readLen);
           let saveState: SaveState = JSON.parse(buf.toString())
-          this.nowPlayingSong = saveState.nowPlayingSong
-          this.nowPlayingLyrics = saveState.nowPlayingLyrics
-          this.nowPlayingLyricsByGroup = saveState.nowPlayingLyricsByGroup
-          this.nowPlayingList = saveState.nowPlayingList
-          this.nowPlayingListOriginal = saveState.nowPlayingListOriginal
-          this.nowPlayingIndex = saveState.nowPlayingIndex
-          this.lyricsIndex = saveState.lyricsIndex
-          this.startPlaying = saveState.startPlaying
-          this.startPlayTime = saveState.nowPlayedTime
-          if (this.autoPlay === true) {
-            this.isPlaying = true
+          if (saveState.nowPlayingSong === undefined || this.restoreServer(saveState) === false) {
+            this.clearSaveState(path)
           } else {
-            this.isPlaying = false
+            let restoredSong = await getSong(this.baseURL, this.auth, saveState.nowPlayingSong.id)
+            if (restoredSong === undefined) {
+              this.clearSaveState(path)
+            } else {
+              this.nowPlayingSong = restoredSong
+              this.nowPlayingLyrics = saveState.nowPlayingLyrics
+              this.nowPlayingLyricsByGroup = saveState.nowPlayingLyricsByGroup
+              this.nowPlayingList = saveState.nowPlayingList
+              this.nowPlayingListOriginal = saveState.nowPlayingListOriginal
+              this.nowPlayingIndex = saveState.nowPlayingIndex
+              this.lyricsIndex = saveState.lyricsIndex
+              this.startPlaying = saveState.startPlaying
+              this.startPlayTime = saveState.nowPlayedTime
+              if (this.autoPlay === true) {
+                this.isPlaying = true
+              } else {
+                this.isPlaying = false
+              }
+              console.info("读取成功");
+              await this.openRestoredSource()
+            }
           }
-          console.info("读取成功");
-          await this.avPlayer!.reset()
-          this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong!.id}&format=raw`;
         }
       } catch (err) {
         console.error('读取失败:', JSON.stringify(err));
@@ -1934,6 +2107,7 @@ struct Index {
                     .backgroundColor(Color.Transparent)
                     .onClick(async () => {
                       await this.avPlayer!.reset();
+                      this.sourceOffsetTime = 0
                       if (this.nowPlayingIndex === 0) {
                         this.nowPlayingIndex = this.nowPlayingList.length - 1
                       } else {
@@ -1946,7 +2120,7 @@ struct Index {
                         this.groupLyrics()
                       }
                       this.avPlayer!.url =
-                        this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                        this.buildStreamUrl(this.nowPlayingSong.id);
                     })
 
                     Stack() {
@@ -2001,6 +2175,7 @@ struct Index {
                     .backgroundColor(Color.Transparent)
                     .onClick(async () => {
                       await this.avPlayer!.reset();
+                      this.sourceOffsetTime = 0
                       if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                         this.nowPlayingIndex = 0
                       } else {
@@ -2013,7 +2188,7 @@ struct Index {
                         this.groupLyrics()
                       }
                       this.avPlayer!.url =
-                        this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                        this.buildStreamUrl(this.nowPlayingSong.id);
                     })
                   }
                   .width(125)
@@ -2191,6 +2366,7 @@ struct Index {
                 .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
+                  this.sourceOffsetTime = 0
                   if (this.nowPlayingIndex === 0) {
                     this.nowPlayingIndex = this.nowPlayingList.length - 1
                   } else {
@@ -2203,7 +2379,7 @@ struct Index {
                     this.groupLyrics()
                   }
                   this.avPlayer!.url =
-                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                    this.buildStreamUrl(this.nowPlayingSong.id);
                 })
 
                 Stack() {
@@ -2258,6 +2434,7 @@ struct Index {
                 .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
+                  this.sourceOffsetTime = 0
                   if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                     this.nowPlayingIndex = 0
                   } else {
@@ -2270,7 +2447,7 @@ struct Index {
                     this.groupLyrics()
                   }
                   this.avPlayer!.url =
-                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                    this.buildStreamUrl(this.nowPlayingSong.id);
                 })
               }
               .width(125)

@@ -59,6 +59,7 @@ export default struct PlaylistDetail {
   @Consume showPlay: boolean
   @Consume closePlay: boolean
   @Consume avPlayer: media.AVPlayer | undefined
+  @Consume sourceOffsetTime: number
   @Consume session: AVSessionManager.AVSession | undefined
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
@@ -250,6 +251,7 @@ export default struct PlaylistDetail {
             .onClick(async () => {
               this.startPlaying = true
               await this.avPlayer!.reset()
+              this.sourceOffsetTime = 0
               this.isPlaying = true
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
@@ -263,7 +265,8 @@ export default struct PlaylistDetail {
                 this.nowPlayingList = this.nowPlayingListOriginal.slice()
               }
               this.getNowPlayingIndex(song, this.nowPlayingList)
-              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
+              this.avPlayer!.url =
+                this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(song.id)}&format=raw`;
             })
             .gesture(
               LongPressGesture()

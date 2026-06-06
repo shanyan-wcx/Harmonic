@@ -79,6 +79,7 @@ export default struct Play {
   @Consume @Watch('scrollLyrics') lyricsIndex: number
   @Consume @Watch('closePlayPage') closePlay: boolean
   @Consume nowPlayedTime: number
+  @Consume sourceOffsetTime: number
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume showPlay: boolean
@@ -144,6 +145,9 @@ export default struct Play {
   }
 
   async setPlaybackState(state: number) {
+    if (this.session === undefined) {
+      return
+    }
     let playbackState: AVSessionManager.AVPlaybackState = {
       state: state,
       loopMode: this.playMode,
@@ -163,6 +167,9 @@ export default struct Play {
   }
 
   async changePlayMode() {
+    if (this.nowPlayingSong === undefined || this.nowPlayingListOriginal.length === 0) {
+      return
+    }
     if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
       this.playModeIcon = $r('app.media.single')
       this.nowPlayingList = this.nowPlayingListOriginal.slice()
@@ -194,11 +201,22 @@ export default struct Play {
   }
 
   getNowPlayingIndex(song: Song, list: Song[]) {
-    for (let index = 0; index < list.length; index++) {
-      if (list[index].id === song.id) {
-        this.nowPlayingIndex = index
-        break;
-      }
+    let index = list.findIndex(item => item === song)
+    if (index < 0) {
+      index = list.findIndex(item => item.id === song.id)
+    }
+    if (index >= 0) {
+      this.nowPlayingIndex = index
+    }
+  }
+
+  removeSongFromOriginalList(song: Song) {
+    let originalIndex = this.nowPlayingListOriginal.findIndex(item => item === song)
+    if (originalIndex < 0) {
+      originalIndex = this.nowPlayingListOriginal.findIndex(item => item.id === song.id)
+    }
+    if (originalIndex >= 0) {
+      this.nowPlayingListOriginal.splice(originalIndex, 1)
     }
   }
 
@@ -388,7 +406,7 @@ export default struct Play {
   }
 
   @Builder
-  playlistEnd(index: number) {
+  playlistEnd(index: number, song: Song) {
     Button({ type: ButtonType.Circle }) {
       Image($r('app.media.delete'))
         .width(30)
@@ -415,8 +433,10 @@ export default struct Play {
         });
       } else if (index > this.nowPlayingIndex) {
         this.nowPlayingList.splice(index, 1);
+        this.removeSongFromOriginalList(song)
       } else {
         this.nowPlayingList.splice(index, 1);
+        this.removeSongFromOriginalList(song)
         this.nowPlayingIndex--
       }
     })
@@ -470,6 +490,7 @@ export default struct Play {
             .onClick(async () => {
               this.showList = false
               await this.avPlayer!.reset()
+              this.sourceOffsetTime = 0
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
               if (this.nowPlayingLyrics !== undefined) {
@@ -477,13 +498,14 @@ export default struct Play {
               }
               this.nowPlayingIndex = index
               this.isPlaying = true
-              this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
+              this.avPlayer!.url =
+                this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(song.id)}&format=raw`;
             })
           }
           .swipeAction({
             end: {
               builder: () => {
-                this.playlistEnd(index)
+                this.playlistEnd(index, song)
               },
             }
           })
@@ -1038,7 +1060,9 @@ export default struct Play {
                       this.sliderMoving = true
                     }
                     if (mode === SliderChangeMode.End && this.sliderMoving === true) {
-                      this.avPlayer!.seek(value * this.nowPlayingSong!.duration * 10)
+                      this.avPlayer!.seek(Math.max(0, value * this.nowPlayingSong!.duration * 10 -
+                        this.sourceOffsetTime * 1000))
+                      this.sliderMoving = false
                     }
                   })
               }
@@ -1057,6 +1081,7 @@ export default struct Play {
                 .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
+                  this.sourceOffsetTime = 0
                   if (this.nowPlayingIndex === 0) {
                     this.nowPlayingIndex = this.nowPlayingList.length - 1
                   } else {
@@ -1069,7 +1094,8 @@ export default struct Play {
                     this.groupLyrics()
                   }
                   this.avPlayer!.url =
-                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                    this.baseURL + '/rest/stream' + this.auth +
+                      `&id=${encodeURIComponent(this.nowPlayingSong.id)}&format=raw`;
                 })
 
                 Button({ type: ButtonType.Circle }) {
@@ -1109,6 +1135,7 @@ export default struct Play {
                 .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
+                  this.sourceOffsetTime = 0
                   if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                     this.nowPlayingIndex = 0
                   } else {
@@ -1121,7 +1148,8 @@ export default struct Play {
                     this.groupLyrics()
                   }
                   this.avPlayer!.url =
-                    this.baseURL + '/rest/stream' + this.auth + `&id=${this.nowPlayingSong.id}&format=raw`;
+                    this.baseURL + '/rest/stream' + this.auth +
+                      `&id=${encodeURIComponent(this.nowPlayingSong.id)}&format=raw`;
                 })
               }
               .width('80%')

@@ -62,6 +62,7 @@ export default struct AlbumDetail {
   @Consume sidebarType: number
   @Consume longPressSong: Song | undefined
   @Consume avPlayer: media.AVPlayer | undefined
+  @Consume sourceOffsetTime: number
   @StorageLink('playMode') playMode: number = 0
   @StorageLink('hideReport') hideReport: boolean = false
   @Consume session: AVSessionManager.AVSession | undefined
@@ -333,6 +334,7 @@ export default struct AlbumDetail {
                   .onClick(async () => {
                     this.startPlaying = true
                     await this.avPlayer!.reset()
+                    this.sourceOffsetTime = 0
                     this.isPlaying = true
                     this.nowPlayingSong = song
                     this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
@@ -346,7 +348,8 @@ export default struct AlbumDetail {
                       this.nowPlayingList = this.nowPlayingListOriginal.slice()
                     }
                     this.getNowPlayingIndex(song, this.nowPlayingList)
-                    this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
+                    this.avPlayer!.url =
+                      this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(song.id)}&format=raw`;
                   })
                   .gesture(
                     LongPressGesture()
@@ -407,6 +410,7 @@ export default struct AlbumDetail {
               .onClick(async () => {
                 this.startPlaying = true
                 await this.avPlayer!.reset()
+                this.sourceOffsetTime = 0
                 this.isPlaying = true
                 this.nowPlayingSong = song
                 this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
@@ -420,7 +424,8 @@ export default struct AlbumDetail {
                   this.nowPlayingList = this.nowPlayingListOriginal.slice()
                 }
                 this.getNowPlayingIndex(song, this.nowPlayingList)
-                this.avPlayer!.url = this.baseURL + '/rest/stream' + this.auth + `&id=${song.id}&format=raw`;
+                this.avPlayer!.url =
+                  this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(song.id)}&format=raw`;
               })
               .gesture(
                 LongPressGesture()

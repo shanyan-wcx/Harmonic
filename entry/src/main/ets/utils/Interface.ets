@@ -235,6 +235,8 @@ export interface SaveState {
   startPlaying: boolean;
   isPlaying: boolean;
   nowPlayedTime: number;
+  serverIdx?: number;
+  baseURL?: string;
 }
 
 export interface Verse {

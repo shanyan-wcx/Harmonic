@@ -95,7 +95,7 @@ export async function getGenres(baseURL: string, auth: string) {
 export async function getArtist(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtist' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -111,7 +111,7 @@ export async function getArtist(baseURL: string, auth: string, id: string) {
 export async function getArtistInfo(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtistInfo' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getArtistInfo' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -131,7 +131,7 @@ export async function getArtistInfo(baseURL: string, auth: string, id: string) {
 export async function getAlbumSong(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -147,7 +147,7 @@ export async function getAlbumSong(baseURL: string, auth: string, id: string) {
 export async function getAlbum(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getAlbum' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -279,7 +279,7 @@ export async function getRandomAlbums(baseURL: string, auth: string, musicFolder
 export async function getSong(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getSong' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getSong' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -320,7 +320,7 @@ export async function getPlaylists(baseURL: string, auth: string) {
 export async function getPlaylist(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylist' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<ApiResponse>>(baseURL + '/rest/getPlaylist' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -336,7 +336,7 @@ export async function getPlaylist(baseURL: string, auth: string, id: string) {
 export async function getLyrics(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getLyricsBySongId' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getLyricsBySongId' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -356,7 +356,7 @@ export async function getLyrics(baseURL: string, auth: string, id: string) {
 export async function getCover(baseURL: string, auth: string, id: string, size: number) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getCoverArt' + auth + `&id=${id}&size=${size}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/getCoverArt' + auth + `&id=${encodeURIComponent(id)}&size=${size}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -369,17 +369,17 @@ export async function getCover(baseURL: string, auth: string, id: string, size: 
 }
 
 export async function updatePlaylist(baseURL: string, auth: string, playlistId: string, name?: string, comment?: string, songIdToAdd?: string, songIndexToRemove?: number) {
-  let url = baseURL + '/rest/updatePlaylist' + auth + `&playlistId=${playlistId}`
+  let url = baseURL + '/rest/updatePlaylist' + auth + `&playlistId=${encodeURIComponent(playlistId)}`
   if (name !== undefined) {
-    url += `&name=${name}`
+    url += `&name=${encodeURIComponent(name)}`
   }
   if (comment !== undefined && comment.length > 0) {
-    url += `&comment=${comment}`
+    url += `&comment=${encodeURIComponent(comment)}`
   } else {
     url += `&comment=`
   }
   if (songIdToAdd !== undefined) {
-    url += `&songIdToAdd=${songIdToAdd}`
+    url += `&songIdToAdd=${encodeURIComponent(songIdToAdd)}`
   }
   if (songIndexToRemove !== undefined) {
     url += `&songIndexToRemove=${songIndexToRemove}`
@@ -426,7 +426,7 @@ export async function createPlaylist(baseURL: string, auth: string, name: string
 export async function deletePlaylist(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
-      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/deletePlaylist' + auth + `&id=${id}`, {}, {
+      await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/deletePlaylist' + auth + `&id=${encodeURIComponent(id)}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -523,7 +523,7 @@ export async function createShare(baseURL: string, auth: string, id: string) {
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/createShare' + auth +
-        `&id=${id}&expires=${time}`, {}, {
+        `&id=${encodeURIComponent(id)}&expires=${time}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
@@ -628,7 +628,7 @@ export async function scrobble(baseURL: string, auth: string, id: string, submis
   try {
     const response: AxiosResponse =
       await axios.post<string, AxiosResponse<string>>(baseURL + '/rest/scrobble' + auth +
-        `&id=${id}&submission=${submission}`, {}, {
+        `&id=${encodeURIComponent(id)}&submission=${submission}`, {}, {
         timeout: 10000,
         readTimeout: 10000,
         connectTimeout: 10000
