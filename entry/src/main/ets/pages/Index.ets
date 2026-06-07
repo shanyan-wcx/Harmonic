@@ -1559,12 +1559,6 @@ struct Index {
     Stack() {
       SideBarContainer(this.sidebarType) {
         Column() {
-          Column()
-            .width(1)
-            .height('100%')
-            .backgroundColor('#26FFFFFF')
-            .position({ right: 0, top: 0 })
-
           Column(){
             Text(this.verse !== undefined && this.verse.hitokoto !== undefined ? "「" + this.verse.hitokoto.replace(/[。！？!?,，]$/, '') + "」" : "「" + "正在加载中..." + "」")
               .width('87%')
@@ -1949,7 +1943,7 @@ struct Index {
         .backgroundColor($r('app.color.glass_bg'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
-          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          width: { right: 1 },
           radius: 0,
           color: $r('app.color.glass_border')
         })
@@ -2087,7 +2081,7 @@ struct Index {
               Column()
                 .width('100%')
                 .height(1)
-                .backgroundColor('#26FFFFFF')
+                .backgroundColor($r('app.color.glass_border'))
                 .position({ top: 0 })
                 .zIndex(1)
 
@@ -2357,7 +2351,7 @@ struct Index {
           Column()
             .width('100%')
             .height(1)
-            .backgroundColor('#26FFFFFF')
+            .backgroundColor($r('app.color.glass_border'))
             .position({ top: 0 })
             .zIndex(1)
 
