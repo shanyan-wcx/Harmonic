@@ -268,11 +268,11 @@ export default struct editServerBuilder {
           .border({
             width: deviceTypeInfo === '2in1' ? 1 : 0,
             radius: 10,
-            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            color: $r('app.color.glass_shadow')
           })
           .shadow({
             radius: 6,
-            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            color: $r('app.color.glass_shadow')
           })
           .onClick(async () => {
             if (this.editServerIdx === this.serverIdx) {

@@ -53,8 +53,7 @@ export struct coverImage {
       color: $r('app.color.glass_border')
     })
     .shadow({
-      radius: 10,
-      offsetX: 2,
+      radius: 8,
       offsetY: 4,
       color: $r('app.color.glass_shadow')
     })
@@ -102,8 +101,7 @@ export struct artistImage {
       color: $r('app.color.glass_border')
     })
     .shadow({
-      radius: 10,
-      offsetX: 2,
+      radius: 8,
       offsetY: 4,
       color: $r('app.color.glass_shadow')
     })
