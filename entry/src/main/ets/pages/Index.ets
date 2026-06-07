@@ -1609,8 +1609,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 0 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 0 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 0 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 0 ? 1 : 0,
@@ -1650,8 +1650,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 1 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 1 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 1 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 1 ? 1 : 0,
@@ -1691,8 +1691,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 2 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 2 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 2 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 2 ? 1 : 0,
@@ -1732,8 +1732,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 3 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 3 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 3 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 3 ? 1 : 0,
@@ -1773,8 +1773,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 4 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 4 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 4 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 4 ? 1 : 0,
@@ -1814,8 +1814,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 5 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 5 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 5 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 5 ? 1 : 0,
@@ -1861,8 +1861,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 6 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 6 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 6 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 6 ? 1 : 0,
@@ -1897,8 +1897,8 @@ struct Index {
                 .backgroundBlurStyle(this.nowPage === 7 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
                 .shadow({
-                  radius: this.nowPage === 7 ? 6 : 0,
-                  color: $r('app.color.glass_shadow')
+radius: this.nowPage === 7 ? 8 : 0,
+              color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 7 ? 1 : 0,
@@ -2278,8 +2278,7 @@ struct Index {
               color: $r('app.color.glass_border')
             })
             .shadow({
-              radius: 12,
-              offsetY: -6,
+              radius: 16,
               color: $r('app.color.glass_shadow')
             })
             .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
@@ -2316,7 +2315,7 @@ struct Index {
       .sideBarPosition(SideBarPosition.Start)
       .onChange((show: boolean) => {
         if (show === true && this.sidebarType === SideBarContainerType.Overlay) {
-          this.shadowRadius = 24
+          this.shadowRadius = 16
           this.showSidebar = true
         } else {
           this.showSidebar = false
@@ -2537,8 +2536,7 @@ struct Index {
           color: $r('app.color.glass_border')
         })
         .shadow({
-          radius: 12,
-          offsetY: -6,
+          radius: 16,
           color: $r('app.color.glass_shadow')
         })
         .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)
