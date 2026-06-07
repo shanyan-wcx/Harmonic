@@ -73,3 +73,38 @@ Mini bar 高亮线 35%→15% 白；封面/头像阴影去掉 offsetX、radius 10
 ### Next Steps
 
 - None - task complete
+
+
+## Session 3: UI 玻璃质感最终润色
+
+**Date**: 2026-06-07
+**Task**: UI 玻璃质感最终润色
+**Branch**: `main`
+
+### Summary
+
+Light/Dark 按钮卡片对比度修复（引入蓝灰色相差异）；弹窗TextInput/Select背景色统一为默认系统色+textInput色值更新；EditServer Select menuBackgroundColor修复。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1132fab` | (see git log) |
+| `25bfbfe` | (see git log) |
+| `51aede8` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
