@@ -22,7 +22,7 @@ export default struct Playlists {
     builder: createPlaylistBuilder(),
     width: 350,
     height: 310,
-    backgroundColor: $r('app.color.start_window_background')
+    backgroundColor: Color.Transparent
   })
 
   async aboutToAppear() {
@@ -44,15 +44,16 @@ export default struct Playlists {
         .width('90%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.button_selected'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .shadow({
           radius: 6,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_shadow')
         })
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
           radius: 10,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_border')
         })
         .onClick(() => {
           this.createPlaylist.open()

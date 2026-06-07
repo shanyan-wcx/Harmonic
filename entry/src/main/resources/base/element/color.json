@@ -67,6 +67,18 @@
     {
       "name": "textInput",
       "value": "#E2E3E5"
+    },
+    {
+      "name": "glass_bg",
+      "value": "#29FFFFFF"
+    },
+    {
+      "name": "glass_border",
+      "value": "#26FFFFFF"
+    },
+    {
+      "name": "glass_shadow",
+      "value": "#26000000"
     }
   ]
 }

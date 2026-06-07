@@ -139,14 +139,16 @@ export default struct Search_ {
           .layoutWeight(1)
           .borderRadius(10)
           .margin({ left: 20, right: 20 })
+          .backgroundColor($r('app.color.glass_bg'))
+          .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .shadow({
             radius: 6,
-            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            color: $r('app.color.glass_shadow')
           })
           .border({
             width: deviceTypeInfo === '2in1' ? 1 : 0,
             radius: 10,
-            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            color: $r('app.color.glass_border')
           })
           .searchIcon({
             size: 0
@@ -390,19 +392,21 @@ export default struct Search_ {
                                   .maxLines(1)
                                   .textOverflow({ overflow: TextOverflow.Ellipsis })
                                   .wordBreak(WordBreak.BREAK_ALL)
+                                  .textAlign(TextAlign.Center)
                                 Text(album.artist)
                                   .fontSize(14)
                                   .fontColor($r('app.color.font_secondary'))
                                   .maxLines(1)
                                   .textOverflow({ overflow: TextOverflow.Ellipsis })
                                   .wordBreak(WordBreak.BREAK_ALL)
+                                  .textAlign(TextAlign.Center)
                               }
-                              .alignItems(HorizontalAlign.Start)
+                              .alignItems(HorizontalAlign.Center)
                               .width(this.displayWidth > 1400 ? 192 : (this.displayWidth > 1200 ? 172 : 152))
                             }
                             .width('auto')
                             .height('100%')
-                            .alignItems(HorizontalAlign.Start)
+                            .alignItems(HorizontalAlign.Center)
                           }
                           .width('auto')
                           .height('100%')
@@ -412,7 +416,17 @@ export default struct Search_ {
                             right: index === this.searchAlbums.length - 1 ? 10 : 0
                           })
                           .borderRadius(10)
-                          .backgroundColor(Color.Transparent)
+                          .backgroundColor($r('app.color.glass_bg'))
+                          .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+                          .border({
+                            width: deviceTypeInfo === '2in1' ? 1 : 0,
+                            radius: 10,
+                            color: $r('app.color.glass_border')
+                          })
+                          .shadow({
+                            radius: 6,
+                            color: $r('app.color.glass_shadow')
+                          })
                           .onClick(() => {
                             this.album = album
                             this.pageStack.pushPathByName('AlbumDetail', undefined);
@@ -519,7 +533,17 @@ export default struct Search_ {
                             right: index === this.searchArtists.length - 1 ? 10 : 0
                           })
                           .borderRadius(10)
-                          .backgroundColor(Color.Transparent)
+                          .backgroundColor($r('app.color.glass_bg'))
+                          .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+                          .border({
+                            width: deviceTypeInfo === '2in1' ? 1 : 0,
+                            radius: 10,
+                            color: $r('app.color.glass_border')
+                          })
+                          .shadow({
+                            radius: 6,
+                            color: $r('app.color.glass_shadow')
+                          })
                           .onClick(() => {
                             this.artist = artist
                             this.pageStack.pushPathByName('ArtistDetail', undefined);
@@ -714,16 +738,18 @@ export default struct Search_ {
                           .maxLines(1)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                           .wordBreak(WordBreak.BREAK_ALL)
+                          .textAlign(TextAlign.Center)
                         Text(album.artist)
                           .fontSize(14)
                           .fontColor($r('app.color.font_secondary'))
                           .maxLines(1)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                           .wordBreak(WordBreak.BREAK_ALL)
+                          .textAlign(TextAlign.Center)
                       }
                       .width('100%')
                       .height('auto')
-                      .alignItems(HorizontalAlign.Start)
+                      .alignItems(HorizontalAlign.Center)
                     }
                     .width('100%')
                     .height('auto')
@@ -731,7 +757,17 @@ export default struct Search_ {
                     .clip(true)
                     .padding({ left: 10, right: 10, top: 10, bottom: 7 })
                     .margin({ bottom: this.startPlaying === true && index === this.searchAlbums.length - 1 ? 85 : 0 })
-                    .backgroundColor(Color.Transparent)
+                    .backgroundColor($r('app.color.glass_bg'))
+                    .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+                    .border({
+                      width: deviceTypeInfo === '2in1' ? 1 : 0,
+                      radius: 10,
+                      color: $r('app.color.glass_border')
+                    })
+                    .shadow({
+                      radius: 6,
+                      color: $r('app.color.glass_shadow')
+                    })
                     .onClick(() => {
                       this.album = album
                       this.pageStack.pushPathByName('AlbumDetail', undefined);
@@ -815,7 +851,17 @@ export default struct Search_ {
                     .height('auto')
                     .margin({ bottom: this.startPlaying === true && index === this.searchArtists.length - 1 ? 85 : 0 })
                     .borderRadius(10)
-                    .backgroundColor(Color.Transparent)
+                    .backgroundColor($r('app.color.glass_bg'))
+                    .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+                    .border({
+                      width: deviceTypeInfo === '2in1' ? 1 : 0,
+                      radius: 10,
+                      color: $r('app.color.glass_border')
+                    })
+                    .shadow({
+                      radius: 6,
+                      color: $r('app.color.glass_shadow')
+                    })
                     .onClick(() => {
                       this.artist = artist
                       this.pageStack.pushPathByName('ArtistDetail', undefined);
@@ -891,11 +937,16 @@ export default struct Search_ {
         .width(36)
         .height(36)
         .borderRadius(6)
-        .backgroundColor(Color.Transparent)
-        .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+        .border({
+          width: 1,
+          radius: 6,
+          color: $r('app.color.glass_border')
+        })
         .shadow({
           radius: 12,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark'),
+          color: $r('app.color.glass_shadow'),
         })
         .onClick(async () => {
           switch (this.searchTabIndex) {

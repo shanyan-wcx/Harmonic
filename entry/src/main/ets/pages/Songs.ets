@@ -215,11 +215,16 @@ export default struct Songs {
       .width(36)
       .height(36)
       .borderRadius(6)
-      .backgroundColor(Color.Transparent)
-      .backgroundBlurStyle(BlurStyle.COMPONENT_THICK)
+      .backgroundColor($r('app.color.glass_bg'))
+      .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+      .border({
+        width: 1,
+        radius: 6,
+        color: $r('app.color.glass_border')
+      })
       .shadow({
         radius: 12,
-        color: $r('sys.color.ohos_id_shadow_default_lg_dark'),
+        color: $r('app.color.glass_shadow'),
       })
       .onClick(async () => {
         this.songsScroller.scrollEdge(Edge.Top)

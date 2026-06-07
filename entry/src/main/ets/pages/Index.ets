@@ -167,19 +167,19 @@ struct Index {
     builder: selectPlaylistBuilder(),
     width: 350,
     height: 380,
-    backgroundColor: $r('app.color.start_window_background')
+    backgroundColor: Color.Transparent
   })
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
     width: 350,
     height: 380,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
   })
   report: CustomDialogController = new CustomDialogController({
     builder: reportBuilder(),
     width: 350,
     height: 330,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
   })
 
   private getStatusBarHeight() {
@@ -1300,7 +1300,7 @@ struct Index {
       }
       .shadow({
         radius: 6,
-        color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        color: $r('app.color.glass_shadow')
       })
       .padding({
         left: this.displayWidth > 1400 ? 15 : 12,
@@ -1313,12 +1313,13 @@ struct Index {
       .border({
         width: deviceTypeInfo === '2in1' ? 1 : 0,
         radius: 8,
-        color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+        color: $r('app.color.glass_border')
       })
-      .backgroundColor($r('app.color.button_selected'))
+      .backgroundColor($r('app.color.glass_bg'))
+      .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
       .bindContextMenu(this.showLibrary, this.musicFolderMenu, {
         borderRadius: 10,
-        backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
+        backgroundBlurStyle: BlurStyle.COMPONENT_ULTRA_THICK,
         onDisappear: () => {
           const newStates: Record<string, boolean> = {};
           this.musicFolders.forEach(folder => {
@@ -1603,16 +1604,18 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 0 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 0 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 0 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 0 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 0 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 0 ? 1 : 0)
                 .onClick(() => {
@@ -1642,16 +1645,18 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 1 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 1 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 1 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 1 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 1 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 1 ? 1 : 0)
                 .onClick(() => {
@@ -1681,16 +1686,18 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 2 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 2 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 2 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 2 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 2 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 2 ? 1 : 0)
                 .onClick(() => {
@@ -1720,16 +1727,18 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 3 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 3 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 3 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 3 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 3 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 3 ? 1 : 0)
                 .onClick(() => {
@@ -1759,16 +1768,18 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 4 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 4 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 4 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 4 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 4 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 4 ? 1 : 0)
                 .onClick(() => {
@@ -1798,16 +1809,18 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 5 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 5 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 5 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 5 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 5 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 5 ? 1 : 0)
                 .onClick(() => {
@@ -1825,7 +1838,7 @@ struct Index {
               .height('auto')
               .borderRadius(10)
               .clip(false)
-              .backgroundColor($r('app.color.content_background'))
+              .backgroundColor(Color.Transparent)
 
               Blank()
                 .height('100%')
@@ -1843,16 +1856,18 @@ struct Index {
                 .width(50)
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 6 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 6 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 6 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 6 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 6 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 6 ? 1 : 0)
                 .onClick(() => {
@@ -1877,16 +1892,18 @@ struct Index {
                 .width(50)
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 7 ? $r('app.color.button_selected') :
-                  $r('app.color.content_background'))
+                .backgroundColor(this.nowPage === 7 ? $r('app.color.glass_bg') :
+                  Color.Transparent)
+                .backgroundBlurStyle(this.nowPage === 7 ? BlurStyle.COMPONENT_ULTRA_THICK :
+                  BlurStyle.NONE)
                 .shadow({
                   radius: this.nowPage === 7 ? 6 : 0,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_shadow')
                 })
                 .border({
                   width: deviceTypeInfo === '2in1' && this.nowPage === 7 ? 1 : 0,
                   radius: 8,
-                  color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                  color: $r('app.color.glass_border')
                 })
                 .zIndex(this.nowPage === 7 ? 1 : 0)
                 .onClick(() => {
@@ -1904,7 +1921,7 @@ struct Index {
               .height('auto')
               .borderRadius(10)
               .clip(false)
-              .backgroundColor($r('app.color.content_background'))
+              .backgroundColor(Color.Transparent)
               .justifyContent(FlexAlign.SpaceBetween)
             }
             .width('100%')
@@ -1923,14 +1940,20 @@ struct Index {
         }
         .width('100%')
         .height('100%')
-        .backgroundColor($r('app.color.content_background'))
-        .padding({
-          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 16,
-          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 - 2 : this.sideBarWidth * 0.05 + 8
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 0,
+          color: $r('app.color.glass_border')
         })
         .shadow({
           radius: this.shadowRadius,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_shadow')
+        })
+        .padding({
+          top: this.sidebarType === SideBarContainerType.Embed ? this.statusBarHeight + 23 : this.statusBarHeight + 16,
+          bottom: this.sidebarType === SideBarContainerType.Embed ? this.sideBarWidth * 0.05 - 2 : this.sideBarWidth * 0.05 + 8
         })
 
         Stack() {
@@ -2055,10 +2078,18 @@ struct Index {
               .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
 
             Column() {
-              if (this.showPlay === false) {
-                Row() {
+              Column()
+                .width('100%')
+                .height(1)
+                .backgroundColor('#59FFFFFF')
+                .position({ top: 0 })
+                .zIndex(1)
+
+              Column() {
+                if (this.showPlay === false) {
                   Row() {
-                    Column(){
+                    Row() {
+                      Column(){
                       coverImage({
                         url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
                         radius: 5
@@ -2231,22 +2262,25 @@ struct Index {
                 }
                 .opacity(this.showPlay ? 1 : 0)
               }
+              }
             }
             .width(this.displayWidth)
             .height(this.showPlay ? '100%' : 85)
             .justifyContent(FlexAlign.Center)
-            .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_THICK)
+            .backgroundColor(this.showPlay ? Color.Transparent : $r('app.color.glass_bg'))
+            .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_ULTRA_THICK)
             .position({
               bottom: 0,
               right: 0
             })
             .border({
               width: deviceTypeInfo === '2in1' ? 1 : 0,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+              color: $r('app.color.glass_border')
             })
             .shadow({
-              radius: 6,
-              color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+              radius: 12,
+              offsetY: -6,
+              color: $r('app.color.glass_shadow')
             })
             .visibility(this.startPlaying === true ? Visibility.Visible : Visibility.Hidden)
             .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
@@ -2314,10 +2348,18 @@ struct Index {
           .transition(TransitionEffect.translate({ y: 100 }).animation({ curve: Curve.Ease, duration: 600 }))
 
         Column() {
-          if (this.showPlay === false) {
-            Row() {
+          Column()
+            .width('100%')
+            .height(1)
+            .backgroundColor('#59FFFFFF')
+            .position({ top: 0 })
+            .zIndex(1)
+
+          Column() {
+            if (this.showPlay === false) {
               Row() {
-                Column(){
+                Row() {
+                  Column(){
                   coverImage({
                     url: this.baseURL + this.getCoverUrl + this.auth + `&id=${this.nowPlayingSong?.id}&size=${this.coverSize}`,
                     radius: 5
@@ -2488,19 +2530,22 @@ struct Index {
                 })
             }
           }
+          }
         }
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_border')
         })
         .shadow({
-          radius: 6,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          radius: 12,
+          offsetY: -6,
+          color: $r('app.color.glass_shadow')
         })
         .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)
         .height(this.showPlay ? '100%' : 85)
         .justifyContent(FlexAlign.Center)
-        .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_THICK)
+        .backgroundColor(this.showPlay ? Color.Transparent : $r('app.color.glass_bg'))
+        .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_ULTRA_THICK)
         .position({
           bottom: 0,
           right: 0

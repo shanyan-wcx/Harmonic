@@ -1,4 +1,7 @@
 import { Song } from '../../utils/Interface'
+import { deviceInfo } from '@kit.BasicServicesKit';
+
+let deviceTypeInfo: string = deviceInfo.deviceType;
 
 function formatDuration(seconds: number): string {
   const roundedSeconds = Math.floor(seconds);
@@ -210,7 +213,17 @@ export default struct infoBuilder {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('app.color.start_window_background'))
+    .backgroundColor($r('app.color.glass_bg'))
+    .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+    .border({
+      width: deviceTypeInfo === '2in1' ? 1 : 0,
+      radius: 10,
+      color: $r('app.color.glass_border')
+    })
+    .shadow({
+      radius: 6,
+      color: $r('app.color.glass_shadow')
+    })
     .padding({ left: 20, right: 20 })
   }
 }

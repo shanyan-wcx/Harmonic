@@ -33,13 +33,13 @@ export default struct Setting {
     builder: addServerBuilder(),
     width: 350,
     height: 374,
-    backgroundColor: $r('app.color.start_window_background')
+    backgroundColor: Color.Transparent
   })
   editServer: CustomDialogController = new CustomDialogController({
     builder: editServerBuilder(),
     width: 350,
     height: 374,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
     onWillDismiss:(dismissDialogAction: DismissDialogAction)=> {
       dismissDialogAction.dismiss();
       setTimeout(() => {
@@ -147,24 +147,35 @@ export default struct Setting {
           .width('100%')
           .height(50)
           .borderRadius(10)
-          .backgroundColor($r('app.color.button_selected'))
+          .backgroundColor($r('app.color.glass_bg'))
+          .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .margin({ top: 10, bottom: 20 })
           .border({
             width: deviceTypeInfo === '2in1' ? 1 : 0,
             radius: 10,
-            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            color: $r('app.color.glass_border')
           })
           .shadow({
             radius: 6,
-            color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+            color: $r('app.color.glass_shadow')
           })
           .onClick(async () => {
             this.addServer.open()
           })
         }
         .width('100%')
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .borderRadius(10)
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('app.color.glass_border')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('app.color.glass_shadow')
+        })
         .margin({ top: 10 })
         .padding({ left: 20, right: 20 })
 
@@ -219,7 +230,17 @@ export default struct Setting {
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('app.color.glass_border')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('app.color.glass_shadow')
+        })
         .borderRadius(10)
         .padding({ left: 20, right: 20, bottom: 20 })
         .margin({ top: 20 })
@@ -247,7 +268,17 @@ export default struct Setting {
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('app.color.glass_border')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('app.color.glass_shadow')
+        })
         .borderRadius(10)
         .padding({ left: 20, right: 20, bottom: 20 })
         .margin({ top: 20 })
@@ -275,7 +306,17 @@ export default struct Setting {
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
-        .backgroundColor($r('app.color.bar_background'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+        .border({
+          width: deviceTypeInfo === '2in1' ? 1 : 0,
+          radius: 10,
+          color: $r('app.color.glass_border')
+        })
+        .shadow({
+          radius: 6,
+          color: $r('app.color.glass_shadow')
+        })
         .borderRadius(10)
         .padding({ left: 20, right: 20, bottom: 20 })
         .margin({ top: 20 })

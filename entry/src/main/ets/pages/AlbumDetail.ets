@@ -74,7 +74,7 @@ export default struct AlbumDetail {
     builder: reportBuilder(),
     width: 350,
     height: 330,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
   })
 
   getMenus(): NavigationMenuItem[] {

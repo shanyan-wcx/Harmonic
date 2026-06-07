@@ -120,19 +120,19 @@ export default struct Play {
     builder: selectPlaylistBuilder(),
     width: 350,
     height: 380,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
   })
   info: CustomDialogController = new CustomDialogController({
     builder: infoBuilder(),
     width: 350,
     height: 380,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
   })
   report: CustomDialogController = new CustomDialogController({
     builder: reportBuilder(),
     width: 350,
     height: 330,
-    backgroundColor: $r('app.color.start_window_background'),
+    backgroundColor: Color.Transparent,
   })
 
   private getStatusBarHeight() {
@@ -360,15 +360,16 @@ export default struct Play {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.button_selected'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
           radius: 10,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_border')
         })
         .shadow({
           radius: 6,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_shadow')
         })
         .onClick(() => {
           this.sleepTime = this.sleepValue * 60
@@ -387,11 +388,11 @@ export default struct Play {
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
           radius: 10,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_border')
         })
         .shadow({
           radius: 6,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_shadow')
         })
         .onClick(() => {
           this.sleepTime = 0
@@ -419,11 +420,11 @@ export default struct Play {
     .backgroundColor($r('sys.color.warning'))
     .border({
       width: deviceTypeInfo === '2in1' ? 1 : 0,
-      color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+      color: $r('app.color.glass_border')
     })
     .shadow({
       radius: 6,
-      color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+      color: $r('app.color.glass_shadow')
     })
     .onClick(() => {
       if (index === this.nowPlayingIndex) {
@@ -795,15 +796,16 @@ export default struct Play {
               .height(40)
               .padding({ left: 15, right: 15 })
               .borderRadius(10)
-              .backgroundColor($r('sys.color.comp_background_tertiary'))
+              .backgroundColor($r('app.color.glass_bg'))
+              .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
               .border({
                 width: deviceTypeInfo === '2in1' ? 1 : 0,
                 radius: 10,
-                color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                color: $r('app.color.glass_border')
               })
               .shadow({
                 radius: 6,
-                color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+                color: $r('app.color.glass_shadow')
               })
               .visibility(this.sleepTime > 0 ? Visibility.Visible : Visibility.None)
 

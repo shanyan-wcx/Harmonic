@@ -71,7 +71,7 @@ export default struct PlaylistDetail {
     builder: editPlaylistBuilder(),
     width: 350,
     height: 310,
-    backgroundColor: $r('app.color.start_window_background')
+    backgroundColor: Color.Transparent
   })
 
   groupLyrics() {

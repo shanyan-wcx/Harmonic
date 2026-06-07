@@ -187,15 +187,16 @@ export default struct addServerBuilder {
         .width('100%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.button_selected'))
+        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
           radius: 10,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_border')
         })
         .shadow({
           radius: 6,
-          color: $r('sys.color.ohos_id_shadow_default_lg_dark')
+          color: $r('app.color.glass_shadow')
         })
         .onClick(async () => {
           if (this.tmpUrl === "") {
@@ -250,7 +251,17 @@ export default struct addServerBuilder {
       }
       .width('100%')
       .height('100%')
-      .backgroundColor($r('app.color.start_window_background'))
+      .backgroundColor($r('app.color.glass_bg'))
+      .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+      .border({
+        width: deviceTypeInfo === '2in1' ? 1 : 0,
+        radius: 10,
+        color: $r('app.color.glass_border')
+      })
+      .shadow({
+        radius: 6,
+        color: $r('app.color.glass_shadow')
+      })
       .padding({ left: 20, right: 20 })
 
       Column(){
