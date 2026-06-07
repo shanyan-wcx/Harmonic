@@ -94,9 +94,8 @@ export default struct editServerBuilder {
             .optionFontColor($r('app.color.font'))
             .selectedOptionFontColor($r('app.color.font'))
             .selectedOptionBgColor($r('app.color.button_selected'))
-            .menuBackgroundColor($r('app.color.content_background'))
+            .menuBackgroundColor($r('app.color.textInput'))
             .menuBackgroundBlurStyle(BlurStyle.NONE)
-            .backgroundColor($r('app.color.textInput'))
           TextInput({
             placeholder: 'server-url',
             text: this.baseurls.length > this.editServerIdx && this.editServerIdx !== -1 ?
@@ -117,7 +116,6 @@ export default struct editServerBuilder {
             .placeholderFont({
               size: 20
             })
-            .backgroundColor($r('app.color.textInput'))
             .type(InputType.URL)
             .enterKeyType(EnterKeyType.Next)
             .onChange((value) => {

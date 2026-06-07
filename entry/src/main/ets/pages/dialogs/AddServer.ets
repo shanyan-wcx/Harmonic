@@ -93,7 +93,6 @@ export default struct addServerBuilder {
             .selectedOptionFontColor($r('app.color.font'))
             .selectedOptionBgColor($r('app.color.button_selected'))
             .menuBackgroundColor($r('app.color.textInput'))
-            .backgroundColor($r('app.color.textInput'))
           TextInput({
             placeholder: 'server-url'
           })
@@ -112,7 +111,6 @@ export default struct addServerBuilder {
             .placeholderFont({
               size: 20
             })
-            .backgroundColor($r('app.color.textInput'))
             .type(InputType.URL)
             .enterKeyType(EnterKeyType.Next)
             .onChange((value) => {
