@@ -147,7 +147,7 @@ export default struct Setting {
           .width('100%')
           .height(50)
           .borderRadius(10)
-          .backgroundColor($r('app.color.glass_bg_btn'))
+          .backgroundColor($r('app.color.glass_bg_active'))
           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .margin({ top: 10, bottom: 20 })
           .border({
