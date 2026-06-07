@@ -96,6 +96,7 @@ export default struct editServerBuilder {
             .selectedOptionBgColor($r('app.color.button_selected'))
             .menuBackgroundColor($r('app.color.textInput'))
             .menuBackgroundBlurStyle(BlurStyle.NONE)
+            .backgroundColor($r('app.color.textInput'))
           TextInput({
             placeholder: 'server-url',
             text: this.baseurls.length > this.editServerIdx && this.editServerIdx !== -1 ?

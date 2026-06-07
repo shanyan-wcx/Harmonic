@@ -93,6 +93,7 @@ export default struct addServerBuilder {
             .selectedOptionFontColor($r('app.color.font'))
             .selectedOptionBgColor($r('app.color.button_selected'))
             .menuBackgroundColor($r('app.color.textInput'))
+            .backgroundColor($r('app.color.textInput'))
           TextInput({
             placeholder: 'server-url'
           })
