@@ -1559,6 +1559,12 @@ struct Index {
     Stack() {
       SideBarContainer(this.sidebarType) {
         Column() {
+          Column()
+            .width(1)
+            .height('100%')
+            .backgroundColor('#26FFFFFF')
+            .position({ right: 0, top: 0 })
+
           Column(){
             Text(this.verse !== undefined && this.verse.hitokoto !== undefined ? "「" + this.verse.hitokoto.replace(/[。！？!?,，]$/, '') + "」" : "「" + "正在加载中..." + "」")
               .width('87%')
@@ -1604,7 +1610,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 0 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 0 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 0 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1645,7 +1651,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 1 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 1 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 1 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1686,7 +1692,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 2 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 2 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 2 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1727,7 +1733,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 3 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 3 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 3 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1768,7 +1774,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 4 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 4 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 4 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1809,7 +1815,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 5 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 5 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 5 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1856,7 +1862,7 @@ struct Index {
                 .width(50)
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 6 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 6 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 6 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1892,7 +1898,7 @@ struct Index {
                 .width(50)
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 7 ? $r('app.color.glass_bg') :
+                .backgroundColor(this.nowPage === 7 ? $r('app.color.glass_bg_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 7 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -2081,7 +2087,7 @@ struct Index {
               Column()
                 .width('100%')
                 .height(1)
-                .backgroundColor('#59FFFFFF')
+                .backgroundColor('#26FFFFFF')
                 .position({ top: 0 })
                 .zIndex(1)
 
@@ -2316,7 +2322,7 @@ struct Index {
       .sideBarPosition(SideBarPosition.Start)
       .onChange((show: boolean) => {
         if (show === true && this.sidebarType === SideBarContainerType.Overlay) {
-          this.shadowRadius = 100
+          this.shadowRadius = 24
           this.showSidebar = true
         } else {
           this.showSidebar = false
@@ -2351,7 +2357,7 @@ struct Index {
           Column()
             .width('100%')
             .height(1)
-            .backgroundColor('#59FFFFFF')
+            .backgroundColor('#26FFFFFF')
             .position({ top: 0 })
             .zIndex(1)
 

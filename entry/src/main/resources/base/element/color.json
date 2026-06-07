@@ -79,6 +79,10 @@
     {
       "name": "glass_shadow",
       "value": "#26000000"
+    },
+    {
+      "name": "glass_bg_active",
+      "value": "#4DFFFFFF"
     }
   ]
 }
