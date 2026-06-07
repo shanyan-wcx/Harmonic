@@ -139,7 +139,7 @@ export default struct Albums {
       .width(36)
       .height(36)
       .borderRadius(6)
-      .backgroundColor($r('app.color.glass_bg'))
+      .backgroundColor($r('app.color.glass_bg_btn'))
       .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
       .border({
         width: 1,

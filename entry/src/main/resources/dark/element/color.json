@@ -82,7 +82,11 @@
     },
     {
       "name": "glass_bg_active",
-      "value": "#5CFFFFFF"
+      "value": "#66FFFFFF"
+    },
+    {
+      "name": "glass_bg_btn",
+      "value": "#26FFFFFF"
     }
   ]
 }

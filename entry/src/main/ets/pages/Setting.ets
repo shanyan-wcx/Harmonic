@@ -147,7 +147,7 @@ export default struct Setting {
           .width('100%')
           .height(50)
           .borderRadius(10)
-          .backgroundColor($r('app.color.glass_bg'))
+          .backgroundColor($r('app.color.glass_bg_btn'))
           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .margin({ top: 10, bottom: 20 })
           .border({
@@ -164,7 +164,7 @@ export default struct Setting {
           })
         }
         .width('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_bg_btn'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .borderRadius(10)
         .border({
@@ -230,7 +230,7 @@ export default struct Setting {
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_bg_btn'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -268,7 +268,7 @@ export default struct Setting {
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_bg_btn'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -306,7 +306,7 @@ export default struct Setting {
           .justifyContent(FlexAlign.SpaceBetween)
         }
         .width('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_bg_btn'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
