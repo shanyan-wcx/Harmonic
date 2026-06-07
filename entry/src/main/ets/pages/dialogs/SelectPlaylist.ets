@@ -115,7 +115,7 @@ export default struct selectPlaylistBuilder {
           .height(50)
           .borderRadius(10)
           .margin({ top: 10, bottom: 10 })
-          .backgroundColor($r('app.color.glass_bg_btn'))
+          .backgroundColor($r('app.color.glass_bg_active'))
           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .border({
             width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -175,7 +175,7 @@ export default struct selectPlaylistBuilder {
       }
       .width('100%')
       .height('100%')
-      .backgroundColor($r('app.color.glass_bg_btn'))
+      .backgroundColor($r('app.color.glass_bg'))
       .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
       .border({
         width: deviceTypeInfo === '2in1' ? 1 : 0,
