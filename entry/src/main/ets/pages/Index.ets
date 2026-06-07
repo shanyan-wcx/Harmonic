@@ -1315,7 +1315,7 @@ struct Index {
         radius: 8,
         color: $r('app.color.glass_border')
       })
-      .backgroundColor($r('app.color.glass_bg'))
+      .backgroundColor($r('app.color.glass_panel'))
       .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
       .bindContextMenu(this.showLibrary, this.musicFolderMenu, {
         borderRadius: 10,
@@ -1604,7 +1604,7 @@ struct Index {
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 0 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 0 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 0 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1645,7 +1645,7 @@ radius: this.nowPage === 0 ? 8 : 0,
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 1 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 1 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 1 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1686,7 +1686,7 @@ radius: this.nowPage === 1 ? 8 : 0,
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 2 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 2 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 2 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1727,7 +1727,7 @@ radius: this.nowPage === 2 ? 8 : 0,
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 3 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 3 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 3 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1768,7 +1768,7 @@ radius: this.nowPage === 3 ? 8 : 0,
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 4 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 4 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 4 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1809,7 +1809,7 @@ radius: this.nowPage === 4 ? 8 : 0,
                 .width('100%')
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 5 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 5 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 5 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1856,7 +1856,7 @@ radius: this.nowPage === 5 ? 8 : 0,
                 .width(50)
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 6 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 6 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 6 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1892,7 +1892,7 @@ radius: this.nowPage === 6 ? 8 : 0,
                 .width(50)
                 .height(50)
                 .borderRadius(8)
-                .backgroundColor(this.nowPage === 7 ? $r('app.color.glass_bg_active') :
+                .backgroundColor(this.nowPage === 7 ? $r('app.color.glass_active') :
                   Color.Transparent)
                 .backgroundBlurStyle(this.nowPage === 7 ? BlurStyle.COMPONENT_ULTRA_THICK :
                   BlurStyle.NONE)
@@ -1940,7 +1940,7 @@ radius: this.nowPage === 7 ? 8 : 0,
         }
         .width('100%')
         .height('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_panel'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: { right: 1 },
@@ -2267,7 +2267,7 @@ radius: this.nowPage === 7 ? 8 : 0,
             .width(this.displayWidth)
             .height(this.showPlay ? '100%' : 85)
             .justifyContent(FlexAlign.Center)
-            .backgroundColor(this.showPlay ? Color.Transparent : $r('app.color.glass_bg'))
+            .backgroundColor(this.showPlay ? Color.Transparent : $r('app.color.glass_panel'))
             .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_ULTRA_THICK)
             .position({
               bottom: 0,
@@ -2542,7 +2542,7 @@ radius: this.nowPage === 7 ? 8 : 0,
         .width(this.showPlay ? this.displayWidth : this.displayWidth - this.sideBarWidth)
         .height(this.showPlay ? '100%' : 85)
         .justifyContent(FlexAlign.Center)
-        .backgroundColor(this.showPlay ? Color.Transparent : $r('app.color.glass_bg'))
+        .backgroundColor(this.showPlay ? Color.Transparent : $r('app.color.glass_panel'))
         .backgroundBlurStyle(this.showPlay ? BlurStyle.NONE : BlurStyle.COMPONENT_ULTRA_THICK)
         .position({
           bottom: 0,

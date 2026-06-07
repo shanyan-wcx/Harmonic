@@ -69,7 +69,7 @@
       "value": "#E2E3E5"
     },
     {
-      "name": "glass_bg",
+      "name": "glass_panel",
       "value": "#29FFFFFF"
     },
     {
@@ -81,12 +81,12 @@
       "value": "#33000000"
     },
     {
-      "name": "glass_bg_active",
+      "name": "glass_active",
       "value": "#CCFFFFFF"
     },
     {
-      "name": "glass_bg_btn",
-      "value": "#8098AAB8"
+      "name": "glass_card",
+      "value": "#B098AAB8"
     }
   ]
 }

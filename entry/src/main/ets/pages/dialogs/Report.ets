@@ -84,7 +84,7 @@ export default struct reportBuilder {
           .width('47%')
           .height(50)
           .borderRadius(10)
-          .backgroundColor($r('app.color.glass_bg_active'))
+          .backgroundColor($r('app.color.glass_active'))
           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .border({
             width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -149,7 +149,7 @@ export default struct reportBuilder {
       }
       .width('100%')
       .height('100%')
-      .backgroundColor($r('app.color.glass_bg'))
+      .backgroundColor($r('app.color.glass_panel'))
       .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
       .border({
         width: deviceTypeInfo === '2in1' ? 1 : 0,

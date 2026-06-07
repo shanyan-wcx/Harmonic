@@ -44,7 +44,7 @@ export default struct Playlists {
         .width('90%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.glass_bg_btn'))
+        .backgroundColor($r('app.color.glass_card'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .shadow({
           radius: 6,

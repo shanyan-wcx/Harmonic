@@ -360,7 +360,7 @@ export default struct Play {
         .width('47%')
         .height(50)
         .borderRadius(10)
-        .backgroundColor($r('app.color.glass_bg_btn'))
+        .backgroundColor($r('app.color.glass_card'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -796,7 +796,7 @@ export default struct Play {
               .height(40)
               .padding({ left: 15, right: 15 })
               .borderRadius(10)
-              .backgroundColor($r('app.color.glass_bg_btn'))
+              .backgroundColor($r('app.color.glass_card'))
               .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
               .border({
                 width: deviceTypeInfo === '2in1' ? 1 : 0,

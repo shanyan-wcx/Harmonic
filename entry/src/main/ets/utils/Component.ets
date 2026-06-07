@@ -15,7 +15,7 @@ export struct coverImage {
       Column()
         .width('100%')
         .height('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_panel'))
         .borderRadius(this.radius)
 
       Image(this.url)
@@ -70,7 +70,7 @@ export struct artistImage {
       Column()
         .width('100%')
         .height('100%')
-        .backgroundColor($r('app.color.glass_bg'))
+        .backgroundColor($r('app.color.glass_panel'))
         .clipShape(new CircleShape({ width: '100%', height: '100%' }))
 
       Image(this.url)

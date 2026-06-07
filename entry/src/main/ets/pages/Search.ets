@@ -139,7 +139,7 @@ export default struct Search_ {
           .layoutWeight(1)
           .borderRadius(10)
           .margin({ left: 20, right: 20 })
-          .backgroundColor($r('app.color.glass_bg_btn'))
+          .backgroundColor($r('app.color.glass_card'))
           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
           .shadow({
             radius: 6,
@@ -416,7 +416,7 @@ export default struct Search_ {
                             right: index === this.searchAlbums.length - 1 ? 10 : 0
                           })
                           .borderRadius(10)
-                          .backgroundColor($r('app.color.glass_bg_btn'))
+                          .backgroundColor($r('app.color.glass_card'))
                           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
                           .border({
                             width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -533,7 +533,7 @@ export default struct Search_ {
                             right: index === this.searchArtists.length - 1 ? 10 : 0
                           })
                           .borderRadius(10)
-                          .backgroundColor($r('app.color.glass_bg_btn'))
+                          .backgroundColor($r('app.color.glass_card'))
                           .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
                           .border({
                             width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -757,7 +757,7 @@ export default struct Search_ {
                     .clip(true)
                     .padding({ left: 10, right: 10, top: 10, bottom: 7 })
                     .margin({ bottom: this.startPlaying === true && index === this.searchAlbums.length - 1 ? 85 : 0 })
-                    .backgroundColor($r('app.color.glass_bg_btn'))
+                    .backgroundColor($r('app.color.glass_card'))
                     .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
                     .border({
                       width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -851,7 +851,7 @@ export default struct Search_ {
                     .height('auto')
                     .margin({ bottom: this.startPlaying === true && index === this.searchArtists.length - 1 ? 85 : 0 })
                     .borderRadius(10)
-                    .backgroundColor($r('app.color.glass_bg_btn'))
+                    .backgroundColor($r('app.color.glass_card'))
                     .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
                     .border({
                       width: deviceTypeInfo === '2in1' ? 1 : 0,
@@ -937,7 +937,7 @@ export default struct Search_ {
         .width(36)
         .height(36)
         .borderRadius(6)
-        .backgroundColor($r('app.color.glass_bg_btn'))
+        .backgroundColor($r('app.color.glass_card'))
         .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
         .border({
           width: 1,
