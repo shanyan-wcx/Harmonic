@@ -660,6 +660,9 @@ struct Index {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
       }
       this.sliderMoving = false
+      if (this.isTransitioning && this.isPlaying) {
+        this.avPlayer!.play()
+      }
     })
     avPlayer.on('volumeChange', (vol: number) => {
       console.info('设置播放音量' + vol)
