@@ -154,6 +154,7 @@ struct Index {
   @State isTransitioning: boolean = false
   fadeInterval: number | undefined = undefined
   fadeDirection: 'in' | 'out' | null = null
+  continuousTaskInFlight: 'none' | 'start' | 'stop' = 'none'
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -353,7 +354,7 @@ struct Index {
     let volume = direction === 'in' ? 0.01 : 0.99
     this.avPlayer!.setVolume(volume)
     this.fadeInterval = setInterval(() => {
-      const step = this.fadeDirection === 'in' ? 0.05 : -0.05
+      const step = this.fadeDirection === 'in' ? 0.1 : -0.1
       volume += step
       if (volume <= 0.0 || volume >= 1.0) {
         volume = Math.max(0, Math.min(1, volume))
@@ -367,9 +368,10 @@ struct Index {
   }
 
   async startContinuousTask() {
-    if (this.continuousTaskRunning === true) {
+    if (this.continuousTaskRunning === true || this.continuousTaskInFlight === 'start') {
       return
     }
+    this.continuousTaskInFlight = 'start'
     let wantAgentInfo: wantAgent.WantAgentInfo = {
       wants: [
         {
@@ -385,21 +387,26 @@ struct Index {
       backgroundTaskManager.startBackgroundRunning(this.context,
         backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK, wantAgentObj).then(() => {
         this.continuousTaskRunning = true
+        this.continuousTaskInFlight = 'none'
         console.info(`启动长时任务。`);
       }).catch((err: BusinessError) => {
+        this.continuousTaskInFlight = 'none'
         console.error(`启动长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
       });
     });
   }
 
   async stopContinuousTask() {
-    if (this.continuousTaskRunning === false) {
+    if (this.continuousTaskRunning === false || this.continuousTaskInFlight === 'stop') {
       return
     }
+    this.continuousTaskInFlight = 'stop'
     backgroundTaskManager.stopBackgroundRunning(this.context).then(() => {
       this.continuousTaskRunning = false
+      this.continuousTaskInFlight = 'none'
       console.info(`停止长时任务。`);
     }).catch((err: BusinessError) => {
+      this.continuousTaskInFlight = 'none'
       this.continuousTaskRunning = false
       console.error(`停止长时任务出错，代码 ${err.code}，错误信息 ${err.message}`);
     });
