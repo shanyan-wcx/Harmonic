@@ -152,6 +152,7 @@ struct Index {
   @State verse: Verse | undefined = undefined
   @State continuousTaskRunning: boolean = false
   @State isTransitioning: boolean = false
+  fadeInterval: number | undefined = undefined
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -294,8 +295,8 @@ struct Index {
     let playbackStrategy: media.PlaybackStrategy = {
       preferredBufferDuration: 20
     }
-    await this.avPlayer.reset()
     this.isTransitioning = true
+    await this.avPlayer.reset()
     this.sourceOffsetTime = restoredOffsetTime
     console.info(`恢复播放源: ${this.baseURL}/rest/stream&id=${this.nowPlayingSong.id}&timeOffset=${this.sourceOffsetTime}`)
     this.avPlayer.setMediaSource(mediaSource, playbackStrategy)
@@ -345,17 +346,21 @@ struct Index {
   }
 
   fadeIn() {
+    if (this.fadeInterval !== undefined) {
+      clearInterval(this.fadeInterval)
+    }
     let duration = 1000
     let volume = 0;
-    const step = 50; // 调整间隔时间，单位 ms
-    const increment = step / duration; // 每次增加的音量比例
+    const step = 50;
+    const increment = step / duration;
     this.avPlayer!.setVolume(volume);
     this.avPlayer!.play();
-    const interval = setInterval(() => {
+    this.fadeInterval = setInterval(() => {
       volume += increment;
       if (volume >= 1.0) {
         this.avPlayer!.setVolume(1.0);
-        clearInterval(interval);
+        clearInterval(this.fadeInterval!);
+        this.fadeInterval = undefined
       } else {
         this.avPlayer!.setVolume(volume);
       }
@@ -363,16 +368,20 @@ struct Index {
   }
 
   fadeOut() {
+    if (this.fadeInterval !== undefined) {
+      clearInterval(this.fadeInterval)
+    }
     let duration = 1000
-    let volume = 1.0; // 假设当前音量是最大值
-    const step = 50; // 调整间隔时间，单位 ms
-    const decrement = step / duration; // 每次减少的音量比例
-    const interval = setInterval(() => {
+    let volume = 1.0;
+    const step = 50;
+    const decrement = step / duration;
+    this.fadeInterval = setInterval(() => {
       volume -= decrement;
       if (volume <= 0.0) {
         this.avPlayer!.setVolume(0.0);
-        clearInterval(interval);
-        this.avPlayer!.pause(); // 在音量完全降为 0 后暂停
+        clearInterval(this.fadeInterval!);
+        this.fadeInterval = undefined
+        this.avPlayer!.pause();
       } else {
         this.avPlayer!.setVolume(volume);
       }
