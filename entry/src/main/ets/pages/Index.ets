@@ -508,6 +508,7 @@ struct Index {
     }
     let session = this.session
     session.on('play', () => {
+      if (this.isTransitioning) return
       this.isPlaying = true
       if (this.fadeVolume === true) {
         this.fadeIn()
@@ -516,6 +517,7 @@ struct Index {
       }
     });
     session.on('pause', () => {
+      if (this.isTransitioning) return
       this.isPlaying = false
       if (this.fadeVolume === true) {
         this.fadeOut()
@@ -813,6 +815,7 @@ struct Index {
       if (interruptEvent.forceType === audio.InterruptForceType.INTERRUPT_FORCE) {
         switch (interruptEvent.hintType) {
           case audio.InterruptHint.INTERRUPT_HINT_PAUSE:
+            if (this.isTransitioning) break
             this.isPlaying = false
             if (this.fadeVolume === true) {
               this.fadeOut()
@@ -821,6 +824,7 @@ struct Index {
             }
             break;
           case audio.InterruptHint.INTERRUPT_HINT_STOP:
+            if (this.isTransitioning) break
             this.isPlaying = false
             if (this.fadeVolume === true) {
               this.fadeOut()
@@ -834,6 +838,7 @@ struct Index {
       } else if (interruptEvent.forceType === audio.InterruptForceType.INTERRUPT_SHARE) {
         switch (interruptEvent.hintType) {
           case audio.InterruptHint.INTERRUPT_HINT_RESUME:
+            if (this.isTransitioning) break
             this.isPlaying = true
             if (this.fadeVolume === true) {
               this.fadeIn()
@@ -2206,6 +2211,7 @@ radius: this.nowPage === 7 ? 8 : 0,
                       .height(45)
                       .backgroundColor(Color.Transparent)
                       .onClick(() => {
+                        if (this.isTransitioning) return
                         this.isPlaying = !this.isPlaying
                         if (this.isPlaying === false) {
                           if (this.fadeVolume === true) {
@@ -2272,6 +2278,7 @@ radius: this.nowPage === 7 ? 8 : 0,
                   Play()
                     .onKeyEvent((event?: KeyEvent) => {
                       if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+                        if (this.isTransitioning) return
                         this.isPlaying = !this.isPlaying
                         if (this.isPlaying === false) {
                           if (this.fadeVolume === true) {
@@ -2477,6 +2484,7 @@ radius: this.nowPage === 7 ? 8 : 0,
                   .height(45)
                   .backgroundColor(Color.Transparent)
                   .onClick(() => {
+                    if (this.isTransitioning) return
                     this.isPlaying = !this.isPlaying
                     if (this.isPlaying === false) {
                       if (this.fadeVolume === true) {
@@ -2540,24 +2548,25 @@ radius: this.nowPage === 7 ? 8 : 0,
           } else {
             Column() {
               Play()
-                .onKeyEvent((event?: KeyEvent) => {
-                  if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
-                    this.isPlaying = !this.isPlaying
-                    if (this.isPlaying === false) {
-                      if (this.fadeVolume === true) {
-                        this.fadeOut()
+                 .onKeyEvent((event?: KeyEvent) => {
+                    if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+                      if (this.isTransitioning) return
+                      this.isPlaying = !this.isPlaying
+                      if (this.isPlaying === false) {
+                        if (this.fadeVolume === true) {
+                          this.fadeOut()
+                        } else {
+                          this.avPlayer!.pause()
+                        }
                       } else {
-                        this.avPlayer!.pause()
-                      }
-                    } else {
-                      if (this.fadeVolume === true) {
-                        this.fadeIn()
-                      } else {
-                        this.avPlayer!.play()
+                        if (this.fadeVolume === true) {
+                          this.fadeIn()
+                        } else {
+                          this.avPlayer!.play()
+                        }
                       }
                     }
-                  }
-                })
+                  })
             }
           }
           }
@@ -2595,6 +2604,7 @@ radius: this.nowPage === 7 ? 8 : 0,
     .bindContentCover($$this.showStepper, this.stepperBuilder())
     .onKeyEvent((event?: KeyEvent) => {
       if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+        if (this.isTransitioning) return
         this.isPlaying = !this.isPlaying
         if (this.isPlaying === false) {
           if (this.fadeVolume === true) {
