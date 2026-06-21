@@ -355,7 +355,9 @@ struct Index {
     const increment = step / duration;
     this.avPlayer!.setVolume(volume);
     this.avPlayer!.play();
+    const current = this.fadeInterval
     this.fadeInterval = setInterval(() => {
+      if (this.fadeInterval !== current) return
       volume += increment;
       if (volume >= 1.0) {
         this.avPlayer!.setVolume(1.0);
@@ -375,7 +377,9 @@ struct Index {
     let volume = 1.0;
     const step = 50;
     const decrement = step / duration;
+    const current = this.fadeInterval
     this.fadeInterval = setInterval(() => {
+      if (this.fadeInterval !== current) return
       volume -= decrement;
       if (volume <= 0.0) {
         this.avPlayer!.setVolume(0.0);
