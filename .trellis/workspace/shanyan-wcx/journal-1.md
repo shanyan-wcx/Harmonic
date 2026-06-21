@@ -108,3 +108,36 @@ Light/Dark 按钮卡片对比度修复（引入蓝灰色相差异）；弹窗Tex
 ### Next Steps
 
 - None - task complete
+
+
+## Session 4: UI 重设计：HdsNavigation + 沉浸光感（已回滚）
+
+**Date**: 2026-06-21
+**Task**: UI 重设计：HdsNavigation + 沉浸光感（已回滚）
+**Branch**: `main`
+
+### Summary
+
+完整 UI 重设计集成后因布局多设备适配问题和配色需调整全部回滚。涉及：HdsNavigation + GRADIENT_BLUR 标题栏、SymbolGlyph 胶囊侧边栏、浮动 MiniPlayer、geometryTransition 封面过渡、系统语义颜色、毛玻璃弹窗。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9b2209c` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
