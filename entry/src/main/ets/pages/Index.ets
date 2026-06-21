@@ -347,7 +347,7 @@ struct Index {
   }
 
   startFade(direction: 'in' | 'out') {
-    if (this.fadeDirection !== direction && direction === 'in') {
+    if (direction === 'in' && this.fadeDirection !== 'in') {
       this.avPlayer!.play()
     }
     this.fadeDirection = direction
@@ -355,15 +355,18 @@ struct Index {
 
     let volume = direction === 'in' ? 0 : 1.0
     this.avPlayer!.setVolume(volume)
+    const targetDirection = direction
     this.fadeInterval = setInterval(() => {
       const step = this.fadeDirection === 'in' ? 0.05 : -0.05
       volume += step
       if (volume <= 0.0 || volume >= 1.0) {
         volume = Math.max(0, Math.min(1, volume))
         this.avPlayer!.setVolume(volume)
-        if (this.fadeDirection === 'out') this.avPlayer!.pause()
         clearInterval(this.fadeInterval!)
         this.fadeInterval = undefined
+        if (this.fadeDirection === targetDirection && targetDirection === 'out') {
+          this.avPlayer!.pause()
+        }
         this.fadeDirection = null
       } else {
         this.avPlayer!.setVolume(volume)
