@@ -151,6 +151,7 @@ struct Index {
   @Provide sourceOffsetTime: number = 0
   @State verse: Verse | undefined = undefined
   @State continuousTaskRunning: boolean = false
+  @State isTransitioning: boolean = false
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -610,6 +611,7 @@ struct Index {
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('timeUpdate', async (time: number) => {
+      if (this.isTransitioning) return
       this.nowPlayedTime = this.sourceOffsetTime + time / 1000
       if (this.sliderMoving === false) {
         this.sliderValue = this.nowPlayedTime / this.nowPlayingSong?.duration! * 100
@@ -649,6 +651,7 @@ struct Index {
       console.info('设置播放音量' + vol)
     })
     avPlayer.on('error', async (err: BusinessError) => {
+      this.isTransitioning = false
       await avPlayer.reset();
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
       if (err.code === 5400103) {
@@ -734,6 +737,7 @@ struct Index {
           if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
             scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, false);
           }
+          this.isTransitioning = false
           break;
         case 'playing':
           console.info('播放器开始播放。');
@@ -747,10 +751,10 @@ struct Index {
           break;
         case 'completed':
           console.info('播放完毕。');
+          this.isTransitioning = true
           if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
-            await avPlayer.reset();
+            this.avPlayer!.seek(0);
             this.sourceOffsetTime = 0
-            this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong!.id);
           } else {
             await avPlayer.reset();
             this.sourceOffsetTime = 0
