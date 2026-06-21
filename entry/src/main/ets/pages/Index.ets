@@ -359,13 +359,6 @@ struct Index {
         this.avPlayer!.setVolume(volume)
         clearInterval(this.fadeInterval!)
         this.fadeInterval = undefined
-        if (volume <= 0) {
-          this.avPlayer!.pause()
-          this.stopContinuousTask()
-        } else {
-          this.avPlayer!.play()
-          this.startContinuousTask()
-        }
       } else {
         this.avPlayer!.setVolume(volume)
       }
@@ -650,6 +643,13 @@ struct Index {
     })
     avPlayer.on('volumeChange', (vol: number) => {
       console.info('设置播放音量' + vol)
+      if (vol <= 0) {
+        this.avPlayer!.pause()
+        this.stopContinuousTask()
+      } else {
+        this.avPlayer!.play()
+        this.startContinuousTask()
+      }
     })
     avPlayer.on('error', async (err: BusinessError) => {
       this.isTransitioning = false
