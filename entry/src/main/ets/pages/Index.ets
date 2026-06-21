@@ -683,7 +683,9 @@ struct Index {
         case 'idle':
           console.info('播放器重置。');
           this.stopContinuousTask()
-          this.nowPlayedTime = 0
+          if (this.isTransitioning === false) {
+            this.nowPlayedTime = 0
+          }
           this.sourceOffsetTime = 0
           if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
             await scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
@@ -702,6 +704,7 @@ struct Index {
               message: '媒体会话创建失败',
               duration: 500
             });
+            this.isTransitioning = false
             break;
           }
           if (this.session !== undefined) {
@@ -719,6 +722,7 @@ struct Index {
                 message: '媒体会话初始化失败',
                 duration: 500
               });
+              this.isTransitioning = false
               break;
             }
           }
