@@ -654,7 +654,7 @@ struct Index {
       if (vol <= 0) {
         this.avPlayer!.pause()
         this.stopContinuousTask()
-      } else {
+      } else if (this.isPlaying === true) {
         this.avPlayer!.play()
         this.startContinuousTask()
       }
