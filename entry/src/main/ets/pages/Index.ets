@@ -354,7 +354,7 @@ struct Index {
     let volume = direction === 'in' ? 0.01 : 0.99
     this.avPlayer!.setVolume(volume)
     this.fadeInterval = setInterval(() => {
-      const step = this.fadeDirection === 'in' ? 0.1 : -0.1
+      const step = this.fadeDirection === 'in' ? 0.05 : -0.05
       volume += step
       if (volume <= 0.0 || volume >= 1.0) {
         volume = Math.max(0, Math.min(1, volume))
