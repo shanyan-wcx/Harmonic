@@ -520,6 +520,7 @@ struct Index {
       this.avPlayer!.stop()
     });
     session.on('playPrevious', async () => {
+      this.isTransitioning = true
       await this.avPlayer!.reset();
       this.sourceOffsetTime = 0
       if (this.nowPlayingIndex === 0) {
@@ -535,6 +536,7 @@ struct Index {
       this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong.id);
     });
     session.on('playNext', async () => {
+      this.isTransitioning = true
       await this.avPlayer!.reset();
       this.sourceOffsetTime = 0
       if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
@@ -741,6 +743,7 @@ struct Index {
           break;
         case 'playing':
           console.info('播放器开始播放。');
+          this.isTransitioning = false
           await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
           this.startContinuousTask()
           break;
@@ -773,6 +776,7 @@ struct Index {
           break;
         case 'stopped':
           console.info('播放器停止。');
+          this.isTransitioning = false
           this.sleepTime = 0
           this.nowPlayedTime = 0
           await this.releaseSession()
@@ -2141,6 +2145,7 @@ radius: this.nowPage === 7 ? 8 : 0,
                     .height(35)
                     .backgroundColor(Color.Transparent)
                     .onClick(async () => {
+                      this.isTransitioning = true
                       await this.avPlayer!.reset();
                       this.sourceOffsetTime = 0
                       if (this.nowPlayingIndex === 0) {
@@ -2209,6 +2214,7 @@ radius: this.nowPage === 7 ? 8 : 0,
                     .height(35)
                     .backgroundColor(Color.Transparent)
                     .onClick(async () => {
+                      this.isTransitioning = true
                       await this.avPlayer!.reset();
                       this.sourceOffsetTime = 0
                       if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
@@ -2409,23 +2415,24 @@ radius: this.nowPage === 7 ? 8 : 0,
                 .width(35)
                 .height(35)
                 .backgroundColor(Color.Transparent)
-                .onClick(async () => {
-                  await this.avPlayer!.reset();
-                  this.sourceOffsetTime = 0
-                  if (this.nowPlayingIndex === 0) {
-                    this.nowPlayingIndex = this.nowPlayingList.length - 1
-                  } else {
-                    this.nowPlayingIndex -= 1
-                  }
-                  this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                  this.nowPlayingLyrics =
-                    await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
-                  if (this.nowPlayingLyrics !== undefined) {
-                    this.groupLyrics()
-                  }
-                  this.avPlayer!.url =
-                    this.buildStreamUrl(this.nowPlayingSong.id);
-                })
+                  .onClick(async () => {
+                    this.isTransitioning = true
+                    await this.avPlayer!.reset();
+                    this.sourceOffsetTime = 0
+                    if (this.nowPlayingIndex === 0) {
+                      this.nowPlayingIndex = this.nowPlayingList.length - 1
+                    } else {
+                      this.nowPlayingIndex -= 1
+                    }
+                    this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                    this.nowPlayingLyrics =
+                      await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
+                    if (this.nowPlayingLyrics !== undefined) {
+                      this.groupLyrics()
+                    }
+                    this.avPlayer!.url =
+                      this.buildStreamUrl(this.nowPlayingSong.id);
+                  })
 
                 Stack() {
                   Progress({
@@ -2477,23 +2484,24 @@ radius: this.nowPage === 7 ? 8 : 0,
                 .width(35)
                 .height(35)
                 .backgroundColor(Color.Transparent)
-                .onClick(async () => {
-                  await this.avPlayer!.reset();
-                  this.sourceOffsetTime = 0
-                  if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
-                    this.nowPlayingIndex = 0
-                  } else {
-                    this.nowPlayingIndex += 1
-                  }
-                  this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                  this.nowPlayingLyrics =
-                    await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
-                  if (this.nowPlayingLyrics !== undefined) {
-                    this.groupLyrics()
-                  }
-                  this.avPlayer!.url =
-                    this.buildStreamUrl(this.nowPlayingSong.id);
-                })
+                  .onClick(async () => {
+                    this.isTransitioning = true
+                    await this.avPlayer!.reset();
+                    this.sourceOffsetTime = 0
+                    if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
+                      this.nowPlayingIndex = 0
+                    } else {
+                      this.nowPlayingIndex += 1
+                    }
+                    this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
+                    this.nowPlayingLyrics =
+                      await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
+                    if (this.nowPlayingLyrics !== undefined) {
+                      this.groupLyrics()
+                    }
+                    this.avPlayer!.url =
+                      this.buildStreamUrl(this.nowPlayingSong.id);
+                  })
               }
               .width(125)
               .justifyContent(FlexAlign.SpaceBetween)
