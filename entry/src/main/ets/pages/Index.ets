@@ -153,6 +153,7 @@ struct Index {
   @State continuousTaskRunning: boolean = false
   @State isTransitioning: boolean = false
   fadeInterval: number | undefined = undefined
+  fadeGeneration: number = 0
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -346,6 +347,8 @@ struct Index {
   }
 
   fadeIn() {
+    this.fadeGeneration++
+    const gen = this.fadeGeneration
     if (this.fadeInterval !== undefined) {
       clearInterval(this.fadeInterval)
     }
@@ -355,9 +358,8 @@ struct Index {
     const increment = step / duration;
     this.avPlayer!.setVolume(volume);
     this.avPlayer!.play();
-    const current = this.fadeInterval
     this.fadeInterval = setInterval(() => {
-      if (this.fadeInterval !== current) return
+      if (this.fadeGeneration !== gen) return
       volume += increment;
       if (volume >= 1.0) {
         this.avPlayer!.setVolume(1.0);
@@ -370,6 +372,8 @@ struct Index {
   }
 
   fadeOut() {
+    this.fadeGeneration++
+    const gen = this.fadeGeneration
     if (this.fadeInterval !== undefined) {
       clearInterval(this.fadeInterval)
     }
@@ -377,9 +381,8 @@ struct Index {
     let volume = 1.0;
     const step = 50;
     const decrement = step / duration;
-    const current = this.fadeInterval
     this.fadeInterval = setInterval(() => {
-      if (this.fadeInterval !== current) return
+      if (this.fadeGeneration !== gen) return
       volume -= decrement;
       if (volume <= 0.0) {
         this.avPlayer!.setVolume(0.0);
