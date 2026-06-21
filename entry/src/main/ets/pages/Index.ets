@@ -347,6 +347,7 @@ struct Index {
   }
 
   startFade(direction: 'in' | 'out') {
+    this.fadeDirection = direction
     if (this.fadeInterval !== undefined) return
 
     let volume = direction === 'in' ? 0.01 : 0.99
