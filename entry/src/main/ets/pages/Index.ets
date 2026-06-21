@@ -153,7 +153,7 @@ struct Index {
   @State continuousTaskRunning: boolean = false
   @State isTransitioning: boolean = false
   fadeInterval: number | undefined = undefined
-  fadeGeneration: number = 0
+  fadeDirection: 'in' | 'out' | null = null
   @StorageLink('libraryStates') libraryStatesStr: string = '{}'
   @Provide libraryStates: Record<string, boolean> = JSON.parse(this.libraryStatesStr)
   @StorageLink('theme') theme: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
@@ -346,53 +346,29 @@ struct Index {
     return pixelMap
   }
 
-  fadeIn() {
-    this.fadeGeneration++
-    const gen = this.fadeGeneration
-    if (this.fadeInterval !== undefined) {
-      clearInterval(this.fadeInterval)
+  startFade(direction: 'in' | 'out') {
+    if (this.fadeDirection !== direction && direction === 'in') {
+      this.avPlayer!.play()
     }
-    let duration = 1000
-    let volume = 0;
-    const step = 50;
-    const increment = step / duration;
-    this.avPlayer!.setVolume(volume);
-    this.avPlayer!.play();
-    this.fadeInterval = setInterval(() => {
-      if (this.fadeGeneration !== gen) return
-      volume += increment;
-      if (volume >= 1.0) {
-        this.avPlayer!.setVolume(1.0);
-        clearInterval(this.fadeInterval!);
-        this.fadeInterval = undefined
-      } else {
-        this.avPlayer!.setVolume(volume);
-      }
-    }, step);
-  }
+    this.fadeDirection = direction
+    if (this.fadeInterval !== undefined) return
 
-  fadeOut() {
-    this.fadeGeneration++
-    const gen = this.fadeGeneration
-    if (this.fadeInterval !== undefined) {
-      clearInterval(this.fadeInterval)
-    }
-    let duration = 1000
-    let volume = 1.0;
-    const step = 50;
-    const decrement = step / duration;
+    let volume = direction === 'in' ? 0 : 1.0
+    this.avPlayer!.setVolume(volume)
     this.fadeInterval = setInterval(() => {
-      if (this.fadeGeneration !== gen) return
-      volume -= decrement;
-      if (volume <= 0.0) {
-        this.avPlayer!.setVolume(0.0);
-        clearInterval(this.fadeInterval!);
+      const step = this.fadeDirection === 'in' ? 0.05 : -0.05
+      volume += step
+      if (volume <= 0.0 || volume >= 1.0) {
+        volume = Math.max(0, Math.min(1, volume))
+        this.avPlayer!.setVolume(volume)
+        if (this.fadeDirection === 'out') this.avPlayer!.pause()
+        clearInterval(this.fadeInterval!)
         this.fadeInterval = undefined
-        this.avPlayer!.pause();
+        this.fadeDirection = null
       } else {
-        this.avPlayer!.setVolume(volume);
+        this.avPlayer!.setVolume(volume)
       }
-    }, step);
+    }, 50)
   }
 
   async startContinuousTask() {
@@ -518,7 +494,7 @@ struct Index {
       if (this.isTransitioning) return
       this.isPlaying = true
       if (this.fadeVolume === true) {
-        this.fadeIn()
+        this.startFade('in')
       } else {
         this.avPlayer!.play()
       }
@@ -527,7 +503,7 @@ struct Index {
       if (this.isTransitioning) return
       this.isPlaying = false
       if (this.fadeVolume === true) {
-        this.fadeOut()
+        this.startFade('out')
       } else {
         this.avPlayer!.pause()
       }
@@ -641,7 +617,7 @@ struct Index {
         this.sleepTime -= 0.1
         if (this.sleepTime <= 0) {
           if (this.fadeVolume === true) {
-            this.fadeOut()
+            this.startFade('out')
           } else {
             this.avPlayer!.pause()
           }
@@ -757,7 +733,7 @@ struct Index {
           }
           if (this.isPlaying === true) {
             if (this.fadeVolume === true) {
-              this.fadeIn()
+              this.startFade('in')
             } else {
               this.avPlayer!.play()
             }
@@ -828,7 +804,7 @@ struct Index {
             if (this.isTransitioning) break
             this.isPlaying = false
             if (this.fadeVolume === true) {
-              this.fadeOut()
+              this.startFade('out')
             } else {
               this.avPlayer!.pause()
             }
@@ -837,7 +813,7 @@ struct Index {
             if (this.isTransitioning) break
             this.isPlaying = false
             if (this.fadeVolume === true) {
-              this.fadeOut()
+              this.startFade('out')
             } else {
               this.avPlayer!.pause()
             }
@@ -851,7 +827,7 @@ struct Index {
             if (this.isTransitioning) break
             this.isPlaying = true
             if (this.fadeVolume === true) {
-              this.fadeIn()
+              this.startFade('in')
             } else {
               this.avPlayer!.play()
             }
@@ -2225,13 +2201,13 @@ radius: this.nowPage === 7 ? 8 : 0,
                         this.isPlaying = !this.isPlaying
                         if (this.isPlaying === false) {
                           if (this.fadeVolume === true) {
-                            this.fadeOut()
+                            this.startFade('out')
                           } else {
                             this.avPlayer!.pause()
                           }
                         } else {
                           if (this.fadeVolume === true) {
-                            this.fadeIn()
+                            this.startFade('in')
                           } else {
                             this.avPlayer!.play()
                           }
@@ -2292,13 +2268,13 @@ radius: this.nowPage === 7 ? 8 : 0,
                         this.isPlaying = !this.isPlaying
                         if (this.isPlaying === false) {
                           if (this.fadeVolume === true) {
-                            this.fadeOut()
+                            this.startFade('out')
                           } else {
                             this.avPlayer!.pause()
                           }
                         } else {
                           if (this.fadeVolume === true) {
-                            this.fadeIn()
+                            this.startFade('in')
                           } else {
                             this.avPlayer!.play()
                           }
@@ -2498,13 +2474,13 @@ radius: this.nowPage === 7 ? 8 : 0,
                     this.isPlaying = !this.isPlaying
                     if (this.isPlaying === false) {
                       if (this.fadeVolume === true) {
-                        this.fadeOut()
+                        this.startFade('out')
                       } else {
                         this.avPlayer!.pause()
                       }
                     } else {
                       if (this.fadeVolume === true) {
-                        this.fadeIn()
+                        this.startFade('in')
                       } else {
                         this.avPlayer!.play()
                       }
@@ -2564,13 +2540,13 @@ radius: this.nowPage === 7 ? 8 : 0,
                       this.isPlaying = !this.isPlaying
                       if (this.isPlaying === false) {
                         if (this.fadeVolume === true) {
-                          this.fadeOut()
+                          this.startFade('out')
                         } else {
                           this.avPlayer!.pause()
                         }
                       } else {
                         if (this.fadeVolume === true) {
-                          this.fadeIn()
+                          this.startFade('in')
                         } else {
                           this.avPlayer!.play()
                         }
@@ -2618,13 +2594,13 @@ radius: this.nowPage === 7 ? 8 : 0,
         this.isPlaying = !this.isPlaying
         if (this.isPlaying === false) {
           if (this.fadeVolume === true) {
-            this.fadeOut()
+            this.startFade('out')
           } else {
             this.avPlayer!.pause()
           }
         } else {
           if (this.fadeVolume === true) {
-            this.fadeIn()
+            this.startFade('in')
           } else {
             this.avPlayer!.play()
           }
