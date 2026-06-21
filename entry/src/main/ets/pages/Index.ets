@@ -295,6 +295,7 @@ struct Index {
       preferredBufferDuration: 20
     }
     await this.avPlayer.reset()
+    this.isTransitioning = true
     this.sourceOffsetTime = restoredOffsetTime
     console.info(`恢复播放源: ${this.baseURL}/rest/stream&id=${this.nowPlayingSong.id}&timeOffset=${this.sourceOffsetTime}`)
     this.avPlayer.setMediaSource(mediaSource, playbackStrategy)
@@ -688,7 +689,7 @@ struct Index {
           }
           this.sourceOffsetTime = 0
           if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
-            await scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
+            scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
           }
           break;
         case 'initialized':
@@ -765,6 +766,11 @@ struct Index {
           } else {
             await avPlayer.reset();
             this.sourceOffsetTime = 0
+            if (this.nowPlayingList.length === 0) {
+              this.nowPlayingSong = undefined
+              this.isPlaying = false
+              break
+            }
             if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
               this.nowPlayingIndex = 0
             } else {
