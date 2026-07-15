@@ -38,7 +38,7 @@ export default struct Search_ {
   @Consume selectedIndex: number
   @Consume showProgress: boolean
   @Consume avPlayer: media.AVPlayer | undefined
-  @Consume sourceOffsetTime: number
+  @Consume startPlayTime: number
   @Consume pageStack: NavPathStack
   @StorageLink('playMode') playMode: number = 0
   @Consume session: AVSessionManager.AVSession | undefined
@@ -272,7 +272,7 @@ export default struct Search_ {
                           .onClick(async () => {
                             this.startPlaying = true
                             await this.avPlayer!.reset()
-                            this.sourceOffsetTime = 0
+                            this.startPlayTime = 0
                             this.isPlaying = true
                             this.nowPlayingSong = song
                             this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
@@ -640,7 +640,7 @@ export default struct Search_ {
                   .onClick(async () => {
                     this.startPlaying = true
                     await this.avPlayer!.reset()
-                    this.sourceOffsetTime = 0
+                    this.startPlayTime = 0
                     this.isPlaying = true
                     this.nowPlayingSong = song
                     this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)

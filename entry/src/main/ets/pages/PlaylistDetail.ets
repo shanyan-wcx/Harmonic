@@ -59,7 +59,7 @@ export default struct PlaylistDetail {
   @Consume showPlay: boolean
   @Consume closePlay: boolean
   @Consume avPlayer: media.AVPlayer | undefined
-  @Consume sourceOffsetTime: number
+  @Consume startPlayTime: number
   @Consume session: AVSessionManager.AVSession | undefined
   @StorageLink('baseURL') baseURL: string = ''
   @StorageLink('username') username: string = ''
@@ -251,7 +251,7 @@ export default struct PlaylistDetail {
             .onClick(async () => {
               this.startPlaying = true
               await this.avPlayer!.reset()
-              this.sourceOffsetTime = 0
+              this.startPlayTime = 0
               this.isPlaying = true
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)

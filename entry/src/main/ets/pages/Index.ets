@@ -147,11 +147,12 @@ struct Index {
   @Provide @Watch('updatePage') needUpdate: boolean = false
   @State coverSize: number = 64
   @State themeIcon: Resource = $r('app.media.auto')
-  @State startPlayTime: number = 0
-  @Provide sourceOffsetTime: number = 0
+  @Provide startPlayTime: number = 0
+  seekTarget: number = 0
+
   @State verse: Verse | undefined = undefined
   @State continuousTaskRunning: boolean = false
-  @State isTransitioning: boolean = false
+
   fadeInterval: number | undefined = undefined
   fadeDirection: 'in' | 'out' | null = null
   continuousTaskInFlight: 'none' | 'start' | 'stop' = 'none'
@@ -230,12 +231,8 @@ struct Index {
     this.auth = this.buildAuth(this.username, this.password, this.useSalt)
   }
 
-  buildStreamUrl(songId: string, timeOffset: number = 0): string {
-    let streamUrl = this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(songId)}&format=raw`
-    if (timeOffset > 0) {
-      streamUrl += `&timeOffset=${Math.floor(timeOffset)}`
-    }
-    return streamUrl
+  buildStreamUrl(songId: string): string {
+    return this.baseURL + '/rest/stream' + this.auth + `&id=${encodeURIComponent(songId)}&format=raw`
   }
 
   restoreServer(saveState: SaveState): boolean {
@@ -285,23 +282,12 @@ struct Index {
     if (this.avPlayer === undefined || this.nowPlayingSong === undefined || this.baseURL.length === 0) {
       return
     }
-    let restoredOffsetTime = Math.max(0, Math.floor(this.startPlayTime))
-    let streamUrl = this.buildStreamUrl(this.nowPlayingSong.id, restoredOffsetTime)
-    this.nowPlayedTime = restoredOffsetTime
+    let streamUrl = this.buildStreamUrl(this.nowPlayingSong.id)
+    this.nowPlayedTime = this.startPlayTime
     this.sliderValue = this.nowPlayedTime / this.nowPlayingSong.duration * 100
-    this.startPlayTime = 0
-    let headers: Record<string, string> = {
-      'User-Agent': 'Harmonic'
-    }
-    let mediaSource: media.MediaSource = media.createMediaSourceWithUrl(streamUrl, headers)
-    let playbackStrategy: media.PlaybackStrategy = {
-      preferredBufferDuration: 20
-    }
-    this.isTransitioning = true
     await this.avPlayer.reset()
-    this.sourceOffsetTime = restoredOffsetTime
-    console.info(`恢复播放源: ${this.baseURL}/rest/stream&id=${this.nowPlayingSong.id}&timeOffset=${this.sourceOffsetTime}`)
-    this.avPlayer.setMediaSource(mediaSource, playbackStrategy)
+    console.info(`恢复播放源: ${streamUrl}`)
+    this.avPlayer.url = streamUrl
   }
 
   groupLyrics() {
@@ -470,7 +456,7 @@ struct Index {
     return true
   }
 
-  async setPlaybackState(state: number) {
+  async setPlaybackState(state: number, syncOnly: boolean = false) {
     if (this.session === undefined) {
       return
     }
@@ -486,7 +472,7 @@ struct Index {
     this.session!.setAVPlaybackState(playbackState, (err) => {
       if (err) {
         console.error(`设置Session状态失败，Code: ${err.code}, message: ${err.message}`);
-      } else {
+      } else if (!syncOnly) {
         console.info("设置Session状态", state);
       }
     });
@@ -498,7 +484,6 @@ struct Index {
     }
     let session = this.session
     session.on('play', () => {
-      if (this.isTransitioning) return
       this.isPlaying = true
       if (this.fadeVolume === true) {
         this.startFade('in')
@@ -507,7 +492,6 @@ struct Index {
       }
     });
     session.on('pause', () => {
-      if (this.isTransitioning) return
       this.isPlaying = false
       if (this.fadeVolume === true) {
         this.startFade('out')
@@ -522,9 +506,8 @@ struct Index {
       this.avPlayer!.stop()
     });
     session.on('playPrevious', async () => {
-      this.isTransitioning = true
       await this.avPlayer!.reset();
-      this.sourceOffsetTime = 0
+      this.startPlayTime = 0
       if (this.nowPlayingIndex === 0) {
         this.nowPlayingIndex = this.nowPlayingList.length - 1
       } else {
@@ -538,9 +521,8 @@ struct Index {
       this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong.id);
     });
     session.on('playNext', async () => {
-      this.isTransitioning = true
       await this.avPlayer!.reset();
-      this.sourceOffsetTime = 0
+      this.startPlayTime = 0
       if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
         this.nowPlayingIndex = 0
       } else {
@@ -555,7 +537,7 @@ struct Index {
     });
     session.on('seek', async (time: number) => {
       await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_BUFFERING)
-      this.avPlayer!.seek(Math.max(0, time - this.sourceOffsetTime * 1000))
+      this.avPlayer!.seek(Math.max(0, time - this.startPlayTime * 1000))
     });
     session.on('setLoopMode', async (mode: AVSessionManager.LoopMode) => {
       if (mode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
@@ -615,8 +597,7 @@ struct Index {
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('timeUpdate', async (time: number) => {
-      if (this.isTransitioning) return
-      this.nowPlayedTime = this.sourceOffsetTime + time / 1000
+      this.nowPlayedTime = (this.seekTarget !== 0 ? this.seekTarget : this.startPlayTime) + time / 1000
       if (this.sliderMoving === false) {
         this.sliderValue = this.nowPlayedTime / this.nowPlayingSong?.duration! * 100
       }
@@ -640,19 +621,20 @@ struct Index {
           }
         }
       }
+      await this.setPlaybackState(this.isPlaying === true
+        ? AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY
+        : AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE, true)
     })
     avPlayer.on('seekDone', async (seekDoneTime: number) => {
       console.info(`播放器跳转成功，当前时间为 ${seekDoneTime}`);
-      this.nowPlayedTime = this.sourceOffsetTime + seekDoneTime / 1000
+      this.nowPlayedTime = this.startPlayTime + seekDoneTime / 1000
       if (this.isPlaying === true) {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
       } else {
         await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PAUSE)
       }
       this.sliderMoving = false
-      if (this.isTransitioning && this.isPlaying) {
-        this.avPlayer!.play()
-      }
+      this.seekTarget = 0
     })
     avPlayer.on('volumeChange', (vol: number) => {
       console.info('设置播放音量' + vol)
@@ -665,7 +647,6 @@ struct Index {
       }
     })
     avPlayer.on('error', async (err: BusinessError) => {
-      this.isTransitioning = false
       await avPlayer.reset();
       console.error(`播放器出现错误，code is ${err.code}, message is ${err.message}`);
       if (err.code === 5400103) {
@@ -695,10 +676,6 @@ struct Index {
         case 'idle':
           console.info('播放器重置。');
           this.stopContinuousTask()
-          if (this.isTransitioning === false) {
-            this.nowPlayedTime = 0
-          }
-          this.sourceOffsetTime = 0
           if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
             scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
           }
@@ -716,7 +693,6 @@ struct Index {
               message: '媒体会话创建失败',
               duration: 500
             });
-            this.isTransitioning = false
             break;
           }
           if (this.session !== undefined) {
@@ -734,16 +710,14 @@ struct Index {
                 message: '媒体会话初始化失败',
                 duration: 500
               });
-              this.isTransitioning = false
               break;
             }
           }
           if (this.audioNormalization === true && this.nowPlayingSong!.replayGain?.trackGain !== undefined) {
             this.avPlayer!.setVolume((100 + this.nowPlayingSong!.replayGain!.trackGain) / 100)
           }
-          if (this.startPlayTime !== 0) {
-            this.avPlayer!.seek(this.startPlayTime * 1000)
-            this.startPlayTime = 0
+          if (this.startPlayTime === 0) {
+            this.nowPlayedTime = 0
           }
           if (this.isPlaying === true) {
             if (this.fadeVolume === true) {
@@ -755,13 +729,16 @@ struct Index {
           if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
             scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, false);
           }
-          this.isTransitioning = false
           break;
         case 'playing':
           console.info('播放器开始播放。');
-          this.isTransitioning = false
           await this.setPlaybackState(AVSessionManager.PlaybackState.PLAYBACK_STATE_PLAY)
           this.startContinuousTask()
+          if (this.startPlayTime !== 0) {
+            this.seekTarget = this.startPlayTime
+            this.startPlayTime = 0
+            this.avPlayer!.seek(this.seekTarget * 1000)
+          }
           break;
         case 'paused':
           console.info('播放器暂停。');
@@ -770,13 +747,11 @@ struct Index {
           break;
         case 'completed':
           console.info('播放完毕。');
-          this.isTransitioning = true
           if (this.playMode === AVSessionManager.LoopMode.LOOP_MODE_SINGLE) {
             this.avPlayer!.seek(0);
-            this.sourceOffsetTime = 0
+            this.startPlayTime = 0
           } else {
             await avPlayer.reset();
-            this.sourceOffsetTime = 0
             if (this.nowPlayingList.length === 0) {
               this.nowPlayingSong = undefined
               this.isPlaying = false
@@ -797,7 +772,6 @@ struct Index {
           break;
         case 'stopped':
           console.info('播放器停止。');
-          this.isTransitioning = false
           this.sleepTime = 0
           this.nowPlayedTime = 0
           await this.releaseSession()
@@ -815,7 +789,6 @@ struct Index {
       if (interruptEvent.forceType === audio.InterruptForceType.INTERRUPT_FORCE) {
         switch (interruptEvent.hintType) {
           case audio.InterruptHint.INTERRUPT_HINT_PAUSE:
-            if (this.isTransitioning) break
             this.isPlaying = false
             if (this.fadeVolume === true) {
               this.startFade('out')
@@ -824,7 +797,6 @@ struct Index {
             }
             break;
           case audio.InterruptHint.INTERRUPT_HINT_STOP:
-            if (this.isTransitioning) break
             this.isPlaying = false
             if (this.fadeVolume === true) {
               this.startFade('out')
@@ -838,7 +810,6 @@ struct Index {
       } else if (interruptEvent.forceType === audio.InterruptForceType.INTERRUPT_SHARE) {
         switch (interruptEvent.hintType) {
           case audio.InterruptHint.INTERRUPT_HINT_RESUME:
-            if (this.isTransitioning) break
             this.isPlaying = true
             if (this.fadeVolume === true) {
               this.startFade('in')
@@ -2169,9 +2140,8 @@ radius: this.nowPage === 7 ? 8 : 0,
                     .height(35)
                     .backgroundColor(Color.Transparent)
                     .onClick(async () => {
-                      this.isTransitioning = true
                       await this.avPlayer!.reset();
-                      this.sourceOffsetTime = 0
+                      this.startPlayTime = 0
                       if (this.nowPlayingIndex === 0) {
                         this.nowPlayingIndex = this.nowPlayingList.length - 1
                       } else {
@@ -2211,7 +2181,6 @@ radius: this.nowPage === 7 ? 8 : 0,
                       .height(45)
                       .backgroundColor(Color.Transparent)
                       .onClick(() => {
-                        if (this.isTransitioning) return
                         this.isPlaying = !this.isPlaying
                         if (this.isPlaying === false) {
                           if (this.fadeVolume === true) {
@@ -2239,9 +2208,8 @@ radius: this.nowPage === 7 ? 8 : 0,
                     .height(35)
                     .backgroundColor(Color.Transparent)
                     .onClick(async () => {
-                      this.isTransitioning = true
                       await this.avPlayer!.reset();
-                      this.sourceOffsetTime = 0
+                      this.startPlayTime = 0
                       if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                         this.nowPlayingIndex = 0
                       } else {
@@ -2278,7 +2246,6 @@ radius: this.nowPage === 7 ? 8 : 0,
                   Play()
                     .onKeyEvent((event?: KeyEvent) => {
                       if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
-                        if (this.isTransitioning) return
                         this.isPlaying = !this.isPlaying
                         if (this.isPlaying === false) {
                           if (this.fadeVolume === true) {
@@ -2442,22 +2409,19 @@ radius: this.nowPage === 7 ? 8 : 0,
                 .height(35)
                 .backgroundColor(Color.Transparent)
                   .onClick(async () => {
-                    this.isTransitioning = true
                     await this.avPlayer!.reset();
-                    this.sourceOffsetTime = 0
+                    this.startPlayTime = 0
                     if (this.nowPlayingIndex === 0) {
                       this.nowPlayingIndex = this.nowPlayingList.length - 1
                     } else {
                       this.nowPlayingIndex -= 1
                     }
                     this.nowPlayingSong = this.nowPlayingList[this.nowPlayingIndex]
-                    this.nowPlayingLyrics =
-                      await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
+                    this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, this.nowPlayingSong.id)
                     if (this.nowPlayingLyrics !== undefined) {
                       this.groupLyrics()
                     }
-                    this.avPlayer!.url =
-                      this.buildStreamUrl(this.nowPlayingSong.id);
+                    this.avPlayer!.url = this.buildStreamUrl(this.nowPlayingSong.id);
                   })
 
                 Stack() {
@@ -2484,7 +2448,6 @@ radius: this.nowPage === 7 ? 8 : 0,
                   .height(45)
                   .backgroundColor(Color.Transparent)
                   .onClick(() => {
-                    if (this.isTransitioning) return
                     this.isPlaying = !this.isPlaying
                     if (this.isPlaying === false) {
                       if (this.fadeVolume === true) {
@@ -2512,9 +2475,8 @@ radius: this.nowPage === 7 ? 8 : 0,
                 .height(35)
                 .backgroundColor(Color.Transparent)
                   .onClick(async () => {
-                    this.isTransitioning = true
                     await this.avPlayer!.reset();
-                    this.sourceOffsetTime = 0
+                    this.startPlayTime = 0
                     if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                       this.nowPlayingIndex = 0
                     } else {
@@ -2548,10 +2510,9 @@ radius: this.nowPage === 7 ? 8 : 0,
           } else {
             Column() {
               Play()
-                 .onKeyEvent((event?: KeyEvent) => {
-                    if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
-                      if (this.isTransitioning) return
-                      this.isPlaying = !this.isPlaying
+                  .onKeyEvent((event?: KeyEvent) => {
+                     if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
+                       this.isPlaying = !this.isPlaying
                       if (this.isPlaying === false) {
                         if (this.fadeVolume === true) {
                           this.startFade('out')
@@ -2604,7 +2565,6 @@ radius: this.nowPage === 7 ? 8 : 0,
     .bindContentCover($$this.showStepper, this.stepperBuilder())
     .onKeyEvent((event?: KeyEvent) => {
       if (event && event.keyCode === KeyCode.KEYCODE_SPACE && event.type === KeyType.Up) {
-        if (this.isTransitioning) return
         this.isPlaying = !this.isPlaying
         if (this.isPlaying === false) {
           if (this.fadeVolume === true) {

@@ -79,7 +79,7 @@ export default struct Play {
   @Consume @Watch('scrollLyrics') lyricsIndex: number
   @Consume @Watch('closePlayPage') closePlay: boolean
   @Consume nowPlayedTime: number
-  @Consume sourceOffsetTime: number
+  @Consume startPlayTime: number
   @Consume isPlaying: boolean
   @Consume startPlaying: boolean
   @Consume showPlay: boolean
@@ -491,7 +491,7 @@ export default struct Play {
             .onClick(async () => {
               this.showList = false
               await this.avPlayer!.reset()
-              this.sourceOffsetTime = 0
+              this.startPlayTime = 0
               this.nowPlayingSong = song
               this.nowPlayingLyrics = await getLyrics(this.baseURL, this.auth, song.id)
               if (this.nowPlayingLyrics !== undefined) {
@@ -1063,7 +1063,7 @@ export default struct Play {
                     }
                     if (mode === SliderChangeMode.End && this.sliderMoving === true) {
                       this.avPlayer!.seek(Math.max(0, value * this.nowPlayingSong!.duration * 10 -
-                        this.sourceOffsetTime * 1000))
+                        this.startPlayTime * 1000))
                       this.sliderMoving = false
                     }
                   })
@@ -1083,7 +1083,7 @@ export default struct Play {
                 .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
-                  this.sourceOffsetTime = 0
+                  this.startPlayTime = 0
                   if (this.nowPlayingIndex === 0) {
                     this.nowPlayingIndex = this.nowPlayingList.length - 1
                   } else {
@@ -1137,7 +1137,7 @@ export default struct Play {
                 .backgroundColor(Color.Transparent)
                 .onClick(async () => {
                   await this.avPlayer!.reset();
-                  this.sourceOffsetTime = 0
+                  this.startPlayTime = 0
                   if (this.nowPlayingIndex === this.nowPlayingList.length - 1) {
                     this.nowPlayingIndex = 0
                   } else {
