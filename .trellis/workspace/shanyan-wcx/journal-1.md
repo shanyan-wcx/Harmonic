@@ -141,3 +141,37 @@ Light/Dark 按钮卡片对比度修复（引入蓝灰色相差异）；弹窗Tex
 ### Next Steps
 
 - None - task complete
+
+
+## Session 5: 修复 API 23 播放进度同步 bug
+
+**Date**: 2026-07-15
+**Task**: 修复 API 23 播放进度同步 bug
+**Branch**: `main`
+
+### Summary
+
+修复 API 23 升级后的播放进度问题：1) AVSession 进度条与应用不一致 → timeUpdate 中加 setPlaybackState(syncOnly=true)。2) 切歌进度闪现下一首歌末尾 → 删除 isTransitioning、精简状态机仿 Harmshelf。3) 启动恢复播放 IO Error → 全长流 url = ... 代替 setMediaSource + timeOffset，seek 移到 'playing' 中延迟执行。4) 恢复播放进度归零 → pendingRestore 标记 + 'prepared' 条件复位。5) sourceOffsetTime 合并到 startPlayTime，跨 6 个文件的 Provide/Consume 链更新。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `523ec01` | (see git log) |
+| `b838782` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
