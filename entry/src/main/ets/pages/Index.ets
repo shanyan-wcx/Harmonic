@@ -149,6 +149,7 @@ struct Index {
   @State themeIcon: Resource = $r('app.media.auto')
   @Provide startPlayTime: number = 0
   seekTarget: number = 0
+  pendingRestore: boolean = false
 
   @State verse: Verse | undefined = undefined
   @State continuousTaskRunning: boolean = false
@@ -285,6 +286,7 @@ struct Index {
     let streamUrl = this.buildStreamUrl(this.nowPlayingSong.id)
     this.nowPlayedTime = this.startPlayTime
     this.sliderValue = this.nowPlayedTime / this.nowPlayingSong.duration * 100
+    this.pendingRestore = true
     await this.avPlayer.reset()
     console.info(`恢复播放源: ${streamUrl}`)
     this.avPlayer.url = streamUrl
@@ -676,6 +678,11 @@ struct Index {
         case 'idle':
           console.info('播放器重置。');
           this.stopContinuousTask()
+          if (this.pendingRestore === false) {
+            this.nowPlayedTime = 0
+            this.sliderValue = 0
+          }
+          this.pendingRestore = false
           if (this.nowPlayingSong !== undefined && this.baseURL.length > 0) {
             scrobble(this.baseURL, this.auth, this.nowPlayingSong.id, true);
           }
