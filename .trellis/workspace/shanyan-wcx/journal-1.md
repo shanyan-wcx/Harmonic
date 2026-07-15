@@ -175,3 +175,38 @@ Light/Dark 按钮卡片对比度修复（引入蓝灰色相差异）；弹窗Tex
 ### Next Steps
 
 - None - task complete
+
+
+## Session 6: 修复 seek 期间 timeUpdate 位置跳跃 + 收尾
+
+**Date**: 2026-07-15
+**Task**: 修复 seek 期间 timeUpdate 位置跳跃 + 收尾
+**Branch**: `main`
+
+### Summary
+
+修复恢复播放暂停后点播放时进度条闪到结尾的 bug：timeUpdate 中 seekTarget 期间不加 time/1000，因为 time 初始值可能很大。所有 bug 修复完毕。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `523ec01` | (see git log) |
+| `b838782` | (see git log) |
+| `13b30ea` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
