@@ -599,7 +599,7 @@ struct Index {
 
   setAVPlayerCallback(avPlayer: media.AVPlayer) {
     avPlayer.on('timeUpdate', async (time: number) => {
-      this.nowPlayedTime = (this.seekTarget !== 0 ? this.seekTarget : this.startPlayTime) + time / 1000
+      this.nowPlayedTime = this.seekTarget !== 0 ? this.seekTarget : this.startPlayTime + time / 1000
       if (this.sliderMoving === false) {
         this.sliderValue = this.nowPlayedTime / this.nowPlayingSong?.duration! * 100
       }
